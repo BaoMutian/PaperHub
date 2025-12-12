@@ -12,6 +12,7 @@ import asyncio
 import logging
 from typing import List, Dict, Any
 from neo4j import AsyncGraphDatabase
+import gc
 
 # Add parent directory to path
 import sys
@@ -29,6 +30,28 @@ logger = logging.getLogger(__name__)
 
 settings = get_settings()
 
+# 文本截断长度（字符数），避免过长文本导致 OOM
+MAX_TEXT_LENGTH = 2000
+
+
+def truncate_text(text: str, max_length: int = MAX_TEXT_LENGTH) -> str:
+    """截断过长的文本"""
+    if len(text) > max_length:
+        return text[:max_length] + "..."
+    return text
+
+
+def clear_gpu_memory():
+    """清理 GPU 显存"""
+    gc.collect()
+    try:
+        import torch
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            torch.cuda.synchronize()
+    except ImportError:
+        pass
+
 
 class EmbeddingCreator:
     def __init__(self):
@@ -37,8 +60,11 @@ class EmbeddingCreator:
             auth=(settings.neo4j_user, settings.neo4j_password)
         )
         self.embedding_service = get_embedding_service()
-        self.batch_size = 50
+        # 减小 batch_size 避免 OOM（Qwen3-Embedding 显存占用较大）
+        self.batch_size = 8
         self.dimension = settings.embedding_dimension
+        # 每处理多少条清理一次显存
+        self.gc_interval = 500
     
     async def close(self):
         await self.driver.close()
@@ -100,8 +126,8 @@ class EmbeddingCreator:
         if not papers:
             return 0
         
-        # Generate embeddings
-        texts = [p["abstract"] for p in papers]
+        # 截断过长文本，避免 OOM
+        texts = [truncate_text(p["abstract"]) for p in papers]
         embeddings = self.embedding_service.embed_texts(texts, batch_size=self.batch_size)
         
         # Store in Neo4j
@@ -131,8 +157,8 @@ class EmbeddingCreator:
         if not valid_reviews:
             return 0
         
-        # Generate embeddings
-        texts = [r["content"] for r in valid_reviews]
+        # 截断过长文本，避免 OOM
+        texts = [truncate_text(r["content"]) for r in valid_reviews]
         embeddings = self.embedding_service.embed_texts(texts, batch_size=self.batch_size)
         
         # Store in Neo4j
@@ -155,31 +181,46 @@ class EmbeddingCreator:
     async def run(self):
         """Main embedding creation process"""
         logger.info("Starting embedding creation...")
+        logger.info(f"Config: batch_size={self.batch_size}, max_text_length={MAX_TEXT_LENGTH}")
         
         # Create vector indexes
         await self.create_vector_indexes()
         
         # Process papers
         total_papers = 0
+        batch_fetch_size = 100  # 每次从数据库获取的数量（减小以降低内存压力）
         while True:
-            papers = await self.get_papers_without_embedding(limit=500)
+            papers = await self.get_papers_without_embedding(limit=batch_fetch_size)
             if not papers:
                 break
             
             count = await self.update_paper_embeddings(papers)
             total_papers += count
             logger.info(f"Processed {total_papers} paper embeddings...")
+            
+            # 定期清理 GPU 显存
+            if total_papers % self.gc_interval == 0:
+                clear_gpu_memory()
+                logger.info("Cleared GPU memory")
+        
+        # 清理显存后处理 reviews
+        clear_gpu_memory()
         
         # Process reviews
         total_reviews = 0
         while True:
-            reviews = await self.get_reviews_without_embedding(limit=500)
+            reviews = await self.get_reviews_without_embedding(limit=batch_fetch_size)
             if not reviews:
                 break
             
             count = await self.update_review_embeddings(reviews)
             total_reviews += count
             logger.info(f"Processed {total_reviews} review embeddings...")
+            
+            # 定期清理 GPU 显存
+            if total_reviews % self.gc_interval == 0:
+                clear_gpu_memory()
+                logger.info("Cleared GPU memory")
         
         logger.info(f"\n{'='*50}")
         logger.info("Embedding Creation Complete!")

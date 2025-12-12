@@ -16,8 +16,10 @@ logger = logging.getLogger(__name__)
 async def list_papers(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
-    conference: Optional[str] = Query(None, description="Filter by conference: ICLR, ICML, NeurIPS"),
-    status: Optional[str] = Query(None, description="Filter by status: poster, spotlight, oral, rejected, withdrawn"),
+    conference: Optional[str] = Query(
+        None, description="Filter by conference: ICLR, ICML, NeurIPS"),
+    status: Optional[str] = Query(
+        None, description="Filter by status: poster, spotlight, oral, rejected, withdrawn"),
     keyword: Optional[str] = Query(None, description="Filter by keyword"),
     neo4j: Neo4jService = Depends(get_neo4j_service)
 ):
@@ -30,7 +32,7 @@ async def list_papers(
         status=status,
         keyword=keyword
     )
-    
+
     return PaperList(
         papers=[Paper(**p) for p in papers],
         total=total,
@@ -57,7 +59,7 @@ async def search_papers(
         )
     else:
         results = await neo4j.search_papers_text(q, limit=limit)
-    
+
     return {
         "query": q,
         "semantic": semantic,
@@ -73,28 +75,29 @@ async def get_statistics(
     """Get overall statistics"""
     stats = await neo4j.get_statistics()
     conference_stats = await neo4j.get_conference_stats()
-    
+
     # Aggregate conference stats
     conf_summary = {}
     for item in conference_stats:
         conf = item["conference"]
         if conf not in conf_summary:
             conf_summary[conf] = {"total": 0, "accepted": 0, "rejected": 0}
-        
+
         count = item["count"]
         conf_summary[conf]["total"] += count
-        
+
         if item["status"] in ["poster", "spotlight", "oral"]:
             conf_summary[conf]["accepted"] += count
         elif item["status"] == "rejected":
             conf_summary[conf]["rejected"] += count
-    
+
     # Calculate acceptance rates
     for conf in conf_summary:
         total = conf_summary[conf]["total"]
         accepted = conf_summary[conf]["accepted"]
-        conf_summary[conf]["acceptance_rate"] = round(accepted / total * 100, 2) if total > 0 else 0
-    
+        conf_summary[conf]["acceptance_rate"] = round(
+            accepted / total * 100, 2) if total > 0 else 0
+
     return {
         "overall": stats,
         "by_conference": conf_summary
@@ -110,12 +113,14 @@ async def get_paper(
     paper = await neo4j.get_paper_by_id(paper_id)
     if not paper:
         raise HTTPException(status_code=404, detail="Paper not found")
-    
+
     # Process authors
     authors = paper.get("authors", [])
-    author_names = [a["name"] for a in sorted(authors, key=lambda x: x.get("order", 0))]
-    author_ids = [a["authorid"] for a in sorted(authors, key=lambda x: x.get("order", 0))]
-    
+    author_names = [a["name"]
+                    for a in sorted(authors, key=lambda x: x.get("order", 0))]
+    author_ids = [a["authorid"]
+                  for a in sorted(authors, key=lambda x: x.get("order", 0))]
+
     return PaperDetail(
         id=paper["id"],
         title=paper["title"],
@@ -147,16 +152,18 @@ async def get_review_summary(
     paper = await neo4j.get_paper_by_id(paper_id)
     if not paper:
         raise HTTPException(status_code=404, detail="Paper not found")
-    
+
     reviews = paper.get("reviews", [])
     # Filter to official reviews only
-    official_reviews = [r for r in reviews if r.get("review_type") == "official_review"]
-    
+    official_reviews = [r for r in reviews if r.get(
+        "review_type") == "official_review"]
+
     if not official_reviews:
-        raise HTTPException(status_code=404, detail="No reviews found for this paper")
-    
+        raise HTTPException(
+            status_code=404, detail="No reviews found for this paper")
+
     summary = await llm.summarize_reviews(paper["title"], official_reviews)
-    
+
     return ReviewSummary(
         paper_id=paper_id,
         overall_sentiment=summary.get("overall_sentiment", "unknown"),
@@ -166,4 +173,3 @@ async def get_review_summary(
         recommendation=summary.get("recommendation", ""),
         summary_text=summary.get("summary_text", "")
     )
-

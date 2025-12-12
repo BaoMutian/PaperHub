@@ -27,7 +27,7 @@ class EmbeddingService:
 
     def embed_text(self, text: str, is_query: bool = False) -> List[float]:
         """Generate embedding for a single text
-        
+
         Args:
             text: The text to embed
             is_query: If True, use query prompt for better retrieval (Qwen3-Embedding specific)
@@ -35,7 +35,8 @@ class EmbeddingService:
         self._load_model()
         # Qwen3-Embedding 对查询使用 prompt 可提升 1-5% 效果
         if is_query and hasattr(self._model, 'prompts') and 'query' in self._model.prompts:
-            embedding = self._model.encode(text, prompt_name="query", convert_to_numpy=True)
+            embedding = self._model.encode(
+                text, prompt_name="query", convert_to_numpy=True)
         else:
             embedding = self._model.encode(text, convert_to_numpy=True)
         return embedding.tolist()
@@ -43,14 +44,14 @@ class EmbeddingService:
     def embed_query(self, text: str) -> List[float]:
         """Generate embedding for a search query (with query prompt)"""
         return self.embed_text(text, is_query=True)
-    
+
     def embed_document(self, text: str) -> List[float]:
         """Generate embedding for a document (paper abstract, review, etc.)"""
         return self.embed_text(text, is_query=False)
 
     def embed_texts(self, texts: List[str], batch_size: int = 32, is_query: bool = False) -> List[List[float]]:
         """Generate embeddings for multiple texts
-        
+
         Args:
             texts: List of texts to embed
             batch_size: Batch size for encoding
