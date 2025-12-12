@@ -17,7 +17,11 @@ class EmbeddingService:
         """Lazy load the embedding model"""
         if self._model is None:
             logger.info(f"Loading embedding model: {self.settings.embedding_model}")
-            self._model = SentenceTransformer(self.settings.embedding_model)
+            # trust_remote_code=True 用于 Qwen 等需要自定义代码的模型
+            self._model = SentenceTransformer(
+                self.settings.embedding_model,
+                trust_remote_code=True
+            )
             logger.info("Embedding model loaded successfully")
     
     def embed_text(self, text: str) -> List[float]:

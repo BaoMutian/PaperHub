@@ -15,8 +15,9 @@ class Settings(BaseSettings):
     llm_model: str = "google/gemini-2.5-flash-lite"
     
     # Embedding Configuration
-    embedding_model: str = "all-MiniLM-L6-v2"
-    embedding_dimension: int = 384
+    # 使用 Qwen3-Embedding 获得更好的中英文语义理解
+    embedding_model: str = "Qwen/Qwen3-Embedding-0.6B"
+    embedding_dimension: int = 1024
     
     # Application Settings
     app_name: str = "AI Conference Papers KG"
