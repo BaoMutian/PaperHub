@@ -10,29 +10,6 @@ from ..models.qa import QARequest, QAResponse, SearchRequest
 router = APIRouter(prefix="/qa", tags=["qa"])
 logger = logging.getLogger(__name__)
 
-# Graph schema for LLM context
-GRAPH_SCHEMA = """
-Nodes:
-- Paper: id, title, abstract, status (rejected/poster/spotlight/oral/withdrawn), conference (ICLR/ICML/NeurIPS), keywords, creation_date, forum_link, pdf_link
-- Author: authorid, name
-- Review: id, review_type (official_review/rebuttal/decision/comment), rating, summary, strengths, weaknesses, questions, cdate
-- Keyword: name
-- Conference: name, year, max_rating
-
-Relationships:
-- (Author)-[:AUTHORED]->(Paper) with property: order
-- (Paper)-[:HAS_REVIEW]->(Review)
-- (Paper)-[:HAS_KEYWORD]->(Keyword)
-- (Paper)-[:SUBMITTED_TO]->(Conference)
-- (Review)-[:REPLIES_TO]->(Review)
-
-Notes:
-- Accepted papers have status IN ['poster', 'spotlight', 'oral']
-- ICLR ratings: 1-10, ICML ratings: 1-5 (field: overall_recommendation), NeurIPS ratings: 1-6
-- Use avg() for average ratings
-- Keywords are lowercase
-"""
-
 
 @router.post("/ask", response_model=QAResponse)
 async def ask_question(
@@ -46,8 +23,8 @@ async def ask_question(
     if not question:
         raise HTTPException(status_code=400, detail="Question cannot be empty")
     
-    # Generate Cypher query
-    cypher_result = await llm.generate_cypher(question, GRAPH_SCHEMA)
+    # Generate Cypher query (prompts are managed in prompts.py)
+    cypher_result = await llm.generate_cypher(question)
     
     cypher_query = cypher_result.get("cypher")
     parameters = cypher_result.get("parameters", {})

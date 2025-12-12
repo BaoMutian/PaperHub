@@ -1,17 +1,245 @@
 "use client"
 
-import { useEffect, useState, use } from "react"
+import { useEffect, useState, use, useMemo } from "react"
 import Link from "next/link"
-import { getPaper, getReviewSummary, type PaperDetail, type ReviewSummary } from "@/lib/api"
+import { getPaper, getReviewSummary, type PaperDetail, type ReviewSummary, type Review } from "@/lib/api"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Markdown } from "@/components/ui/markdown"
 import { cn, getStatusColor, getConferenceColor, formatDate } from "@/lib/utils"
 import { 
   ArrowLeft, ExternalLink, FileText, Calendar, Star, 
   Users, MessageSquare, ThumbsUp, ThumbsDown, HelpCircle,
-  Sparkles, Loader2, ChevronDown, ChevronUp
+  Sparkles, Loader2, ChevronDown, ChevronUp, Reply, User,
+  MessageCircle, CheckCircle, AlertCircle
 } from "lucide-react"
+
+// 构建评论树结构
+interface ReviewThread extends Review {
+  replies: ReviewThread[]
+  depth: number
+}
+
+function buildReviewTree(reviews: Review[]): ReviewThread[] {
+  const reviewMap = new Map<string, ReviewThread>()
+  const rootReviews: ReviewThread[] = []
+  
+  // 初始化所有评论
+  reviews.forEach(review => {
+    reviewMap.set(review.id, { ...review, replies: [], depth: 0 })
+  })
+  
+  // 构建树结构
+  reviews.forEach(review => {
+    const threadReview = reviewMap.get(review.id)!
+    if (review.replyto && reviewMap.has(review.replyto)) {
+      const parent = reviewMap.get(review.replyto)!
+      threadReview.depth = parent.depth + 1
+      parent.replies.push(threadReview)
+    } else {
+      rootReviews.push(threadReview)
+    }
+  })
+  
+  // 按时间排序
+  const sortByDate = (a: ReviewThread, b: ReviewThread) => {
+    return (a.cdate || 0) - (b.cdate || 0)
+  }
+  
+  const sortReplies = (reviews: ReviewThread[]) => {
+    reviews.sort(sortByDate)
+    reviews.forEach(r => sortReplies(r.replies))
+  }
+  
+  sortReplies(rootReviews)
+  
+  return rootReviews
+}
+
+// 获取评论类型的显示信息
+function getReviewTypeInfo(type: string) {
+  switch (type) {
+    case "official_review":
+      return { label: "官方评审", color: "text-violet-400", icon: Star }
+    case "rebuttal":
+      return { label: "作者回复", color: "text-emerald-400", icon: Reply }
+    case "decision":
+      return { label: "决定", color: "text-amber-400", icon: CheckCircle }
+    case "meta_review":
+      return { label: "Meta Review", color: "text-blue-400", icon: User }
+    case "comment":
+      return { label: "评论", color: "text-white/60", icon: MessageCircle }
+    default:
+      return { label: type, color: "text-white/60", icon: MessageCircle }
+  }
+}
+
+// 单个评论/回复组件
+function ReviewItem({ 
+  review, 
+  isExpanded, 
+  onToggle 
+}: { 
+  review: ReviewThread
+  isExpanded: boolean
+  onToggle: () => void
+}) {
+  const typeInfo = getReviewTypeInfo(review.review_type || "comment")
+  const TypeIcon = typeInfo.icon
+  const indentClass = review.depth > 0 ? `ml-${Math.min(review.depth * 4, 16)}` : ""
+  
+  return (
+    <div className={cn("border-l-2 border-white/10 pl-4", indentClass)}>
+      <div className="p-4 rounded-lg bg-white/5 hover:bg-white/[0.07] transition-colors">
+        {/* Header */}
+        <div 
+          className="flex items-center justify-between cursor-pointer"
+          onClick={onToggle}
+        >
+          <div className="flex items-center gap-3 flex-wrap">
+            <TypeIcon className={cn("w-4 h-4", typeInfo.color)} />
+            <span className={cn("text-sm font-medium", typeInfo.color)}>
+              {typeInfo.label}
+            </span>
+            {review.reviewer && (
+              <span className="text-sm text-white/50">
+                by {review.reviewer}
+              </span>
+            )}
+            {review.number && (
+              <span className="text-sm text-white/50">
+                #{review.number}
+              </span>
+            )}
+            {review.rating && (
+              <Badge className="bg-violet-500/20 text-violet-300">
+                评分: {review.rating}
+              </Badge>
+            )}
+            {review.confidence && (
+              <Badge variant="outline" className="text-white/50">
+                置信度: {review.confidence}
+              </Badge>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-white/40">
+              {formatDate(review.cdate)}
+            </span>
+            {isExpanded ? (
+              <ChevronUp className="w-4 h-4 text-white/40" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-white/40" />
+            )}
+          </div>
+        </div>
+        
+        {/* Content */}
+        {isExpanded && (
+          <div className="mt-4 space-y-4">
+            {/* Decision */}
+            {review.decision && (
+              <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                <CheckCircle className="w-5 h-5 text-amber-400" />
+                <span className="font-medium text-amber-300">{review.decision}</span>
+              </div>
+            )}
+            
+            {/* Summary */}
+            {review.summary && (
+              <div>
+                <div className="text-sm font-medium text-white/70 mb-2 flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4" />
+                  Summary
+                </div>
+                <div className="bg-black/20 rounded-lg p-3">
+                  <Markdown content={review.summary} />
+                </div>
+              </div>
+            )}
+            
+            {/* Strengths */}
+            {review.strengths && (
+              <div>
+                <div className="text-sm font-medium text-emerald-400 mb-2 flex items-center gap-2">
+                  <ThumbsUp className="w-4 h-4" />
+                  Strengths
+                </div>
+                <div className="bg-emerald-500/5 rounded-lg p-3 border border-emerald-500/10">
+                  <Markdown content={review.strengths} />
+                </div>
+              </div>
+            )}
+            
+            {/* Weaknesses */}
+            {review.weaknesses && (
+              <div>
+                <div className="text-sm font-medium text-rose-400 mb-2 flex items-center gap-2">
+                  <ThumbsDown className="w-4 h-4" />
+                  Weaknesses
+                </div>
+                <div className="bg-rose-500/5 rounded-lg p-3 border border-rose-500/10">
+                  <Markdown content={review.weaknesses} />
+                </div>
+              </div>
+            )}
+            
+            {/* Questions */}
+            {review.questions && (
+              <div>
+                <div className="text-sm font-medium text-amber-400 mb-2 flex items-center gap-2">
+                  <HelpCircle className="w-4 h-4" />
+                  Questions
+                </div>
+                <div className="bg-amber-500/5 rounded-lg p-3 border border-amber-500/10">
+                  <Markdown content={review.questions} />
+                </div>
+              </div>
+            )}
+            
+            {/* Comment / Content */}
+            {review.comment && (
+              <div className="bg-black/20 rounded-lg p-3">
+                <Markdown content={review.comment} />
+              </div>
+            )}
+            
+            {/* Flag if needed */}
+            {review.flag_for_ethics_review && (
+              <div className="flex items-center gap-2 text-amber-400 text-sm">
+                <AlertCircle className="w-4 h-4" />
+                Flagged for ethics review
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+      
+      {/* Replies */}
+      {review.replies.length > 0 && (
+        <div className="mt-2 space-y-2">
+          {review.replies.map((reply) => (
+            <ReviewItemWrapper key={reply.id} review={reply} />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// Wrapper to manage individual expand state
+function ReviewItemWrapper({ review }: { review: ReviewThread }) {
+  const [isExpanded, setIsExpanded] = useState(false)
+  
+  return (
+    <ReviewItem 
+      review={review} 
+      isExpanded={isExpanded} 
+      onToggle={() => setIsExpanded(!isExpanded)} 
+    />
+  )
+}
 
 export default function PaperDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
@@ -19,7 +247,7 @@ export default function PaperDetailPage({ params }: { params: Promise<{ id: stri
   const [summary, setSummary] = useState<ReviewSummary | null>(null)
   const [loading, setLoading] = useState(true)
   const [summaryLoading, setSummaryLoading] = useState(false)
-  const [expandedReviews, setExpandedReviews] = useState<Set<string>>(new Set())
+  const [expandAllReviews, setExpandAllReviews] = useState(false)
   
   useEffect(() => {
     getPaper(id)
@@ -27,6 +255,19 @@ export default function PaperDetailPage({ params }: { params: Promise<{ id: stri
       .catch(console.error)
       .finally(() => setLoading(false))
   }, [id])
+  
+  // 构建评论树
+  const reviewTree = useMemo(() => {
+    if (!paper?.reviews) return []
+    return buildReviewTree(paper.reviews)
+  }, [paper?.reviews])
+  
+  // 分类评论
+  const { officialReviews, discussions } = useMemo(() => {
+    const official = reviewTree.filter(r => r.review_type === "official_review")
+    const others = reviewTree.filter(r => r.review_type !== "official_review")
+    return { officialReviews: official, discussions: others }
+  }, [reviewTree])
   
   const loadSummary = async () => {
     setSummaryLoading(true)
@@ -38,18 +279,6 @@ export default function PaperDetailPage({ params }: { params: Promise<{ id: stri
     } finally {
       setSummaryLoading(false)
     }
-  }
-  
-  const toggleReview = (reviewId: string) => {
-    setExpandedReviews((prev) => {
-      const next = new Set(prev)
-      if (next.has(reviewId)) {
-        next.delete(reviewId)
-      } else {
-        next.add(reviewId)
-      }
-      return next
-    })
   }
   
   if (loading) {
@@ -70,9 +299,6 @@ export default function PaperDetailPage({ params }: { params: Promise<{ id: stri
       </div>
     )
   }
-  
-  const officialReviews = paper.reviews.filter((r) => r.review_type === "official_review")
-  const otherReviews = paper.reviews.filter((r) => r.review_type !== "official_review")
   
   return (
     <div className="min-h-screen py-8 px-4">
@@ -170,9 +396,7 @@ export default function PaperDetailPage({ params }: { params: Promise<{ id: stri
             <CardTitle>摘要</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-white/70 leading-relaxed whitespace-pre-wrap">
-              {paper.abstract}
-            </p>
+            <Markdown content={paper.abstract || ""} />
           </CardContent>
         </Card>
         
@@ -276,7 +500,7 @@ export default function PaperDetailPage({ params }: { params: Promise<{ id: stri
                 
                 {summary.summary_text && (
                   <div className="pt-4 border-t border-white/10">
-                    <p className="text-sm text-white/60">{summary.summary_text}</p>
+                    <Markdown content={summary.summary_text} />
                   </div>
                 )}
               </div>
@@ -288,123 +512,48 @@ export default function PaperDetailPage({ params }: { params: Promise<{ id: stri
           </CardContent>
         </Card>
         
-        {/* Reviews */}
+        {/* Official Reviews - Thread Style */}
         {officialReviews.length > 0 && (
           <Card className="mb-6">
             <CardHeader>
-              <CardTitle>评审意见 ({officialReviews.length})</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <Star className="w-5 h-5 text-violet-400" />
+                  官方评审 ({officialReviews.length})
+                </CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setExpandAllReviews(!expandAllReviews)}
+                >
+                  {expandAllReviews ? "全部收起" : "全部展开"}
+                </Button>
+              </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              {officialReviews.map((review) => {
-                const isExpanded = expandedReviews.has(review.id)
-                return (
-                  <div 
-                    key={review.id} 
-                    className="p-4 rounded-lg bg-white/5 border border-white/10"
-                  >
-                    <div 
-                      className="flex items-center justify-between cursor-pointer"
-                      onClick={() => toggleReview(review.id)}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="text-sm text-white/50">
-                          Reviewer {review.number || "?"}
-                        </span>
-                        {review.rating && (
-                          <Badge className="bg-violet-500/20 text-violet-300">
-                            评分: {review.rating}
-                          </Badge>
-                        )}
-                        {review.confidence && (
-                          <Badge variant="outline" className="text-white/50">
-                            置信度: {review.confidence}
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-white/40">
-                          {formatDate(review.cdate)}
-                        </span>
-                        {isExpanded ? (
-                          <ChevronUp className="w-4 h-4 text-white/40" />
-                        ) : (
-                          <ChevronDown className="w-4 h-4 text-white/40" />
-                        )}
-                      </div>
-                    </div>
-                    
-                    {isExpanded && (
-                      <div className="mt-4 space-y-4 text-sm">
-                        {review.summary && (
-                          <div>
-                            <div className="font-medium text-white/70 mb-1">Summary</div>
-                            <p className="text-white/60 whitespace-pre-wrap">{review.summary}</p>
-                          </div>
-                        )}
-                        {review.strengths && (
-                          <div>
-                            <div className="font-medium text-emerald-400 mb-1">Strengths</div>
-                            <p className="text-white/60 whitespace-pre-wrap">{review.strengths}</p>
-                          </div>
-                        )}
-                        {review.weaknesses && (
-                          <div>
-                            <div className="font-medium text-rose-400 mb-1">Weaknesses</div>
-                            <p className="text-white/60 whitespace-pre-wrap">{review.weaknesses}</p>
-                          </div>
-                        )}
-                        {review.questions && (
-                          <div>
-                            <div className="font-medium text-amber-400 mb-1">Questions</div>
-                            <p className="text-white/60 whitespace-pre-wrap">{review.questions}</p>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
+              {officialReviews.map((review) => (
+                <ReviewItemWrapper key={review.id} review={review} />
+              ))}
             </CardContent>
           </Card>
         )}
         
-        {/* Other interactions */}
-        {otherReviews.length > 0 && (
+        {/* Discussion Thread - 作者与Reviewer的互动 */}
+        {discussions.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle>其他互动 ({otherReviews.length})</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <MessageCircle className="w-5 h-5 text-emerald-400" />
+                讨论区 ({discussions.length})
+              </CardTitle>
+              <p className="text-sm text-white/50 mt-1">
+                作者回复 (Rebuttal)、Meta Review、决定 (Decision) 等互动内容
+              </p>
             </CardHeader>
-            <CardContent className="space-y-3">
-              {otherReviews.slice(0, 10).map((review) => (
-                <div 
-                  key={review.id}
-                  className="p-3 rounded-lg bg-white/5 border border-white/10"
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <Badge variant="outline" className="text-xs">
-                      {review.review_type}
-                    </Badge>
-                    <span className="text-xs text-white/40">
-                      {formatDate(review.cdate)}
-                    </span>
-                  </div>
-                  {review.comment && (
-                    <p className="text-sm text-white/60 line-clamp-3">
-                      {review.comment}
-                    </p>
-                  )}
-                  {review.decision && (
-                    <p className="text-sm text-violet-400">
-                      Decision: {review.decision}
-                    </p>
-                  )}
-                </div>
+            <CardContent className="space-y-4">
+              {discussions.map((review) => (
+                <ReviewItemWrapper key={review.id} review={review} />
               ))}
-              {otherReviews.length > 10 && (
-                <p className="text-sm text-white/40 text-center">
-                  还有 {otherReviews.length - 10} 条互动记录
-                </p>
-              )}
             </CardContent>
           </Card>
         )}
@@ -412,4 +561,3 @@ export default function PaperDetailPage({ params }: { params: Promise<{ id: stri
     </div>
   )
 }
-

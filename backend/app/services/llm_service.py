@@ -4,6 +4,7 @@ import logging
 import json
 
 from ..config import get_settings
+from ..prompts import get_nl2cypher_prompt, get_review_summary_prompt, get_qa_prompt
 
 logger = logging.getLogger(__name__)
 
@@ -40,31 +41,13 @@ class LLMService:
             result = response.json()
             return result["choices"][0]["message"]["content"]
 
-    async def generate_cypher(self, question: str, schema_info: str) -> Dict[str, Any]:
+    async def generate_cypher(self, question: str) -> Dict[str, Any]:
         """Generate Cypher query from natural language question"""
-        system_prompt = f"""You are an expert at converting natural language questions into Neo4j Cypher queries.
-
-Here is the graph schema:
-{schema_info}
-
-Rules:
-1. Always return valid Cypher syntax
-2. Use parameter placeholders ($param) when appropriate
-3. Include LIMIT clauses for queries that could return many results
-4. For rating queries, note: ICLR max=10, ICML max=5 (overall_recommendation), NeurIPS max=6
-5. Return JSON format with keys: "cypher", "parameters", "explanation"
-
-Example questions and queries:
-Q: "How many papers were accepted to ICLR 2025?"
-A: {{"cypher": "MATCH (p:Paper) WHERE p.conference = 'ICLR' AND p.status IN ['poster', 'spotlight', 'oral'] RETURN count(p) as accepted_count", "parameters": {{}}, "explanation": "Counting papers with accepted status"}}
-
-Q: "Which keywords are most common in ICML accepted papers?"
-A: {{"cypher": "MATCH (p:Paper)-[:HAS_KEYWORD]->(k:Keyword) WHERE p.conference = 'ICML' AND p.status IN ['poster', 'spotlight', 'oral'] RETURN k.name as keyword, count(*) as count ORDER BY count DESC LIMIT 20", "parameters": {{}}, "explanation": "Aggregating keywords for accepted ICML papers"}}
-"""
+        system_prompt, user_prompt = get_nl2cypher_prompt(question)
 
         messages = [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"Convert this question to Cypher: {question}"}
+            {"role": "user", "content": user_prompt}
         ]
 
         try:
@@ -94,16 +77,6 @@ A: {{"cypher": "MATCH (p:Paper)-[:HAS_KEYWORD]->(k:Keyword) WHERE p.conference =
 
     async def summarize_reviews(self, paper_title: str, reviews: List[Dict[str, Any]]) -> Dict[str, Any]:
         """Summarize reviews for a paper"""
-        system_prompt = """You are an expert at analyzing academic paper reviews. 
-Summarize the reviews concisely, highlighting:
-1. Main strengths mentioned
-2. Main weaknesses/concerns
-3. Key questions raised
-4. Overall sentiment (positive/negative/mixed)
-
-Return JSON format with keys: "overall_sentiment", "main_strengths" (list), "main_weaknesses" (list), "key_questions" (list), "summary_text" (string)
-"""
-
         # Format reviews for the prompt
         reviews_text = ""
         for i, review in enumerate(reviews, 1):
@@ -119,13 +92,15 @@ Return JSON format with keys: "overall_sentiment", "main_strengths" (list), "mai
             if review.get("questions"):
                 reviews_text += f"Questions: {review['questions']}\n"
 
+        system_prompt, user_prompt = get_review_summary_prompt(paper_title, reviews_text)
+
         messages = [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"Paper: {paper_title}\n\nReviews:{reviews_text}\n\nPlease summarize these reviews."}
+            {"role": "user", "content": user_prompt}
         ]
 
         try:
-            response = await self._call_api(messages)
+            response = await self._call_api(messages, temperature=0.3)
             if "```json" in response:
                 response = response.split("```json")[1].split("```")[0]
             elif "```" in response:
@@ -148,21 +123,15 @@ Return JSON format with keys: "overall_sentiment", "main_strengths" (list), "mai
         query_results: Optional[List[Dict]] = None
     ) -> str:
         """Answer a question using context and query results"""
-        system_prompt = """You are a helpful assistant for an academic paper database.
-Answer questions based on the provided context and query results.
-Be concise and accurate. If you don't have enough information, say so.
-Format your response in Markdown for readability."""
-
-        user_content = f"Question: {question}\n\nContext: {context}"
-        if query_results:
-            user_content += f"\n\nQuery Results: {json.dumps(query_results, ensure_ascii=False, indent=2)}"
+        results_str = json.dumps(query_results, ensure_ascii=False, indent=2) if query_results else "No results"
+        system_prompt, user_prompt = get_qa_prompt(question, context, results_str)
 
         messages = [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_content}
+            {"role": "user", "content": user_prompt}
         ]
 
-        return await self._call_api(messages)
+        return await self._call_api(messages, temperature=0.5)
 
 
 # Singleton

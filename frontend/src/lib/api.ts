@@ -39,6 +39,8 @@ export interface Review {
   questions?: string
   decision?: string
   comment?: string
+  reviewer?: string
+  flag_for_ethics_review?: boolean
 }
 
 export interface Author {
