@@ -49,8 +49,8 @@ async def search_papers(
 ):
     """Search papers by text or semantic similarity"""
     if semantic:
-        # Generate embedding for query
-        query_embedding = embedding_service.embed_text(q)
+        # Generate embedding for query (使用 query prompt 提升检索效果)
+        query_embedding = embedding_service.embed_query(q)
         results = await neo4j.search_papers_semantic(
             embedding=query_embedding,
             limit=limit

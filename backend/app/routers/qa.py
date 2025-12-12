@@ -128,7 +128,7 @@ async def semantic_search(
     embedding_service: EmbeddingService = Depends(get_embedding_service)
 ):
     """Search papers using semantic similarity"""
-    query_embedding = embedding_service.embed_text(request.query)
+    query_embedding = embedding_service.embed_query(request.query)
     
     results = await neo4j.search_papers_semantic(
         embedding=query_embedding,
