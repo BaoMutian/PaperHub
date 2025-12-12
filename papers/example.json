@@ -1,0 +1,346 @@
+{
+    "id": "zydNWJzoVd",
+    "title": "Continuous Bayesian Model Selection for Multivariate Causal Discovery",
+    "authors": [
+        "Anish Dhir",
+        "Ruby Sedgwick",
+        "Avinash Kori",
+        "Ben Glocker",
+        "Mark van der Wilk"
+    ],
+    "authorids": [
+        "~Anish_Dhir1",
+        "~Ruby_Sedgwick1",
+        "~Avinash_Kori1",
+        "~Ben_Glocker1",
+        "~Mark_van_der_Wilk1"
+    ],
+    "abstract": "Current causal discovery approaches require restrictive model assumptions in the absence of interventional data to ensure structure identifiability. These assumptions often do not hold in real-world applications leading to a loss of guarantees and poor performance in practice. Recent work has shown that, in the bivariate case, Bayesian model selection can greatly improve performance by exchanging restrictive modelling for more flexible assumptions, at the cost of a small probability of making an error. Our work shows that this approach is useful in the important multivariate case as well. We propose a scalable algorithm leveraging a continuous relaxation of the discrete model selection problem. Specifically, we employ the Causal Gaussian Process Conditional Density Estimator (CGP-CDE) as a Bayesian non-parametric model, using its hyperparameters to construct an adjacency matrix. This matrix is then optimised using the marginal likelihood and an acyclicity regulariser, giving the maximum a posteriori causal graph. We demonstrate the competitiveness of our approach, showing it is advantageous to perform multivariate causal discovery without infeasible assumptions using Bayesian model selection.",
+    "keywords": [
+        "bayesian model selection",
+        "gaussian process",
+        "causal discovery"
+    ],
+    "primary_area": "general_machine_learning->causality",
+    "TLDR": "Bayesian model selection for multivariate causal discovery allows for using more flexible models which leads to better performance.",
+    "creation_date": "2025-01-21",
+    "modification_date": "2025-07-24",
+    "forum_link": "https://openreview.net/forum?id=zydNWJzoVd",
+    "pdf_link": "https://openreview.net/pdf?id=zydNWJzoVd",
+    "venue": "ICML 2025 poster",
+    "venueid": "ICML.cc/2025/Conference",
+    "review_details": [
+        {
+            "id": "r5LTHlf0qS",
+            "replyto": "zydNWJzoVd",
+            "number": 1,
+            "cdate": "2025-05-01",
+            "mdate": "2025-06-18",
+            "content": {
+                "title": {
+                    "value": "Paper Decision"
+                },
+                "decision": {
+                    "value": "Accept (poster)"
+                },
+                "comment": {
+                    "value": "This paper primarily extends Dhir et al. (2024) from the bivariate to the multivariate setting, using the old idea (as one reviewer points out, this dates back at least to Cooper & Herskovitz, 1992) of letting priors select causal between models that would otherwise be equivalent. The key contribution is to propose a new differentiable NOTEARS-style model under a nonlinear Gaussian process model for the conditional densities (CGP-CDE) that is more flexible. The authors show that their method outperforms recent methods based on differentiable causal discovery.\n\nAn important part of this line of work is to make the methods and evaluation open-source. During the discussion, the authors clarified that they \"plan to make the Github repo containing the code public upon publication\", which I expect the authors will do, with prominent links to the repo in the camera ready."
+                }
+            },
+            "invitations": [
+                "ICML.cc/2025/Conference/Submission4001/-/Decision",
+                "ICML.cc/2025/Conference/-/Edit"
+            ]
+        },
+        {
+            "id": "QMYTyfTFsl",
+            "replyto": "kAbGxzAgM3",
+            "number": 1,
+            "cdate": "2025-04-04",
+            "mdate": "2025-06-18",
+            "content": {
+                "comment": {
+                    "value": "I thanks the authors for their response, which has assured some of my concerns. I keep the score unchanged to reflect my lack of familiarity."
+                }
+            },
+            "invitations": [
+                "ICML.cc/2025/Conference/Submission4001/Official_Review1/Rebuttal1/-/Rebuttal_Comment",
+                "ICML.cc/2025/Conference/-/Edit"
+            ]
+        },
+        {
+            "id": "0WtBt24tk9",
+            "replyto": "sVJbK84tCA",
+            "number": 1,
+            "cdate": "2025-04-01",
+            "mdate": "2025-06-18",
+            "content": {
+                "rebuttal": {
+                    "value": "Thank you for your positive and encouraging feedback. We are glad you found the paper **\"clear and well written\"**, and appreciate your comment that our method is a **\"significant and promising contribution\"**.\n\n> The paper initially suggests that it will solve the problem of restrictive / unrealistic model assumptions encountered when tackling real world data\n\nPrevious methods regularly make restrictive functional assumptions that may not hold in practice. In this paper, **we address relaxing these restrictive functional modelling assumptions** (L12 RHS, L172 LHS). \nWe wholeheartedly agree causal sufficiency and acyclicity can be unrealistic assumptions and are worth relaxing. These are very common in causal discovery algorithms, and the baselines we compare against also make these assumptions. We hope we didn't overclaim on this point and will make clear that this paper is only a step towards more realistic causal discovery (L70 LHS). \n\n> Yes it ensures identifiability, but you are essentially finding back what you put in and assume/hope that it matches reality.\n> ...using an in practice hard to justify/assess prior\n\nOur work shows that a relatively simple assumption - independent causal mechanisms (see L148 LHS) - can allow for distinguishing causal structure within a Markov equivalence class (L129 RHS, Theorem B.6). This assumption can be encoded in the prior by ensuring the priors factorise appropriately (L153 LHS).\n\nThe specific priors over functional mechanisms are also important.\nOur approach for this was to ensure, as much as possible, that the prior does not put zero probability on any dataset (see for example [1, Section 1.2]). The model/prior that we chose is not arbitrary, but close to known identifiable models (non-linear additive noise models), as shown by the good performance on additive noise datasets (Appendix I.1). The difference to previous methods is that we do not make hard restrictions - our model allows us to approximate more than just additive noise datasets (L232 LHS).\n\nWe note that assumptions made in previous methods that a-priori restrict functional form are also unverifiable. Any unverifiable assumption requires empirical verification. This is exactly what we do in sections 6.2 and 6.3. Here, the data is generated from mechanisms that are different to all the models. We vary other factors as well (graph types and density). Our method outperforms previous methods (full results in Appendix I). We believe this shows the usefulness of the Bayesian approach.\n\n[1] Hjort et al., eds. Bayesian nonparametrics. Vol. 28. Cambridge University Press, 2010.\n\n> One of the most striking findings is that the discrete version (DGP-CDE) is vastly superior (FIg.1), but that the authors still choose to focus on the (currently in vogue) continuous approximation, even though it suffers from the exact same problems w.r.t. finding the global optimum in anything with higher dimensions.\n\nThis is indeed very interesting. The cost of the discrete version, which requires enumerating over all possible graphs, is too high for more than a few variables. We included this result because the difference in performance between the CGP-CDE and the DGP-CDE clearly shows that, although our principle is correct, there is room for improvement in the continuous relaxation. However, CGP-CDE allows us to scale to a larger numbers of variables.\n\n> Cooper & Herskovitz (1992): this old but seminal work already contains a Bayesian score-based method that relies on the prior to select an optimal posterior causal DAG...\n\nThe papers you mention are important but only consider simple linear models.\nHowever, it has been known that with more complicated models, Bayesian models tend to have an opinion within an MEC [1,2,3]. The main reason (as shown in Appendix B) is because to create equivalent models, the ICM assumption has to hold in multiple factorisations (L129 RHS, Theorem B.6). While it is relatively simple to construct models that do this with linear models [1, Appendix D.1, D.2], it is not clear whether this is possible with more complex models [1, Appendix D.3].\n\n[1] Dhir et al., \"Bivariate Causal Discovery using Bayesian Model Selection.\" ICML, 2024.\n\n[2] Friedman et al., \"Gaussian process networks.\" Proceedings of the Sixteenth conference on Uncertainty in artificial intelligence. 2000.\n\n[3] Stegle et al. \"Probabilistic latent variable models for distinguishing between cause and effect.\" Advances in neural information processing systems 23 (2010).\n\n> I would have preferred a modest but more robust aim for e.g. the MEC.\n\nThis would obscure the fact that the model (due to the ICM assumption in the prior) **has a preference** for certain causal structures within an MEC over others (Line 138 RHS and line 720). **This preference within an MEC can only be removed by breaking the ICM assumption** (Theorem B.6). We thus make use of this preference."
+                }
+            },
+            "invitations": [
+                "ICML.cc/2025/Conference/Submission4001/Official_Review4/-/Rebuttal",
+                "ICML.cc/2025/Conference/-/Edit"
+            ]
+        },
+        {
+            "id": "5BWkXc6812",
+            "replyto": "ffpBXrY6Ob",
+            "number": 1,
+            "cdate": "2025-04-01",
+            "mdate": "2025-06-18",
+            "content": {
+                "rebuttal": {
+                    "value": "Thank you for your detailed feedback. We appreciate your acknowledgement of the **novelty of our approach in applying Bayesian model selection for multivariate structure learning** and your recognition of the **thorough discussion of our contributions relative to prior work**. We are also pleased you found the **experimental design sensible and extensive**. Additionally, we are glad you highlighted the importance of our method’s ability to distinguish between distribution-equivalent graphs, which is a key strength of our approach. We address your specific comments in the following.\n\n> do we need to know the correct prior in advance?\n\nIt is not necessary to know the correct prior in advance. **A key reason that allows for distinguishing causal graphs is the ICM assumption that is encoded in the prior** (L153 LHS, \"separable compatible\" in Theorem B.6). The prior over functional mechanisms is also important. Our approach for this was to try and choose a model/prior that ensures as much as possible we do not put zero probability on any dataset (see for example [1, Section 1.2]).\n\n[1] Hjort et al., eds. Bayesian nonparametrics. Vol. 28. Cambridge University Press, 2010.\n\n> what will happen under misspecification of prior?\n\nWe discuss this in L183 RHS. The prior defines what datasets are likely under our model (data distribution). This data distribution can be used to define a probability of error, which is a measure of how distinguishable causal graphs under our model are (eq 7). Given datasets from a *separate* distribution (data generating process), the accuracy of the estimated probability of error depends on how far the model's data distribution is from the data generating process. Small differences in the model and the data generating process do not result in complete invalidity of the estimated probability of error. As with any method, large variations will mean the estimated probability of error differs from the true probability of error (of the data generating process). For more discussion on this see [1, Section 4.4]. \n\nWe note that the a-priori functional restrictions imposed by previous methods are also unverifiable assumptions. As with any unverifiable assumption, it is necessary to empirically validate how well it works in practice. We test exactly this in our experiments (Section 6.2, 6.3), **where the data generating processes don't match our model prior and our model outperforms the baseline methods**. \n\n[1] Dhir et al., \"Bivariate Causal Discovery using Bayesian Model Selection.\" ICML, 2024.\n\n> I am not very familiar with bayesian model selection so I am not sure about the significance of extending from bivariate (Dhiretal.,2024) to the multivariate scenario. I will defer to other reviewers regarding this point.\n\nDhir et al.,2024 consider the bivariate case, but we answer the question: does the theory hold in the multivariate case, and how does the performance scale with number of variables?\nWe theoretically show Bayesian model selection works for multivariate datasets and propose a method to effectively scale to large numbers of variables, overcoming the costs which would be super-exponential with number of variables.\nWe then show that this approach outperforms competing methods in the multivariate case."
+                }
+            },
+            "invitations": [
+                "ICML.cc/2025/Conference/Submission4001/Official_Review3/-/Rebuttal",
+                "ICML.cc/2025/Conference/-/Edit"
+            ]
+        },
+        {
+            "id": "jOFxuHgEO6",
+            "replyto": "kGYmeQsJqZ",
+            "number": 1,
+            "cdate": "2025-04-01",
+            "mdate": "2025-06-18",
+            "content": {
+                "rebuttal": {
+                    "value": "Thank you for your insightful review. We appreciate your recognition of our contribution to the field of causal discovery. We are glad you think the **\"theory was well covered and convincing\"**, the paper is **\"well written and well motivated\"** and our **\"extensive experiments significantly outperform the evaluated competitors\"**. \n\n> whether the found model respects the Markov condition \n\n**Our model itself satisfies the causal Markov condition at the end of training by construction**. This happens in the acyclicity thresholding phase of the training (L935). The causal Markov assumption follows trivially from the assumption of no hidden confounders (L82 LHS) and that the noise terms are independent (eq 8). \n\nWe are aware of the larger discussion of whether the causal Markov condition implies conditional independences in all generality [1]. However, the same work states that the added assumption of \"Modularity\" (Property 7.3 in [1]) provides a \"fully quantitative solution to the problem of inferring causality from observational data\". The ICM assumption we make (L145 LHS) implies a form of modularity [2]. We note that works like NOTEARS do not make this assumption, and the only similarity to our work is that we also use a continuous optimisation scheme.\n\n[1] Dawid et al., \"Beware of the DAG!.\" Causality: objectives and assessment. PMLR, 2010.\n\n[2] Janzing et al., \"Causal inference using the algorithmic Markov condition.\" IEEE Transactions on Information Theory (2010).\n\n> It is unclear whether the continuous optimization method finds well-chosen priors\n\nOur continuous optimization does not find the prior, but the *posterior* given a prior (L255 RHS). \n\n> literature on the information-theoretic view of causality (Janzing, Schölkopf, 2010) \n\nThe basic principle that allows for distinguishing causal structure is very related to the work you have mentioned [1, Appendix B.2]. We will include a discussion on this.\n\n[1] Dhir et al., \"Bivariate Causal Discovery using Bayesian Model Selection.\" ICML, 2024.\n\n> There is no comparison with other score-based approaches\n\nWe have run GES and GLOBE for all experiments, results can be viewed here: https://anonymous.4open.science/r/Additional-Results/. GES performs poorly compared to CGP-CDE and the other baselines, except for competitve performance on the 50 var ER1 dataset. This is because GES performs well on sparse graphs, but struggles with denser graphs as it gets stuck in local optima. GLOBE didn't perform well on most of the datasets, except getting the best SHD (but poor SID and F1) for Syntren. \n\n> The causal model is not strictly identifiable.\n\nThis is true, but we show that **for our model the probability of error is small**. Our motivation is that restrictions made to gain strict identifiability can be unrealistic. When the data is generated from a different model, identifiability does not hold anyway. We argue that tolerating a small probability of error for gaining more flexibility can be beneficial in these cases. We show exactly this in our experiments.\n\n> How do you interpret the poor performance of CGP-CDE in the 3-variable experiment?\n\nWe discuss this in Line 368 RHS, although we note the wrong figure was referenced, which we will fix. The good performance of the discrete case **shows that our objective empirically identifies the correct causal graph in the multivariate case**. The continuous approximation uses (noisy) gradients to find the most likely causal structure, which introduces errors.\nThe comparison to the continuous case thus quantifies the error introduced by the continuous approximation. We believe this shows that the continuous approximation scheme can be improved on. Nevertheless, we emphasise that we clearly outperform baselines in datasets with more variables (Appendix I).\n\n> Could another initialization reduce the number of iterations needed?\n\nWe were overly conservative with the number of iterations for the warm up and cool down phases. You are correct, better initialisation will reduce the number of iterations required. This can be monitored simply by looking at the training curve.\n\n> In the 3-variable experiment... How do you explain this?\n\nThe point of this experiment was to **show the price we pay for scalability**. The difference in performance is due to the continuous optimisation, which introduces errors (see above). These results show that while our Bayesian principle is correct, large improvements can be made in the continuous approximation scheme. As we experiment on **all possible** 3 variable graphs, this experiment also contains a more dense graphs (relative to the number of variables), which may be harder to find.\n\nNote we also provide other experiments with more variables where the data isn't generated from our model and the ANM experiments where the baseline models' assumptions aren't violated. In both cases, we outperform the baselines.\n\nThe reviewer refers to questions 4 and 5 but the questions only go up to 3."
+                }
+            },
+            "invitations": [
+                "ICML.cc/2025/Conference/Submission4001/Official_Review2/-/Rebuttal",
+                "ICML.cc/2025/Conference/-/Edit"
+            ]
+        },
+        {
+            "id": "kAbGxzAgM3",
+            "replyto": "bQ7CD34PdV",
+            "number": 1,
+            "cdate": "2025-04-01",
+            "mdate": "2025-06-18",
+            "content": {
+                "rebuttal": {
+                    "value": "Thank you for your positive and encouraging feedback on our work. We appreciate your acknowledgement that the proposed method **\"allows for learning nonparametric DAGs in a scalable manner\"** and that our **\"experiments show competitive performance with the benchmarks\"**. We address your comments in the following. \n\n>However, the proof of this theorem only says it follows directly from [Dhir et al., 2024] without any details.\n\nOur construction and proofs earlier in the sections lead us to write the first part of our theorem exactly as Prop. 4.7 in Dhir et al., 2024. Hence, we can directly refer to the proof. We will make this clearer by rewriting the theorem from Dhir et al., (2024) and explicitly stating where we invoke the result.\n\n> Many mathemetical details are hidden in the appendix. Especially for Section 3 on the theoretical extension, there is no one theoretical statement in this section while everything is burried in the appendix.\n\nWe would love to put more details in the main paper. Our theory requires us to define several concepts not relevant to the rest of the paper, but that allow us to state accurate and precise theorems. As this takes up a lot of space, we thought it best to do this in the Appendix. **We do provide a general intuition for our theoretical results in the main paper** (L174 LHS). We hope you agree with this approach.\n\n> I wonder for two models that are not Bayesian equivalent, why can they have positive probrobability of error\n\nThe posteriors may overlap even in the infinite data setting. We can show this with a very simple example. Normalised linear Gaussian models are not identifiable (in the population setting) [1, Appendix D.2]. If a chosen model can approximate a normalised linear Gaussian model, and we sample from the model, there is a non-zero probability that we sample a normalised linear Gaussian dataset. Thus the **chosen model must have non-zero probability of error**.\nHence, while non-linear additive noise models are identifiable in general, additive noise models (also containing linear functions) will have a positive probability of error (but not completely unidentifiable).\n\n[1] Dhir et al., \"Bivariate Causal Discovery using Bayesian Model Selection.\" ICML, 2024.\n\n[2] Hoyer et al. \"Nonlinear causal discovery with additive noise models.\" Advances in neural information processing systems 21 (2008).\n\n> Should it be consistent to use the model evidence to find the true DAG? I guess the question is does the sample size in the definition of Bayesian equivalence goes to infinity?\n\nThe definition of Bayesian distribution-equivalence holds for any sample size. However, our theorems (B.3 and B.6) hold in the population setting. We do state that in B.3, but we will state that in theorem B.6. Thank you for pointing this out.\n\n>Or why do we have identifiability and distinguishabllity and what are their differences?\n\nIdentifiability is where the probability of error is zero, whereas distinguishability is where the probability of error is less than random uniform. We will make it clear that these are in the population setting where we define these concepts in L200 LHS."
+                }
+            },
+            "invitations": [
+                "ICML.cc/2025/Conference/Submission4001/Official_Review1/-/Rebuttal",
+                "ICML.cc/2025/Conference/-/Edit"
+            ]
+        },
+        {
+            "id": "sVJbK84tCA",
+            "replyto": "zydNWJzoVd",
+            "number": 4,
+            "cdate": "2025-03-14",
+            "mdate": "2025-06-18",
+            "content": {
+                "summary": {
+                    "value": "The paper proposes a new method called CGP-CDE for (Bayesian) causal model discovery that allows for less restrictive model assumptions and can be applied to higher dimensional systems as well. It is based on a GP approach to obtain a nonparametric conditional density estimator for each node given its parents in the causal DAG, ultimately capturing the likelihood of a graph. The search for the best fitting model is turned into a continuous optimization problem by adding a familiar acyclicity constraint with penalty on the weight matrix representing the graph. The method is evaluated on synthetic/realistic data and found to compare equal or favourably to other alternatives.\n\n## update after rebuttal\nI thank the authors for their reply, and, having read the other reviews & rebuttals as well, I am happy to leave my score at '4: accept'.\n\nOne final remark: I understand the temptation to go for maximal informativeness, but the authors will know that typically the score differences within a MEC are much smaller than between MECs, and therefore the extra information from orienting the full graph tends to be much less reliable, in turn making the entire output less trustworthy = less useful in practice. Given that any directed graph has a unique mapping to a MEC one does not need to 'remove' the preference within a MEC. Instead, we can easily show both outputs, but with a much higher reliability for anything implied by the MEC representation, giving practitioners an intuitive way to distinguish between more and less reliable conclusions in the output."
+                },
+                "claims_and_evidence": {
+                    "value": "The paper initially suggests that it will solve the problem of restrictive / unrealistic model assumptions encountered when tackling real world data, but this is of course nonsense. It still starts from the causal sufficiency and acyclicity assumptions (which is not how the world works), and relies on a rather arbitrary prior to go from Markov equivalence class (MEC) to unique model. Yes it ensures identifiability, but you are essentially finding back what you put in and assume/hope that it matches reality.\nHowever, I do really like the GP approach to modelling the likelihood, which indeed does provide a significant improvement over existing parametric approaches to Bayesian/likelihood based inference."
+                },
+                "methods_and_evaluation_criteria": {
+                    "value": "Experimental evaluation is limited but ok, and demonstrates the potential of the core contribution."
+                },
+                "theoretical_claims": {
+                    "value": "No explicit theoretical claims in the main paper, but overall approach is sound."
+                },
+                "experimental_designs_or_analyses": {
+                    "value": "As mentioned, experimental evaluation is limited but ok. One of the most striking findings is that the discrete version (DGP-CDE) is vastly superior (FIg.1), but that the authors still choose to focus on the (currently in vogue) continuous approximation, even though it suffers from the exact same problems w.r.t. finding the global optimum in anything with higher dimensions. But I will not hold that against the authors :)"
+                },
+                "supplementary_material": {
+                    "value": "No."
+                },
+                "relation_to_broader_scientific_literature": {
+                    "value": "Relevant (recent) work is discussed."
+                },
+                "essential_references_not_discussed": {
+                    "value": "Cooper & Herskovitz (1992): this old but seminal work already contains a Bayesian score-based method that relies on the prior to select an optimal posterior causal DAG. The subsequent work by Heckerman showed how to combat this (rather undesirable) behaviour by introducing a score that ensures MEC-equivalence, but the current paper now seems to suggest that they came up with the idea of selecting models *within* a MEC by using a non-equivalent score …"
+                },
+                "other_strengths_and_weaknesses": {
+                    "value": "As stated: paper suggests more than it does, and some aspects (like aiming for unique identifiability from using an in practice hard to justify/assess prior) actually weakens the output, and I would have preferred§ a modest but more robust aim for e.g. the MEC.\nAlso starting from the causal sufficiency assumption (and to some degree also the acyclicity assumption) is `unforgivable’ when the aim is to make a causal discovery method more suitable to real-world applications. Yes it makes everything easier, but that is not a good enough reason to do / keep doing it.\n\nOn the plus side: paper is clear and well written, and the GP approach at the heart of the method is a significant and promising contribution, and for that reason I will recommend accept."
+                },
+                "other_comments_or_suggestions": {
+                    "value": "No"
+                },
+                "questions_for_authors": {
+                    "value": "No"
+                },
+                "code_of_conduct": {
+                    "value": "Affirmed."
+                },
+                "overall_recommendation": {
+                    "value": 4
+                }
+            },
+            "invitations": [
+                "ICML.cc/2025/Conference/Submission4001/-/Official_Review",
+                "ICML.cc/2025/Conference/-/Edit"
+            ]
+        },
+        {
+            "id": "ffpBXrY6Ob",
+            "replyto": "zydNWJzoVd",
+            "number": 3,
+            "cdate": "2025-03-14",
+            "mdate": "2025-06-18",
+            "content": {
+                "summary": {
+                    "value": "Recent work shows that in the bivariate case Bayesian model selection can be used for structure identification under more flexible assumptions at the cost of a small probability of error. This paper extends the previous result to the multivariate case. The authors empirically validate the method by comparing to multiple baselines under extensive experimental settings.\n\n## update after rebuttal\n\nThank you for the author's response. After reading all the review comments I decide to keep my rating unchanged."
+                },
+                "claims_and_evidence": {
+                    "value": "Yes."
+                },
+                "methods_and_evaluation_criteria": {
+                    "value": "It makes sense to me that for two distribution equivalent graphs we can rely on independent priors to distinguish them. Yet, it is unclear to me that do we need to know the correct prior in advance? If yes, what will happen under misspecification of prior?"
+                },
+                "theoretical_claims": {
+                    "value": "No."
+                },
+                "experimental_designs_or_analyses": {
+                    "value": "Yes. The experimental designs look sensible to me. The setting is extensive including both synthetic setting with multiple variables and real-life experiments."
+                },
+                "supplementary_material": {
+                    "value": "Yes I briefly went through Appendix E,F,G,I."
+                },
+                "relation_to_broader_scientific_literature": {
+                    "value": "Key contributions of the paper compared to prior work are properly discussed."
+                },
+                "essential_references_not_discussed": {
+                    "value": "Related works are properly discussed."
+                },
+                "other_strengths_and_weaknesses": {
+                    "value": "Strengths \n\n1. The proposed method and theory of using bayesian model selection for multivariate structure learning look novel to me.\n\n2. The experimental setting is extensive including both synthetic and real-life data.\n\n3. It is interesting to see methods that can distinguish between graphs that are distribution-equivalent.\n\nWeaknesses\n\n1.  I am not very familiar with bayesian model selection so I am not sure about the significance of extending from bivariate (Dhiretal.,2024) to the multivariate scenario. I will defer to other reviewers regarding this point."
+                },
+                "other_comments_or_suggestions": {
+                    "value": "N.A."
+                },
+                "questions_for_authors": {
+                    "value": "Please refer to my question in Methods And Evaluation Criteria part."
+                },
+                "code_of_conduct": {
+                    "value": "Affirmed."
+                },
+                "overall_recommendation": {
+                    "value": 3
+                }
+            },
+            "invitations": [
+                "ICML.cc/2025/Conference/Submission4001/-/Official_Review",
+                "ICML.cc/2025/Conference/-/Edit"
+            ]
+        },
+        {
+            "id": "kGYmeQsJqZ",
+            "replyto": "zydNWJzoVd",
+            "number": 2,
+            "cdate": "2025-03-10",
+            "mdate": "2025-06-18",
+            "content": {
+                "summary": {
+                    "value": "This paper presents a multivariate causal discovery approach based on Bayesian model selection. It builds on the work of Dhir et al. (2024), who proposed to use Bayesian model selection to identify causal direction in the bivariate case. The Bayesian model selection framework allows for a trade-off between a model's goodness of fit and complexity. The original work showed that Bayesian Model Selection can discriminate causal directions even when Maximum Likelihood (ML) methods fail due to distribution equivalence, thanks to the marginal likelihood, which, unlike the likelihood, is not symmetric (they consider the whole function space instead of the best-fitting function).\nThey use the Causal Gaussian Process Conditional Density Estimator (CGP-CDE) to impose no restrictions on the model (e.g. linear model, additive noise...), which is a significant contribution of this work. This makes it possible to relax the assumptions, one of the most critical challenges in causal discovery. On the other hand, their method does not come with a strict identifiability guarantee due to potential overlaps in the posterior of different causal models. They propose a way to estimate the error probability using a sampling strategy.\nThe causal identifiability proof is based on the Independent Causal Mechanism (ICM) assumption, which the authors use to claim that well-chosen Bayesian priors for the distribution of a cause and the distribution of an effect given the cause should be independent.\nIn practice, to avoid comparing all possible DAGs and their posteriors, the model is identified by continuously optimizing the hyperparameters of the Gaussian process priors using a variational autoencoder (VAE) with a Bayesian model selection-based loss and acyclicity penalty. They also define priors on the resulting directed acyclic graphs (DAGs) to favor sparse models. As with most existing methods, their approach only works if all confounders are observed (causal sufficiency assumption)."
+                },
+                "claims_and_evidence": {
+                    "value": "Not all claims are theoretically substantiated. The authors claim to find a causal model. Their continuous optimization method yields a direct acyclic graph, but it is not made clear whether the found model respects the Markov condition (each node is conditionally independent of its non-descendants, given its parents), which is required for a DAG to be causal. It is unclear whether the continuous optimization method finds well-chosen priors, which is required for identifiability."
+                },
+                "methods_and_evaluation_criteria": {
+                    "value": "The synthetic data experiment is performed with different generation settings (neural network as function, noise additive or not...). Syntren is a simulated data set. There is no experiment on real data. SHD and SID are commonly used metrics for causal discovery."
+                },
+                "theoretical_claims": {
+                    "value": "I read the proofs in the appendix and found no errors."
+                },
+                "experimental_designs_or_analyses": {
+                    "value": "The experimental design includes several settings. Results on synthetic data generated with a neural network show that the proposed method largely outperforms competitors, which was expected since their assumptions (e.g. additive noise) are violated. However, the author(s) also provide results for data generated with additive noise and their performance is still competitive with other methods, showing that the relaxation of the assumptions does not come at the expense of overall performance."
+                },
+                "supplementary_material": {
+                    "value": "I read the appendix of the paper carefully, but did not look at the rest of the supplementary material."
+                },
+                "relation_to_broader_scientific_literature": {
+                    "value": "This paper contributes to the field of causal discovery and, more specifically, to the score-based and continuous optimisation-based lines of research. It extends the work of Dhir et al. (2024), who proposed using Bayesian model selection for causal edge orientation. This paper's novelty is its adaptation and proof for the multivariate case, the use of CGP-CDE for flexible modeling, and the continuous optimization of model parameters to find a DAG."
+                },
+                "essential_references_not_discussed": {
+                    "value": "The authors do not discuss the literature on the information-theoretic view of causality (Janzing, Schölkopf, 2010) in the related works although it is conceptually very close -- instantiating Occam's razor to distinguish between models. There is no comparison with other score-based approaches that also aim to balance complexity and goodness of fit, such as GES (Chickering, Maxwell, 2002), which uses the Bayesian Information Criterion (BIC), and GLOBE (Mian, 2021), which uses a two-part Minimum Description Length (MDL) score.\n\nReferences:\n- Chickering, David Maxwell. \"Optimal structure identification with greedy search.\" Journal of machine learning research 3.Nov (2002): 507-554.\n- Mian, Osman A., Alexander Marx, and Jilles Vreeken. \"Discovering fully oriented causal networks.\" Proceedings of the AAAI Conference on Artificial Intelligence. Vol. 35. No. 10. 2021.\n- Janzing, Dominik, and Bernhard Schölkopf. \"Causal inference using the algorithmic Markov condition.\" IEEE Transactions on Information Theory 56.10 (2010): 5168-5194."
+                },
+                "other_strengths_and_weaknesses": {
+                    "value": "Strengths:\n- The paper is well written and well motivated.\n- The use of a flexible model and VAE allows for fewer assumptions than usual and therefore makes the model applicable to a wider range of applications.\n- The theory is well covered and convincing.\n- The extensive experiments show that the proposed methods significantly outperform the evaluated competitors.\n\nWeaknesses:\n- The causal model is not strictly identifiable.\n- Continuous optimisation may not be efficient (see questions 1, 2 and 3).\n- It is unclear whether the continuous optimisation approach maintains the theoretical guarantees (see questions 4 and 5)."
+                },
+                "other_comments_or_suggestions": {
+                    "value": "NOTEARS is a structure learning approach, not a causal discovery algorithm. That is, it finds a DAG, but there are no guarantees this a causal one. This should be mentioned. I have the same concern about the proposed method.\n\n\n### update after rebuttal ###\n\nI thank the authors for their answers, but I'm afraid they did not take away my concerns regarding the identifiability of the approach and therewith whether this is a method that is guaranteed to return causal structures."
+                },
+                "questions_for_authors": {
+                    "value": "1) How do you interpret the poor performance of CGP-CDE in the 3-variable experiment?\n\n2) In the continuous optimization, the warm-up phase seems computationally expensive (about 25,000 iterations for 1,000 samples?). Is this a typical number of iterations for an initialization phase? Could another initialization reduce the number of iterations needed? What about the number of iterations for the cooling phase (also 25,000 iterations for 1,000 samples)?\n\n3) In the 3-variable experiment, where the data are generated using a Bayesian causal model, DGP-CDE acts as a sanity check, as it considers all models and thus includes the true one used to generate the data.  However, the poor performance of the continuous optimization is worrying given the small search space (25 graphs) and the fact that the data was generated using a Bayesian causal model (unlike the opponent whose assumptions were violated). How do you explain this?"
+                },
+                "code_of_conduct": {
+                    "value": "Affirmed."
+                },
+                "overall_recommendation": {
+                    "value": 2
+                }
+            },
+            "invitations": [
+                "ICML.cc/2025/Conference/Submission4001/-/Official_Review",
+                "ICML.cc/2025/Conference/-/Edit"
+            ]
+        },
+        {
+            "id": "bQ7CD34PdV",
+            "replyto": "zydNWJzoVd",
+            "number": 1,
+            "cdate": "2025-03-09",
+            "mdate": "2025-06-18",
+            "content": {
+                "summary": {
+                    "value": "This paper studies structure learning for observational data using Bayeisan model selection. It falls into the category of score based learning and uses model evidence as score to select DAG. It shows the existing work on bivariate case [Dhir et al., 2024] can be extended to multivariate case, and applies a flexible model called Causal Gaussian Process Conditional Density Estimator (CGP-CDE) with continuous reparametrization and variational inference to learn the DAG. Experiments are conducted to show the effectiveness."
+                },
+                "claims_and_evidence": {
+                    "value": "The claims on improvement are supported via experiments."
+                },
+                "methods_and_evaluation_criteria": {
+                    "value": "The evaluation criteria via SHD, SID, F1 are a commonly used critera."
+                },
+                "theoretical_claims": {
+                    "value": "One of the proofs on the main results --  Theorem B.6 -- concerns me. One of the main contribution of this paper is to extend the existing identifiability result to multivariate case. However, the proof of this theorem only says it follows directly from [Dhir et al., 2024] without any details."
+                },
+                "experimental_designs_or_analyses": {
+                    "value": "The experimental design makes sense."
+                },
+                "supplementary_material": {
+                    "value": "I check the proof for Theorem B.6, which actually is not in the main paper."
+                },
+                "relation_to_broader_scientific_literature": {
+                    "value": "Causal discovery is widely used in scientific research for exploratory analysis. Developing identifiability and scalable method is important for broader scientific literature."
+                },
+                "essential_references_not_discussed": {
+                    "value": "No"
+                },
+                "other_strengths_and_weaknesses": {
+                    "value": "- The paper derives from the ICM assumption for identifiability and allows for much flexible class of identifiable Bayesian network\n- The proposed method leverages the powerful tools for modelling and learning nonparametric DAGs in a scalable manner.\n- The experiments show competitive performance with many benchmarks."
+                },
+                "other_comments_or_suggestions": {
+                    "value": "- Many mathemetical details are hidden in the appendix. Especially for Section 3 on the theoretical extension, there is no one theoretical statement in this section while everything is burried in the appendix."
+                },
+                "questions_for_authors": {
+                    "value": "- The definition of Bayesian equivalence (identifiability and distinguishabllity) involves data $X$, also relates to the definition of probrobability of error. I wonder for two models that are not Bayesian equivalent, why can they have positive probrobability of error. Should it be consistent to use the model evidence to find the true DAG? I guess the question is does the sample size in the definition of Bayesian equivalence goes to infinity? Or why do we have identifiability and distinguishabllity and what are their differences?"
+                },
+                "code_of_conduct": {
+                    "value": "Affirmed."
+                },
+                "overall_recommendation": {
+                    "value": 3
+                }
+            },
+            "invitations": [
+                "ICML.cc/2025/Conference/Submission4001/-/Official_Review",
+                "ICML.cc/2025/Conference/-/Edit"
+            ]
+        }
+    ],
+    "status": "poster",
+    "conference": "ICML"
+}

@@ -1,0 +1,25 @@
+# Web Framework
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+
+# Neo4j
+neo4j==5.15.0
+
+# HTTP Client
+httpx==0.26.0
+
+# Embedding
+sentence-transformers==2.2.2
+torch>=2.0.0
+
+# Data Processing
+pydantic==2.5.3
+pydantic-settings==2.1.0
+python-dotenv==1.0.0
+
+# JSON Processing
+orjson==3.9.10
+
+# Utilities
+numpy>=1.24.0
+
