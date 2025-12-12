@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     neo4j_password: str = "password123"
 
     # OpenRouter API Configuration
-    openrouter_api_key: str = "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"
+    openrouter_api_key: str = "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"
     openrouter_base_url: str = "https://openrouter.ai/api/v1"
     llm_model: str = "google/gemini-2.5-flash-lite"
 
