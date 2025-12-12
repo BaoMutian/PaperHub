@@ -92,7 +92,8 @@ class LLMService:
             if review.get("questions"):
                 reviews_text += f"Questions: {review['questions']}\n"
 
-        system_prompt, user_prompt = get_review_summary_prompt(paper_title, reviews_text)
+        system_prompt, user_prompt = get_review_summary_prompt(
+            paper_title, reviews_text)
 
         messages = [
             {"role": "system", "content": system_prompt},
@@ -123,8 +124,10 @@ class LLMService:
         query_results: Optional[List[Dict]] = None
     ) -> str:
         """Answer a question using context and query results"""
-        results_str = json.dumps(query_results, ensure_ascii=False, indent=2) if query_results else "No results"
-        system_prompt, user_prompt = get_qa_prompt(question, context, results_str)
+        results_str = json.dumps(
+            query_results, ensure_ascii=False, indent=2) if query_results else "No results"
+        system_prompt, user_prompt = get_qa_prompt(
+            question, context, results_str)
 
         messages = [
             {"role": "system", "content": system_prompt},

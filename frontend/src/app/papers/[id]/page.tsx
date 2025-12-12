@@ -12,7 +12,7 @@ import {
   ArrowLeft, ExternalLink, FileText, Calendar, Star, 
   Users, MessageSquare, ThumbsUp, ThumbsDown, HelpCircle,
   Sparkles, Loader2, ChevronDown, ChevronUp, Reply, User,
-  MessageCircle, CheckCircle, AlertCircle
+  MessageCircle, CheckCircle, AlertCircle, BarChart3
 } from "lucide-react"
 
 // 构建评论树结构
@@ -25,12 +25,10 @@ function buildReviewTree(reviews: Review[]): ReviewThread[] {
   const reviewMap = new Map<string, ReviewThread>()
   const rootReviews: ReviewThread[] = []
   
-  // 初始化所有评论
   reviews.forEach(review => {
     reviewMap.set(review.id, { ...review, replies: [], depth: 0 })
   })
   
-  // 构建树结构
   reviews.forEach(review => {
     const threadReview = reviewMap.get(review.id)!
     if (review.replyto && reviewMap.has(review.replyto)) {
@@ -42,7 +40,6 @@ function buildReviewTree(reviews: Review[]): ReviewThread[] {
     }
   })
   
-  // 按时间排序
   const sortByDate = (a: ReviewThread, b: ReviewThread) => {
     return (a.cdate || 0) - (b.cdate || 0)
   }
@@ -55,6 +52,181 @@ function buildReviewTree(reviews: Review[]): ReviewThread[] {
   sortReplies(rootReviews)
   
   return rootReviews
+}
+
+// 获取会议的评分范围
+function getConferenceRatingScale(conference: string): { min: number; max: number } {
+  switch (conference?.toUpperCase()) {
+    case "ICLR":
+      return { min: 1, max: 10 }
+    case "ICML":
+      return { min: 1, max: 5 }
+    case "NEURIPS":
+      return { min: 1, max: 6 }
+    default:
+      return { min: 1, max: 10 }
+  }
+}
+
+// 评分分布组件 - 类似豆瓣/IMDB
+function RatingDistribution({ 
+  ratings, 
+  conference 
+}: { 
+  ratings: number[]
+  conference: string 
+}) {
+  const scale = getConferenceRatingScale(conference)
+  const distribution: Record<number, number> = {}
+  
+  // 初始化所有分数
+  for (let i = scale.max; i >= scale.min; i--) {
+    distribution[i] = 0
+  }
+  
+  // 统计分布
+  ratings.forEach(r => {
+    const roundedRating = Math.round(r)
+    if (roundedRating >= scale.min && roundedRating <= scale.max) {
+      distribution[roundedRating]++
+    }
+  })
+  
+  const maxCount = Math.max(...Object.values(distribution), 1)
+  
+  return (
+    <div className="space-y-1">
+      {Object.entries(distribution)
+        .sort(([a], [b]) => Number(b) - Number(a))
+        .map(([score, count]) => {
+          const percentage = (count / ratings.length) * 100
+          const barWidth = (count / maxCount) * 100
+          
+          return (
+            <div key={score} className="flex items-center gap-2 text-xs">
+              <span className="w-4 text-right text-white/60">{score}</span>
+              <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
+              <div className="flex-1 h-4 bg-white/5 rounded overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-amber-500 to-amber-400 transition-all duration-500"
+                  style={{ width: `${barWidth}%` }}
+                />
+              </div>
+              <span className="w-8 text-right text-white/40">
+                {count > 0 ? `${percentage.toFixed(0)}%` : "-"}
+              </span>
+            </div>
+          )
+        })}
+    </div>
+  )
+}
+
+// 主评分展示组件 - IMDB/豆瓣风格
+function RatingCard({ 
+  avgRating, 
+  ratings, 
+  conference, 
+  reviewCount 
+}: { 
+  avgRating?: number
+  ratings: number[]
+  conference: string
+  reviewCount: number
+}) {
+  const scale = getConferenceRatingScale(conference)
+  const validRatings = ratings.filter(r => r != null && !isNaN(r))
+  const actualAvg = validRatings.length > 0 
+    ? validRatings.reduce((a, b) => a + b, 0) / validRatings.length 
+    : avgRating
+  
+  // 根据评分计算颜色
+  const getRatingColor = (rating: number) => {
+    const normalized = (rating - scale.min) / (scale.max - scale.min)
+    if (normalized >= 0.7) return "text-emerald-400"
+    if (normalized >= 0.5) return "text-amber-400"
+    if (normalized >= 0.3) return "text-orange-400"
+    return "text-rose-400"
+  }
+  
+  const getBgColor = (rating: number) => {
+    const normalized = (rating - scale.min) / (scale.max - scale.min)
+    if (normalized >= 0.7) return "from-emerald-500/20 to-emerald-600/10"
+    if (normalized >= 0.5) return "from-amber-500/20 to-amber-600/10"
+    if (normalized >= 0.3) return "from-orange-500/20 to-orange-600/10"
+    return "from-rose-500/20 to-rose-600/10"
+  }
+  
+  if (!actualAvg && validRatings.length === 0) {
+    return (
+      <Card className="border-white/10">
+        <CardContent className="p-6 text-center">
+          <div className="text-white/30">暂无评分</div>
+        </CardContent>
+      </Card>
+    )
+  }
+  
+  return (
+    <Card className={cn("border-white/10 bg-gradient-to-br", getBgColor(actualAvg || 0))}>
+      <CardContent className="p-6">
+        <div className="flex gap-6">
+          {/* 主评分 */}
+          <div className="text-center flex-shrink-0">
+            <div className={cn("text-5xl font-bold", getRatingColor(actualAvg || 0))}>
+              {actualAvg?.toFixed(1) || "N/A"}
+            </div>
+            <div className="flex items-center justify-center gap-1 mt-1">
+              {[...Array(Math.round(actualAvg || 0))].map((_, i) => (
+                <Star key={i} className="w-3 h-3 text-amber-400 fill-amber-400" />
+              ))}
+              {[...Array(scale.max - Math.round(actualAvg || 0))].map((_, i) => (
+                <Star key={i} className="w-3 h-3 text-white/20" />
+              ))}
+            </div>
+            <div className="text-xs text-white/40 mt-2">
+              满分 {scale.max} · {validRatings.length} 人评分
+            </div>
+          </div>
+          
+          {/* 分数分布 */}
+          {validRatings.length > 0 && (
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-2 text-xs text-white/50">
+                <BarChart3 className="w-4 h-4" />
+                评分分布
+              </div>
+              <RatingDistribution ratings={validRatings} conference={conference} />
+            </div>
+          )}
+        </div>
+        
+        {/* 统计摘要 */}
+        {validRatings.length > 1 && (
+          <div className="flex gap-4 mt-4 pt-4 border-t border-white/10 text-xs text-white/50">
+            <div>
+              <span className="text-white/70">最高: </span>
+              <span className="text-emerald-400">{Math.max(...validRatings).toFixed(1)}</span>
+            </div>
+            <div>
+              <span className="text-white/70">最低: </span>
+              <span className="text-rose-400">{Math.min(...validRatings).toFixed(1)}</span>
+            </div>
+            <div>
+              <span className="text-white/70">标准差: </span>
+              <span className="text-white/70">
+                {(() => {
+                  const mean = validRatings.reduce((a, b) => a + b, 0) / validRatings.length
+                  const variance = validRatings.reduce((sum, r) => sum + Math.pow(r - mean, 2), 0) / validRatings.length
+                  return Math.sqrt(variance).toFixed(2)
+                })()}
+              </span>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  )
 }
 
 // 获取评论类型的显示信息
@@ -269,6 +441,14 @@ export default function PaperDetailPage({ params }: { params: Promise<{ id: stri
     return { officialReviews: official, discussions: others }
   }, [reviewTree])
   
+  // 提取所有评分
+  const allRatings = useMemo(() => {
+    if (!paper?.reviews) return []
+    return paper.reviews
+      .filter(r => r.review_type === "official_review" && r.rating != null)
+      .map(r => r.rating as number)
+  }, [paper?.reviews])
+  
   const loadSummary = async () => {
     setSummaryLoading(true)
     try {
@@ -309,74 +489,83 @@ export default function PaperDetailPage({ params }: { params: Promise<{ id: stri
           返回论文列表
         </Link>
         
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex flex-wrap items-center gap-2 mb-4">
-            <Badge className={cn("border", getConferenceColor(paper.conference))}>
-              {paper.conference} 2025
-            </Badge>
-            <Badge className={cn("border", getStatusColor(paper.status))}>
-              {paper.status}
-            </Badge>
-            {paper.primary_area && (
-              <Badge variant="outline">{paper.primary_area}</Badge>
-            )}
-          </div>
-          
-          <h1 className="text-3xl font-bold mb-4 leading-tight">{paper.title}</h1>
-          
-          {/* Authors */}
-          <div className="flex flex-wrap items-center gap-2 mb-4">
-            <Users className="w-4 h-4 text-white/40" />
-            {paper.authors.map((author, i) => (
-              <span key={i}>
-                <Link 
-                  href={`/authors/${encodeURIComponent(paper.authorids?.[i] || author)}`}
-                  className="text-violet-400 hover:text-violet-300 transition-colors"
-                >
-                  {author}
-                </Link>
-                {i < paper.authors.length - 1 && <span className="text-white/30">,</span>}
-              </span>
-            ))}
-          </div>
-          
-          {/* Meta */}
-          <div className="flex flex-wrap items-center gap-4 text-sm text-white/50">
-            <div className="flex items-center gap-1">
-              <Calendar className="w-4 h-4" />
-              {formatDate(paper.creation_date)}
+        {/* Two Column Layout: Info + Rating */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          {/* Left: Paper Info */}
+          <div className="lg:col-span-2">
+            {/* Badges */}
+            <div className="flex flex-wrap items-center gap-2 mb-4">
+              <Badge className={cn("border", getConferenceColor(paper.conference))}>
+                {paper.conference} 2025
+              </Badge>
+              <Badge className={cn("border", getStatusColor(paper.status))}>
+                {paper.status}
+              </Badge>
+              {paper.primary_area && (
+                <Badge variant="outline">{paper.primary_area}</Badge>
+              )}
             </div>
-            {paper.avg_rating && (
-              <div className="flex items-center gap-1 text-amber-400">
-                <Star className="w-4 h-4 fill-current" />
-                {paper.avg_rating.toFixed(1)}
+            
+            {/* Title */}
+            <h1 className="text-3xl font-bold mb-4 leading-tight">{paper.title}</h1>
+            
+            {/* Authors */}
+            <div className="flex flex-wrap items-center gap-2 mb-4">
+              <Users className="w-4 h-4 text-white/40" />
+              {paper.authors.map((author, i) => (
+                <span key={i}>
+                  <Link 
+                    href={`/authors/${encodeURIComponent(paper.authorids?.[i] || author)}`}
+                    className="text-violet-400 hover:text-violet-300 transition-colors"
+                  >
+                    {author}
+                  </Link>
+                  {i < paper.authors.length - 1 && <span className="text-white/30">,</span>}
+                </span>
+              ))}
+            </div>
+            
+            {/* Meta */}
+            <div className="flex flex-wrap items-center gap-4 text-sm text-white/50">
+              <div className="flex items-center gap-1">
+                <Calendar className="w-4 h-4" />
+                {formatDate(paper.creation_date)}
               </div>
-            )}
-            <div className="flex items-center gap-1">
-              <MessageSquare className="w-4 h-4" />
-              {paper.review_count} 评审
+              <div className="flex items-center gap-1">
+                <MessageSquare className="w-4 h-4" />
+                {paper.review_count} 评审
+              </div>
+            </div>
+            
+            {/* Links */}
+            <div className="flex flex-wrap gap-3 mt-6">
+              {paper.forum_link && (
+                <a href={paper.forum_link} target="_blank" rel="noopener noreferrer">
+                  <Button variant="secondary" size="sm">
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    OpenReview
+                  </Button>
+                </a>
+              )}
+              {paper.pdf_link && (
+                <a href={paper.pdf_link} target="_blank" rel="noopener noreferrer">
+                  <Button variant="secondary" size="sm">
+                    <FileText className="w-4 h-4 mr-2" />
+                    PDF
+                  </Button>
+                </a>
+              )}
             </div>
           </div>
           
-          {/* Links */}
-          <div className="flex flex-wrap gap-3 mt-6">
-            {paper.forum_link && (
-              <a href={paper.forum_link} target="_blank" rel="noopener noreferrer">
-                <Button variant="secondary" size="sm">
-                  <ExternalLink className="w-4 h-4 mr-2" />
-                  OpenReview
-                </Button>
-              </a>
-            )}
-            {paper.pdf_link && (
-              <a href={paper.pdf_link} target="_blank" rel="noopener noreferrer">
-                <Button variant="secondary" size="sm">
-                  <FileText className="w-4 h-4 mr-2" />
-                  PDF
-                </Button>
-              </a>
-            )}
+          {/* Right: Rating Card - IMDB Style */}
+          <div className="lg:col-span-1">
+            <RatingCard 
+              avgRating={paper.avg_rating}
+              ratings={allRatings}
+              conference={paper.conference}
+              reviewCount={paper.review_count}
+            />
           </div>
         </div>
         
@@ -538,7 +727,7 @@ export default function PaperDetailPage({ params }: { params: Promise<{ id: stri
           </Card>
         )}
         
-        {/* Discussion Thread - 作者与Reviewer的互动 */}
+        {/* Discussion Thread */}
         {discussions.length > 0 && (
           <Card>
             <CardHeader>

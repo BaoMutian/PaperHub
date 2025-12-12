@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import { Markdown } from "@/components/ui/markdown"
 import { 
   Sparkles, Send, Loader2, Code, Database, 
   MessageSquare, Lightbulb, ChevronRight, RefreshCw
@@ -177,11 +178,13 @@ function QAContent() {
                         </div>
                       )}
                       
-                      <div className="prose prose-invert prose-sm max-w-none">
+                      {message.role === "assistant" ? (
+                        <Markdown content={message.content} className="text-sm" />
+                      ) : (
                         <p className="whitespace-pre-wrap text-sm text-white/80">
                           {message.content}
                         </p>
-                      </div>
+                      )}
                       
                       {message.cypher && (
                         <div className="mt-3 pt-3 border-t border-white/10">
