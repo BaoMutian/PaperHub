@@ -9,8 +9,9 @@ neo4j==5.15.0
 httpx==0.26.0
 
 # Embedding
-sentence-transformers==2.2.2
+sentence-transformers>=5.0.0
 torch>=2.0.0
+transformers>=4.41.0
 
 # Data Processing
 pydantic==2.5.3
