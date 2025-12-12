@@ -163,7 +163,8 @@ class Neo4jService:
         OPTIONAL MATCH (p)-[:HAS_REVIEW]->(r:Review)
         WITH p, authors, collect(r {.*}) as reviews
         OPTIONAL MATCH (p)-[:HAS_KEYWORD]->(k:Keyword)
-        RETURN p {.*, authors: authors, reviews: reviews, keywords: collect(k.name)}
+        WITH p, authors, reviews, collect(k.name) as keywords
+        RETURN p {.*, authors: authors, reviews: reviews, keywords: keywords}
         """
         result = await self.execute_query(query, {"paper_id": paper_id})
         return result[0]["p"] if result else None

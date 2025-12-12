@@ -34,13 +34,29 @@ export default function NetworkPage() {
       .finally(() => setLoading(false))
   }, [conference, minCollaborations])
   
+  // 监听全屏状态变化（包括ESC键退出）
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement)
+    }
+    
+    document.addEventListener("fullscreenchange", handleFullscreenChange)
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange)
+    }
+  }, [])
+  
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
       containerRef.current?.requestFullscreen()
-      setIsFullscreen(true)
     } else {
       document.exitFullscreen()
-      setIsFullscreen(false)
+    }
+  }
+  
+  const exitFullscreen = () => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen()
     }
   }
   
@@ -195,10 +211,26 @@ export default function NetworkPage() {
         <div 
           ref={containerRef}
           className={cn(
-            "rounded-xl border border-white/10 bg-black/50 overflow-hidden",
+            "rounded-xl border border-white/10 bg-black/50 overflow-hidden relative",
             isFullscreen ? "fixed inset-0 z-50" : "h-[600px]"
           )}
         >
+          {/* 全屏模式下显示退出按钮 */}
+          {isFullscreen && (
+            <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
+              <span className="text-white/50 text-sm">按 ESC 或点击退出全屏</span>
+              <Button 
+                variant="secondary" 
+                size="sm" 
+                onClick={exitFullscreen}
+                className="bg-black/50 hover:bg-black/70"
+              >
+                <Minimize2 className="w-4 h-4 mr-1" />
+                退出全屏
+              </Button>
+            </div>
+          )}
+          
           {loading ? (
             <div className="h-full flex items-center justify-center">
               <Loader2 className="w-8 h-8 animate-spin text-violet-400" />

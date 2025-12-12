@@ -8,6 +8,8 @@ This script:
 4. Stores embeddings in Neo4j and creates vector indexes
 """
 
+from app.config import get_settings
+from app.services.embedding_service import get_embedding_service
 import asyncio
 import logging
 from typing import List, Dict, Any
@@ -19,8 +21,6 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from app.services.embedding_service import get_embedding_service
-from app.config import get_settings
 
 logging.basicConfig(
     level=logging.INFO,
@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 settings = get_settings()
 
 # 文本截断长度（字符数），避免过长文本导致 OOM
-MAX_TEXT_LENGTH = 2000
+MAX_TEXT_LENGTH = 3000
 
 
 def truncate_text(text: str, max_length: int = MAX_TEXT_LENGTH) -> str:
@@ -65,17 +65,17 @@ class EmbeddingCreator:
         self.dimension = settings.embedding_dimension
         # 每处理多少条清理一次显存
         self.gc_interval = 500
-    
+
     async def close(self):
         await self.driver.close()
-    
+
     async def create_vector_indexes(self):
         """Create vector indexes in Neo4j"""
         indexes = [
             ("paper_abstract_embedding", "Paper", "abstract_embedding"),
             ("review_content_embedding", "Review", "content_embedding")
         ]
-        
+
         async with self.driver.session() as session:
             for index_name, label, property_name in indexes:
                 query = f"""
@@ -94,7 +94,7 @@ class EmbeddingCreator:
                     logger.info(f"Created vector index: {index_name}")
                 except Exception as e:
                     logger.warning(f"Vector index warning: {e}")
-    
+
     async def get_papers_without_embedding(self, limit: int = 1000) -> List[Dict]:
         """Get papers that don't have embeddings yet"""
         query = """
@@ -106,7 +106,7 @@ class EmbeddingCreator:
         async with self.driver.session() as session:
             result = await session.run(query, {"limit": limit})
             return await result.data()
-    
+
     async def get_reviews_without_embedding(self, limit: int = 1000) -> List[Dict]:
         """Get reviews that don't have embeddings yet"""
         query = """
@@ -120,72 +120,75 @@ class EmbeddingCreator:
         async with self.driver.session() as session:
             result = await session.run(query, {"limit": limit})
             return await result.data()
-    
+
     async def update_paper_embeddings(self, papers: List[Dict]):
         """Generate and store embeddings for papers"""
         if not papers:
             return 0
-        
+
         # 截断过长文本，避免 OOM
         texts = [truncate_text(p["abstract"]) for p in papers]
-        embeddings = self.embedding_service.embed_texts(texts, batch_size=self.batch_size)
-        
+        embeddings = self.embedding_service.embed_texts(
+            texts, batch_size=self.batch_size)
+
         # Store in Neo4j
         query = """
         UNWIND $papers as paper
         MATCH (p:Paper {id: paper.id})
         SET p.abstract_embedding = paper.embedding
         """
-        
+
         paper_data = [
             {"id": p["id"], "embedding": emb}
             for p, emb in zip(papers, embeddings)
         ]
-        
+
         async with self.driver.session() as session:
             await session.run(query, {"papers": paper_data})
-        
+
         return len(papers)
-    
+
     async def update_review_embeddings(self, reviews: List[Dict]):
         """Generate and store embeddings for reviews"""
         if not reviews:
             return 0
-        
+
         # Filter out empty content
         valid_reviews = [r for r in reviews if r["content"].strip()]
         if not valid_reviews:
             return 0
-        
+
         # 截断过长文本，避免 OOM
         texts = [truncate_text(r["content"]) for r in valid_reviews]
-        embeddings = self.embedding_service.embed_texts(texts, batch_size=self.batch_size)
-        
+        embeddings = self.embedding_service.embed_texts(
+            texts, batch_size=self.batch_size)
+
         # Store in Neo4j
         query = """
         UNWIND $reviews as review
         MATCH (r:Review {id: review.id})
         SET r.content_embedding = review.embedding
         """
-        
+
         review_data = [
             {"id": r["id"], "embedding": emb}
             for r, emb in zip(valid_reviews, embeddings)
         ]
-        
+
         async with self.driver.session() as session:
             await session.run(query, {"reviews": review_data})
-        
+
         return len(valid_reviews)
-    
+
     async def run(self):
         """Main embedding creation process"""
         logger.info("Starting embedding creation...")
-        logger.info(f"Config: batch_size={self.batch_size}, max_text_length={MAX_TEXT_LENGTH}")
-        
+        logger.info(
+            f"Config: batch_size={self.batch_size}, max_text_length={MAX_TEXT_LENGTH}")
+
         # Create vector indexes
         await self.create_vector_indexes()
-        
+
         # Process papers
         total_papers = 0
         batch_fetch_size = 100  # 每次从数据库获取的数量（减小以降低内存压力）
@@ -193,35 +196,35 @@ class EmbeddingCreator:
             papers = await self.get_papers_without_embedding(limit=batch_fetch_size)
             if not papers:
                 break
-            
+
             count = await self.update_paper_embeddings(papers)
             total_papers += count
             logger.info(f"Processed {total_papers} paper embeddings...")
-            
+
             # 定期清理 GPU 显存
             if total_papers % self.gc_interval == 0:
                 clear_gpu_memory()
                 logger.info("Cleared GPU memory")
-        
+
         # 清理显存后处理 reviews
         clear_gpu_memory()
-        
+
         # Process reviews
         total_reviews = 0
         while True:
             reviews = await self.get_reviews_without_embedding(limit=batch_fetch_size)
             if not reviews:
                 break
-            
+
             count = await self.update_review_embeddings(reviews)
             total_reviews += count
             logger.info(f"Processed {total_reviews} review embeddings...")
-            
+
             # 定期清理 GPU 显存
             if total_reviews % self.gc_interval == 0:
                 clear_gpu_memory()
                 logger.info("Cleared GPU memory")
-        
+
         logger.info(f"\n{'='*50}")
         logger.info("Embedding Creation Complete!")
         logger.info(f"{'='*50}")
@@ -239,4 +242,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-

@@ -15,8 +15,8 @@ class LLMService:
         self.api_key = self.settings.openrouter_api_key
         self.model = self.settings.llm_model
     
-    async def _call_api(self, messages: List[Dict[str, str]], temperature: float = 0.7) -> str:
-        """Call OpenRouter API"""
+    async def _call_api(self, messages: List[Dict[str, str]]) -> str:
+        """Call OpenRouter API (Gemini model)"""
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
@@ -24,14 +24,14 @@ class LLMService:
             "X-Title": "AI Conference Papers KG"
         }
         
+        # Gemini 模型不需要 temperature，max_tokens=0 表示不限制输出长度
         payload = {
             "model": self.model,
             "messages": messages,
-            "temperature": temperature,
-            "max_tokens": 4096
+            "max_tokens": 0
         }
         
-        async with httpx.AsyncClient(timeout=60.0) as client:
+        async with httpx.AsyncClient(timeout=120.0) as client:
             response = await client.post(
                 f"{self.base_url}/chat/completions",
                 headers=headers,
@@ -69,7 +69,7 @@ A: {{"cypher": "MATCH (p:Paper)-[:HAS_KEYWORD]->(k:Keyword) WHERE p.conference =
         ]
         
         try:
-            response = await self._call_api(messages, temperature=0.1)
+            response = await self._call_api(messages)
             # Parse JSON from response
             # Handle markdown code blocks
             if "```json" in response:
@@ -126,7 +126,7 @@ Return JSON format with keys: "overall_sentiment", "main_strengths" (list), "mai
         ]
         
         try:
-            response = await self._call_api(messages, temperature=0.3)
+            response = await self._call_api(messages)
             if "```json" in response:
                 response = response.split("```json")[1].split("```")[0]
             elif "```" in response:
@@ -163,7 +163,7 @@ Format your response in Markdown for readability."""
             {"role": "user", "content": user_content}
         ]
         
-        return await self._call_api(messages, temperature=0.5)
+        return await self._call_api(messages)
 
 
 # Singleton
