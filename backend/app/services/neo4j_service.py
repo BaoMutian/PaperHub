@@ -458,6 +458,67 @@ class Neo4jService:
         """
         return await self.execute_query(query)
     
+    async def get_top_keywords(self, limit: int = 20) -> List[Dict]:
+        """Get most popular keywords by paper count"""
+        query = """
+        MATCH (k:Keyword)<-[:HAS_KEYWORD]-(p:Paper)
+        WITH k.name as keyword, count(p) as paper_count
+        RETURN keyword, paper_count
+        ORDER BY paper_count DESC
+        LIMIT $limit
+        """
+        return await self.execute_query(query, {"limit": limit})
+    
+    async def get_rating_distribution(self) -> List[Dict]:
+        """Get rating distribution for all papers with ratings"""
+        query = """
+        MATCH (p:Paper)
+        WHERE p.avg_rating IS NOT NULL
+        WITH p.conference as conference,
+             CASE 
+               WHEN p.avg_rating >= 8 THEN '8+'
+               WHEN p.avg_rating >= 7 THEN '7-8'
+               WHEN p.avg_rating >= 6 THEN '6-7'
+               WHEN p.avg_rating >= 5 THEN '5-6'
+               WHEN p.avg_rating >= 4 THEN '4-5'
+               ELSE '<4'
+             END as rating_range,
+             count(*) as count
+        RETURN conference, rating_range, count
+        ORDER BY conference, rating_range DESC
+        """
+        return await self.execute_query(query)
+    
+    async def get_status_distribution(self) -> List[Dict]:
+        """Get detailed status distribution (oral/spotlight/poster) per conference"""
+        query = """
+        MATCH (p:Paper)
+        WHERE p.status IN ['oral', 'spotlight', 'poster']
+        WITH p.conference as conference, p.status as status, count(*) as count
+        RETURN conference, status, count
+        ORDER BY conference, 
+                 CASE status 
+                   WHEN 'oral' THEN 1 
+                   WHEN 'spotlight' THEN 2 
+                   WHEN 'poster' THEN 3 
+                 END
+        """
+        return await self.execute_query(query)
+    
+    async def get_top_authors_stats(self, limit: int = 10) -> List[Dict]:
+        """Get top authors by paper count with acceptance stats"""
+        query = """
+        MATCH (a:Author)-[:AUTHORED]->(p:Paper)
+        WITH a, count(p) as paper_count,
+             sum(CASE WHEN p.status IN ['oral', 'spotlight', 'poster'] THEN 1 ELSE 0 END) as accepted_count
+        WHERE paper_count >= 2
+        RETURN a.authorid as authorid, a.name as name, paper_count, accepted_count,
+               round(100.0 * accepted_count / paper_count, 1) as acceptance_rate
+        ORDER BY paper_count DESC, accepted_count DESC
+        LIMIT $limit
+        """
+        return await self.execute_query(query, {"limit": limit})
+    
     async def get_trending_papers(self, limit: int = 12) -> List[Dict]:
         """Get papers with most intense discussions (by interaction_rounds)"""
         query = """

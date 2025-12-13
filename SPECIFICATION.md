@@ -415,13 +415,15 @@ NEO4J_URI=bolt://localhost:7687
 NEO4J_USER=neo4j
 NEO4J_PASSWORD=password123
 
-# OpenRouter LLM
-OPENROUTER_API_KEY=your-api-key
+# OpenRouter LLM (API key 必须通过环境变量设置，不能硬编码)
+OPENROUTER_API_KEY=your-api-key  # Required
 LLM_MODEL=google/gemini-2.5-flash
 
 # Embedding
 EMBEDDING_MODEL=Qwen/Qwen3-Embedding-0.6B
 ```
+
+> **安全提示**: `OPENROUTER_API_KEY` 必须通过环境变量或 `.env` 文件配置，代码中不包含默认值。
 
 ### 8.2 前端配置
 
@@ -493,6 +495,8 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 | 1.0.0 | 2024-12 | 初始版本：基础论文浏览、作者网络、QA                                |
 | 1.1.0 | 2024-12 | Review 动态渲染、混合检索、Paper 评分属性、QA 调试面板              |
 | 1.2.0 | 2024-12 | Rebuttal 互动统计、Battle Bar、豆瓣风格徽章、首页 Trending/TopRated |
+| 1.3.0 | 2024-12 | 数据统计页面升级(recharts图表)、热门关键词语义去重、高产作者排行    |
+| 1.3.1 | 2024-12 | UI优化：页面标题图标、首页搜索框光效、QA输入框布局修复              |
 
 ---
 

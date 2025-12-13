@@ -67,7 +67,10 @@ export default function AuthorsPage() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">作者排行</h1>
+          <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
+            <Users className="w-8 h-8 text-violet-400" />
+            作者排行
+          </h1>
           <p className="text-white/50">
             发现 AI 顶会高产作者，探索学术网络
           </p>

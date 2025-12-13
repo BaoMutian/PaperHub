@@ -85,6 +85,37 @@ body {
   animation-delay: 300ms;
 }
 
+/* Battle bar stripe animation */
+@keyframes stripe {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 40px 0;
+  }
+}
+
+/* Search box glow animation */
+@keyframes glow {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.02);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
 /* Prose styles for markdown */
 .prose {
   color: rgba(255, 255, 255, 0.8);

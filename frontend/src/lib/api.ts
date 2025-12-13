@@ -152,11 +152,36 @@ export interface ConferenceStats {
   acceptance_rate: number
 }
 
+export interface KeywordStat {
+  keyword: string
+  paper_count: number
+}
+
+export interface AuthorStat {
+  authorid: string
+  name: string
+  paper_count: number
+  accepted_count: number
+  acceptance_rate: number
+}
+
+export interface StatusDistribution {
+  oral: number
+  spotlight: number
+  poster: number
+}
+
+export interface StatsResponse {
+  overall: Record<string, number>
+  by_conference: Record<string, ConferenceStats>
+  top_keywords: KeywordStat[]
+  rating_distribution: Record<string, Record<string, number>>
+  status_distribution: Record<string, StatusDistribution>
+  top_authors: AuthorStat[]
+}
+
 export async function getPaperStats() {
-  return fetchAPI<{
-    overall: Record<string, number>
-    by_conference: Record<string, ConferenceStats>
-  }>("/papers/stats")
+  return fetchAPI<StatsResponse>("/papers/stats")
 }
 
 export async function getReviewSummary(paperId: string) {

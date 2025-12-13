@@ -123,7 +123,7 @@ function QAContent() {
   }, [input])
   
   return (
-    <div className="min-h-screen flex flex-col relative bg-background selection:bg-violet-500/30">
+    <div className="h-[calc(100vh-4rem)] flex flex-col relative bg-background selection:bg-violet-500/30">
       {/* 背景装饰 */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
         <div className="absolute top-[20%] left-[20%] w-[40%] h-[40%] bg-violet-500/5 rounded-full blur-[100px]" />
@@ -131,7 +131,7 @@ function QAContent() {
       </div>
 
       {/* Chat Container */}
-      <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full">
+      <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full overflow-hidden">
         {/* Messages Area */}
         <div className="flex-1 overflow-y-auto px-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
           {messages.length === 0 ? (

@@ -305,40 +305,52 @@ function BattleBar({
               className="absolute right-0 top-0 bottom-0 bg-gradient-to-l from-rose-600 via-rose-500 to-rose-400 flex items-center justify-end overflow-hidden"
               style={{ width: `${reviewerPercent}%` }}
             >
-              {/* 动效背景 */}
-              <div className="absolute inset-0 opacity-20" 
-                   style={{ backgroundImage: 'linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent)', backgroundSize: '1rem 1rem' }} 
+              {/* 斜纹背景 */}
+              <div 
+                className="absolute inset-0 opacity-20" 
+                style={{ 
+                  backgroundImage: 'linear-gradient(45deg,rgba(255,255,255,.2) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.2) 50%,rgba(255,255,255,.2) 75%,transparent 75%,transparent)', 
+                  backgroundSize: '16px 16px'
+                }} 
               />
-              <div className="absolute inset-0 bg-white/10 animate-pulse" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
               
               {reviewerPercent > 15 && (
-                <div className="relative z-10 flex items-center gap-1 pr-3 text-white font-bold text-xs">
-                  <span className="drop-shadow-lg tabular-nums">{reviewerWords.toLocaleString()}</span>
-                  <Target className="w-3.5 h-3.5 drop-shadow-md" />
+                <div className="relative z-10 flex items-center gap-1.5 pr-3 text-white font-bold text-xs">
+                  <span className="drop-shadow-lg tabular-nums">{reviewerWords.toLocaleString()} 字</span>
+                  <Swords className="w-4 h-4 drop-shadow-md" />
                 </div>
               )}
             </div>
 
-            {/* Author (绿色/左侧) - 上层，带斜角 */}
+            {/* Author (绿色/左侧) - 上层 */}
             <div 
-              className="absolute left-0 top-0 bottom-0 bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-400 flex items-center justify-start z-10"
+              className="absolute left-0 top-0 bottom-0 bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-400 flex items-center justify-start z-10 overflow-hidden"
               style={{ width: `${authorPercent}%` }}
             >
-              {/* 斜角延伸 - 用于覆盖右侧 */}
-              <div className="absolute right-[-8px] top-0 bottom-0 w-4 bg-emerald-400 transform skew-x-[-15deg]" />
-              
-              {/* 动效背景 */}
-              <div className="absolute inset-0 opacity-20" 
-                   style={{ backgroundImage: 'linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent)', backgroundSize: '1rem 1rem' }} 
+              {/* 斜纹背景 */}
+              <div 
+                className="absolute inset-0 opacity-20" 
+                style={{ 
+                  backgroundImage: 'linear-gradient(-45deg,rgba(255,255,255,.2) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.2) 50%,rgba(255,255,255,.2) 75%,transparent 75%,transparent)', 
+                  backgroundSize: '16px 16px'
+                }} 
               />
-              <div className="absolute inset-0 bg-white/10 animate-pulse" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
 
               {authorPercent > 15 && (
-                <div className="relative z-10 flex items-center gap-1 pl-3 text-white font-bold text-xs">
-                  <Shield className="w-3.5 h-3.5 drop-shadow-md" />
-                  <span className="drop-shadow-lg tabular-nums">{authorWords.toLocaleString()}</span>
+                <div className="relative z-10 flex items-center gap-1.5 pl-3 text-white font-bold text-xs">
+                  <Shield className="w-4 h-4 drop-shadow-md" />
+                  <span className="drop-shadow-lg tabular-nums">{authorWords.toLocaleString()} 字</span>
                 </div>
               )}
+            </div>
+            
+            {/* VS 分隔符 */}
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
+              <div className="w-8 h-8 rounded-full bg-black/80 border-2 border-white/20 flex items-center justify-center shadow-lg">
+                <span className="text-[10px] font-black text-white/80">VS</span>
+              </div>
             </div>
           </div>
         </div>
@@ -364,35 +376,32 @@ function BattleBar({
   )
 }
 
-// 豆瓣风格状态徽章
+// 豆瓣风格状态徽章 - 与普通 Badge 大小一致
 function StatusBadge({ status }: { status: string }) {
   const config = {
     oral: {
       icon: Trophy,
       label: "Oral",
       gradient: "from-amber-400 via-yellow-400 to-amber-500",
-      border: "border-amber-400/60",
-      bg: "bg-gradient-to-r from-amber-500/25 to-yellow-500/25",
-      textColor: "text-amber-200",
-      glow: "shadow-amber-500/30"
+      border: "border-amber-400/50",
+      bg: "bg-gradient-to-r from-amber-500/20 to-yellow-500/20",
+      textColor: "text-amber-300"
     },
     spotlight: {
       icon: Zap,
       label: "Spotlight",
       gradient: "from-violet-400 via-purple-400 to-fuchsia-500",
-      border: "border-violet-400/60",
-      bg: "bg-gradient-to-r from-violet-500/25 to-fuchsia-500/25",
-      textColor: "text-violet-200",
-      glow: "shadow-violet-500/30"
+      border: "border-violet-400/50",
+      bg: "bg-gradient-to-r from-violet-500/20 to-fuchsia-500/20",
+      textColor: "text-violet-300"
     },
     poster: {
       icon: Pin,
       label: "Poster",
       gradient: "from-sky-400 via-cyan-400 to-teal-500",
-      border: "border-sky-400/60",
-      bg: "bg-gradient-to-r from-sky-500/25 to-teal-500/25",
-      textColor: "text-sky-200",
-      glow: "shadow-sky-500/30"
+      border: "border-sky-400/50",
+      bg: "bg-gradient-to-r from-sky-500/20 to-teal-500/20",
+      textColor: "text-sky-300"
     }
   }
   
@@ -403,13 +412,11 @@ function StatusBadge({ status }: { status: string }) {
   
   return (
     <div className={cn(
-      "inline-flex items-center gap-2 px-3 py-1.5 rounded-full border backdrop-blur-sm shadow-lg",
-      cfg.border, cfg.bg, cfg.glow
+      "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-xs font-semibold",
+      cfg.border, cfg.bg
     )}>
-      <div className={cn("p-1 rounded-full bg-gradient-to-br", cfg.gradient)}>
-        <Icon className="w-3.5 h-3.5 text-white drop-shadow-sm" />
-      </div>
-      <span className={cn("text-sm font-bold tracking-wide", cfg.textColor)}>{cfg.label}</span>
+      <Icon className={cn("w-3 h-3", cfg.textColor)} />
+      <span className={cfg.textColor}>{cfg.label}</span>
     </div>
   )
 }

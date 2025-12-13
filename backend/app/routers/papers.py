@@ -119,9 +119,14 @@ async def get_top_rated_papers(
 async def get_statistics(
     neo4j: Neo4jService = Depends(get_neo4j_service)
 ):
-    """Get overall statistics"""
+    """Get comprehensive statistics for the stats page"""
+    # Fetch all stats in parallel-ish manner
     stats = await neo4j.get_statistics()
     conference_stats = await neo4j.get_conference_stats()
+    top_keywords = await neo4j.get_top_keywords(limit=20)
+    rating_distribution = await neo4j.get_rating_distribution()
+    status_distribution = await neo4j.get_status_distribution()
+    top_authors = await neo4j.get_top_authors_stats(limit=10)
 
     # Aggregate conference stats
     conf_summary = {}
@@ -145,9 +150,29 @@ async def get_statistics(
         conf_summary[conf]["acceptance_rate"] = round(
             accepted / total * 100, 2) if total > 0 else 0
 
+    # Process status distribution by conference
+    status_by_conf = {}
+    for item in status_distribution:
+        conf = item["conference"]
+        if conf not in status_by_conf:
+            status_by_conf[conf] = {"oral": 0, "spotlight": 0, "poster": 0}
+        status_by_conf[conf][item["status"]] = item["count"]
+
+    # Process rating distribution
+    rating_dist_processed = {}
+    for item in rating_distribution:
+        conf = item["conference"]
+        if conf not in rating_dist_processed:
+            rating_dist_processed[conf] = {}
+        rating_dist_processed[conf][item["rating_range"]] = item["count"]
+
     return {
         "overall": stats,
-        "by_conference": conf_summary
+        "by_conference": conf_summary,
+        "top_keywords": top_keywords,
+        "rating_distribution": rating_dist_processed,
+        "status_distribution": status_by_conf,
+        "top_authors": top_authors
     }
 
 

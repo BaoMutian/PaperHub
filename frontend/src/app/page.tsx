@@ -103,8 +103,10 @@ export default function HomePage() {
           {/* Search Bar */}
           <form onSubmit={handleSearch} className="max-w-2xl mx-auto mb-12">
             <div className="relative group">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-violet-500/50 to-fuchsia-500/50 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500" />
-              <div className="relative flex items-center p-2 bg-[#0A0A0A] border border-white/10 rounded-xl shadow-2xl">
+              {/* Animated gradient glow */}
+              <div className="absolute -inset-1 bg-gradient-to-r from-violet-600 via-fuchsia-500 to-cyan-400 rounded-2xl blur-lg opacity-30 group-hover:opacity-60 transition-all duration-700 animate-[glow_3s_ease-in-out_infinite]" />
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-violet-500 via-fuchsia-500 to-violet-500 rounded-2xl opacity-50 group-hover:opacity-80 transition-all duration-500 bg-[length:200%_100%] animate-[shimmer_2s_linear_infinite]" />
+              <div className="relative flex items-center p-2 bg-[#0A0A0A] border border-white/20 rounded-xl shadow-2xl">
                 <div className="pl-4 pr-3 text-white/40">
                   <Search className="w-5 h-5" />
                 </div>
@@ -398,7 +400,7 @@ export default function HomePage() {
                     
                     <div className="space-y-3">
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-white/40">Submitted</span>
+                        <span className="text-white/40">投稿数</span>
                         <span className="font-mono text-white/70">{data.total.toLocaleString()}</span>
                       </div>
                       <div className="w-full bg-white/5 rounded-full h-1.5 overflow-hidden flex">
@@ -409,8 +411,8 @@ export default function HomePage() {
                         <div className="bg-white/5 h-full flex-1" />
                       </div>
                       <div className="flex justify-between text-xs text-white/30 pt-1">
-                        <span className="text-emerald-400/70">{data.accepted} Accepted</span>
-                        <span className="text-rose-400/70">{data.rejected} Rejected</span>
+                        <span className="text-emerald-400/70">{data.accepted} 接收</span>
+                        <span className="text-rose-400/70">{data.rejected} 拒绝</span>
                       </div>
                     </div>
                   </CardContent>

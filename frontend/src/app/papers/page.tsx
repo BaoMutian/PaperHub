@@ -7,7 +7,7 @@ import { PaperCard } from "@/components/papers/paper-card"
 import { PaperFilters } from "@/components/papers/paper-filters"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { ChevronLeft, ChevronRight, Loader2, ArrowUpDown, Star, MessageSquare, Calendar } from "lucide-react"
+import { ChevronLeft, ChevronRight, Loader2, ArrowUpDown, Star, MessageSquare, Calendar, BookOpen } from "lucide-react"
 
 const SORT_OPTIONS = [
   { value: "", label: "默认排序", icon: Calendar },
@@ -66,7 +66,10 @@ function PapersContent() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">论文库</h1>
+          <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
+            <BookOpen className="w-8 h-8 text-violet-400" />
+            论文库
+          </h1>
           <p className="text-white/50">
             浏览 ICLR、ICML、NeurIPS 2025 全部论文
           </p>
