@@ -227,17 +227,19 @@ class Neo4jService:
         limit: int = 500
     ) -> Dict[str, Any]:
         """Get author collaboration network for visualization"""
-        where_clause = ""
+        # Build WHERE clause properly - conference filter AND author ordering
+        where_conditions = ["a1.authorid < a2.authorid"]
         params = {"min_collab": min_collaborations, "limit": limit}
         
         if conference:
-            where_clause = "WHERE p.conference = $conference"
+            where_conditions.append("p.conference = $conference")
             params["conference"] = conference
+        
+        where_clause = "WHERE " + " AND ".join(where_conditions)
         
         query = f"""
         MATCH (a1:Author)-[:AUTHORED]->(p:Paper)<-[:AUTHORED]-(a2:Author)
         {where_clause}
-        WHERE a1.authorid < a2.authorid
         WITH a1, a2, count(DISTINCT p) as collaborations, collect(DISTINCT p.id)[..5] as paper_ids
         WHERE collaborations >= $min_collab
         RETURN a1.authorid as source_id, a1.name as source_name,

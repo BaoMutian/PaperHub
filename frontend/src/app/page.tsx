@@ -132,8 +132,8 @@ export default function HomePage() {
                 <Button variant="outline" className={cn("h-10 px-6 border-white/10 backdrop-blur-sm transition-all group flex items-center gap-2", conf.hover)}>
                   <span className={cn("w-2 h-2 rounded-full group-hover:scale-125 transition-transform shadow-[0_0_8px_rgba(0,0,0,0.5)]", conf.dot)} />
                   <span className="font-medium tracking-wide">{conf.name}</span>
-                </Button>
-              </Link>
+              </Button>
+            </Link>
             ))}
           </div>
         </div>

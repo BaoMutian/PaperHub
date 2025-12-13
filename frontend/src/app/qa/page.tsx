@@ -229,7 +229,7 @@ function QAContent() {
                               "text-[10px] px-1.5 py-0 h-4 border-white/10",
                               message.confidence > 0.8 ? "text-emerald-400 bg-emerald-400/10" : "text-amber-400 bg-amber-400/10"
                             )}>
-                              {Math.round(message.confidence * 100)}% Conf.
+                              {Math.round(message.confidence * 100)}% 置信度
                             </Badge>
                           )}
                           {message.query_type && (
