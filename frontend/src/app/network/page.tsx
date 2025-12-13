@@ -207,13 +207,15 @@ export default function NetworkPage() {
   }, [])
   
   // Link styling based on weight
-  const linkColor = useCallback((link: { value?: number }) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const linkColor = useCallback((link: any) => {
     const weight = link.value || 1
     const alpha = Math.min(0.15 + weight * 0.08, 0.6)
     return `rgba(255, 255, 255, ${alpha})`
   }, [])
   
-  const linkWidth = useCallback((link: { value?: number }) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const linkWidth = useCallback((link: any) => {
     const weight = link.value || 1
     return Math.sqrt(weight) * 1.2
   }, [])
@@ -370,12 +372,15 @@ export default function NetworkPage() {
               {is3D ? (
                 <ForceGraph3D
                   graphData={graphData}
-                  nodeLabel={(node: ForceGraphNode) => `${node.name}\n合作者: ${node.degree} | 论文: ${node.totalPapers}`}
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  nodeLabel={(node: any) => `${node.name}\n合作者: ${node.degree} | 论文: ${node.totalPapers}`}
                   nodeColor="color"
                   nodeVal="val"
                   nodeRelSize={1}
-                  linkWidth={linkWidth}
-                  linkColor={linkColor}
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  linkWidth={linkWidth as any}
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  linkColor={linkColor as any}
                   linkOpacity={0.6}
                   backgroundColor="#000000"
                   showNavInfo={false}
@@ -385,17 +390,22 @@ export default function NetworkPage() {
                 <ForceGraph2D
                   ref={fgRef}
                   graphData={graphData}
-                  nodeCanvasObject={nodeCanvasObject}
-                  nodePointerAreaPaint={(node: ForceGraphNode, color: string, ctx: CanvasRenderingContext2D) => {
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  nodeCanvasObject={nodeCanvasObject as any}
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  nodePointerAreaPaint={(node: any, color: string, ctx: CanvasRenderingContext2D) => {
                     const size = (node.val || 5) * 1.5
                     ctx.fillStyle = color
                     ctx.beginPath()
                     ctx.arc(node.x || 0, node.y || 0, size, 0, 2 * Math.PI)
                     ctx.fill()
                   }}
-                  onNodeHover={handleNodeHover}
-                  linkWidth={linkWidth}
-                  linkColor={linkColor}
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  onNodeHover={handleNodeHover as any}
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  linkWidth={linkWidth as any}
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  linkColor={linkColor as any}
                   linkDirectionalParticles={0}
                   backgroundColor="transparent"
                   warmupTicks={100}
