@@ -92,12 +92,12 @@ export default function HomePage() {
                 <div className="pl-4 pr-3 text-white/40">
                   <Search className="w-5 h-5" />
                 </div>
-                <Input
-                  placeholder="搜索标题、作者、关键词、摘要..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  <Input
+                    placeholder="搜索标题、作者、关键词、摘要..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                   className="flex-1 h-12 bg-transparent border-0 text-lg placeholder:text-white/20 focus-visible:ring-0 px-0"
-                />
+                  />
                 <Button 
                   type="submit" 
                   size="lg"
@@ -120,18 +120,18 @@ export default function HomePage() {
               <button type="button" onClick={() => setSearchQuery("Diffusion Models")} className="hover:text-violet-400 transition-colors">Diffusion Models</button>
             </div>
           </form>
-
+          
           {/* Conference Buttons */}
-          <div className="flex flex-wrap justify-center gap-3">
+          <div className="flex flex-wrap justify-center gap-4">
             {[
-              { name: "ICLR 2025", color: "text-blue-400" },
-              { name: "ICML 2025", color: "text-violet-400" },
-              { name: "NeurIPS 2025", color: "text-fuchsia-400" },
+              { name: "ICLR 2025", dot: "bg-blue-500", hover: "hover:border-blue-500/50 hover:bg-blue-500/10 hover:text-blue-300" },
+              { name: "ICML 2025", dot: "bg-violet-500", hover: "hover:border-violet-500/50 hover:bg-violet-500/10 hover:text-violet-300" },
+              { name: "NeurIPS 2025", dot: "bg-fuchsia-500", hover: "hover:border-fuchsia-500/50 hover:bg-fuchsia-500/10 hover:text-fuchsia-300" },
             ].map((conf) => (
               <Link key={conf.name} href={`/papers?conference=${conf.name.split(' ')[0]}`}>
-                <Button variant="outline" className="border-white/10 hover:bg-white/5 hover:border-white/20 backdrop-blur-sm">
-                  <span className={cn("w-2 h-2 rounded-full mr-2", conf.color.replace('text-', 'bg-'))} />
-                  {conf.name}
+                <Button variant="outline" className={cn("h-10 px-6 border-white/10 backdrop-blur-sm transition-all group flex items-center gap-2", conf.hover)}>
+                  <span className={cn("w-2 h-2 rounded-full group-hover:scale-125 transition-transform shadow-[0_0_8px_rgba(0,0,0,0.5)]", conf.dot)} />
+                  <span className="font-medium tracking-wide">{conf.name}</span>
                 </Button>
               </Link>
             ))}
@@ -216,10 +216,10 @@ export default function HomePage() {
                     <item.icon className={cn("w-6 h-6 mb-4", item.color)} />
                     <div className="text-3xl font-bold text-white mb-1 tabular-nums tracking-tight">
                       {item.value?.toLocaleString() || "0"}
-                    </div>
+                  </div>
                     <div className="text-sm text-white/40">{item.label}</div>
-                  </CardContent>
-                </Card>
+                </CardContent>
+              </Card>
               ))}
             </div>
           )}
@@ -238,7 +238,7 @@ export default function HomePage() {
                       <h3 className="text-xl font-bold">{conf} <span className="text-white/30 text-base font-normal">2025</span></h3>
                       <div className="text-right">
                         <div className="text-2xl font-bold text-white tabular-nums">
-                          {data.acceptance_rate}%
+                        {data.acceptance_rate}%
                         </div>
                         <div className="text-[10px] text-white/30 uppercase tracking-wider">Acceptance Rate</div>
                       </div>
@@ -324,14 +324,14 @@ export default function HomePage() {
                     <div className="mt-auto pt-6 flex items-center text-xs font-medium text-white/30 group-hover:text-white/60 transition-colors">
                       立即体验 <ArrowRight className="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform" />
                     </div>
-                  </CardContent>
-                </Card>
-              </Link>
+                </CardContent>
+              </Card>
+            </Link>
             ))}
           </div>
         </div>
       </section>
-
+      
       {/* Footer CTA */}
       <section className="py-24 px-4 border-t border-white/5 bg-gradient-to-b from-transparent to-white/[0.02]">
         <div className="max-w-4xl mx-auto text-center">
