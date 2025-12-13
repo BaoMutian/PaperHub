@@ -135,12 +135,12 @@ class Neo4jService:
         
         where_clause = f"WHERE {' AND '.join(where_clauses)}" if where_clauses else ""
         
-        # Determine sort order
+        # Determine sort order - use COALESCE for null handling (Neo4j doesn't support NULLS LAST)
         sort_mapping = {
-            "rating_desc": "p.avg_rating DESC NULLS LAST",
-            "rating_asc": "p.avg_rating ASC NULLS LAST",
-            "reviews_desc": "p.rating_count DESC NULLS LAST",
-            "reviews_asc": "p.rating_count ASC NULLS LAST",
+            "rating_desc": "COALESCE(p.avg_rating, -1) DESC",
+            "rating_asc": "COALESCE(p.avg_rating, 999) ASC",
+            "reviews_desc": "COALESCE(p.rating_count, -1) DESC",
+            "reviews_asc": "COALESCE(p.rating_count, 999) ASC",
             "date_desc": "p.creation_date DESC",
             "date_asc": "p.creation_date ASC"
         }
