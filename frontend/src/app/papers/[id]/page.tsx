@@ -340,14 +340,6 @@ function BattleBar({
                 </div>
               )}
             </div>
-            
-            {/* 中间分隔 - VS标志 */}
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-800 to-black border-2 border-white/20 flex items-center justify-center shadow-lg backdrop-blur-sm">
-                <span className="text-[10px] font-black bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent italic">VS</span>
-              </div>
-            </div>
-
           </div>
         </div>
         
