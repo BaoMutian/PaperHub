@@ -30,11 +30,12 @@ export function Navbar() {
                 alt="PaperHub"
                 fill
                 className="object-contain object-left"
+                style={{ width: 'fit-content', marginLeft: '62px', marginRight: '62px' }}
                 priority
               />
             </div>
             <div className="hidden lg:block pl-2 border-l border-white/10">
-              <div className="text-xs text-white/50 font-medium">你的AI学术豆瓣</div>
+              <div className="text-base text-white/50 font-medium mx-[5px]">你的AI学术豆瓣</div>
             </div>
           </Link>
           
