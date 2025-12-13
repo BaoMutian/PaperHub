@@ -298,24 +298,43 @@ function BattleBar({
         {/* Battle Bar - 格斗游戏血条风格 */}
         <div className="relative mb-3">
           {/* 背景框 */}
-          <div className="h-10 rounded-lg bg-black/60 border border-white/10 overflow-hidden flex shadow-inner">
-            {/* Author (绿色/左侧) */}
+          <div className="h-10 rounded-lg bg-black/50 border border-white/10 overflow-hidden flex shadow-inner relative">
+            
+            {/* Reviewer (红色/右侧) - 底层 */}
             <div 
-              className="h-full bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-400 relative transition-all duration-700 ease-out flex items-center justify-start"
+              className="absolute right-0 top-0 bottom-0 bg-gradient-to-l from-rose-600 via-rose-500 to-rose-400 flex items-center justify-end overflow-hidden"
+              style={{ width: `${reviewerPercent}%` }}
+            >
+              {/* 动效背景 */}
+              <div className="absolute inset-0 opacity-20" 
+                   style={{ backgroundImage: 'linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent)', backgroundSize: '1rem 1rem' }} 
+              />
+              <div className="absolute inset-0 bg-white/10 animate-pulse" />
+              
+              {reviewerPercent > 15 && (
+                <div className="relative z-10 flex items-center gap-1 pr-3 text-white font-bold text-xs">
+                  <span className="drop-shadow-lg tabular-nums">{reviewerWords.toLocaleString()}</span>
+                  <Target className="w-3.5 h-3.5 drop-shadow-md" />
+                </div>
+              )}
+            </div>
+
+            {/* Author (绿色/左侧) - 上层，带斜角 */}
+            <div 
+              className="absolute left-0 top-0 bottom-0 bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-400 flex items-center justify-start z-10"
               style={{ width: `${authorPercent}%` }}
             >
-              {/* 光泽效果 */}
-              <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-transparent to-black/20" />
-              {/* 斜条纹 */}
-              <div className="absolute inset-0 diagonal-stripes opacity-30" />
-              {/* 流光动效 */}
-              <div className="absolute inset-0 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
-              </div>
-              {/* 右侧斜切边缘 */}
-              <div className="absolute right-0 top-0 bottom-0 w-3 bg-gradient-to-r from-transparent to-black/60 skew-x-[-12deg] translate-x-1" />
-              {authorPercent > 20 && (
-                <div className="relative z-10 flex items-center gap-1.5 pl-3 text-white font-bold text-xs">
+              {/* 斜角延伸 - 用于覆盖右侧 */}
+              <div className="absolute right-[-8px] top-0 bottom-0 w-4 bg-emerald-400 transform skew-x-[-15deg]" />
+              
+              {/* 动效背景 */}
+              <div className="absolute inset-0 opacity-20" 
+                   style={{ backgroundImage: 'linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent)', backgroundSize: '1rem 1rem' }} 
+              />
+              <div className="absolute inset-0 bg-white/10 animate-pulse" />
+
+              {authorPercent > 15 && (
+                <div className="relative z-10 flex items-center gap-1 pl-3 text-white font-bold text-xs">
                   <Shield className="w-3.5 h-3.5 drop-shadow-md" />
                   <span className="drop-shadow-lg tabular-nums">{authorWords.toLocaleString()}</span>
                 </div>
@@ -324,32 +343,9 @@ function BattleBar({
             
             {/* 中间分隔 - VS标志 */}
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-700 to-black border-2 border-white/40 flex items-center justify-center shadow-xl">
-                <span className="text-[10px] font-black bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent">VS</span>
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-800 to-black border-2 border-white/20 flex items-center justify-center shadow-lg backdrop-blur-sm">
+                <span className="text-[10px] font-black bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent italic">VS</span>
               </div>
-            </div>
-            
-            {/* Reviewer (红色/右侧) */}
-            <div 
-              className="h-full bg-gradient-to-l from-rose-600 via-rose-500 to-rose-400 relative transition-all duration-700 ease-out flex items-center justify-end"
-              style={{ width: `${reviewerPercent}%` }}
-            >
-              {/* 光泽效果 */}
-              <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-transparent to-black/20" />
-              {/* 斜条纹 */}
-              <div className="absolute inset-0 diagonal-stripes opacity-30" />
-              {/* 流光动效 */}
-              <div className="absolute inset-0 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-l from-transparent via-white/20 to-transparent animate-shimmer" />
-              </div>
-              {/* 左侧斜切边缘 */}
-              <div className="absolute left-0 top-0 bottom-0 w-3 bg-gradient-to-l from-transparent to-black/60 skew-x-[-12deg] -translate-x-1" />
-              {reviewerPercent > 20 && (
-                <div className="relative z-10 flex items-center gap-1.5 pr-3 text-white font-bold text-xs">
-                  <span className="drop-shadow-lg tabular-nums">{reviewerWords.toLocaleString()}</span>
-                  <Target className="w-3.5 h-3.5 drop-shadow-md" />
-                </div>
-              )}
             </div>
 
           </div>
