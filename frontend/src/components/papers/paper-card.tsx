@@ -57,7 +57,7 @@ export function PaperCard({ paper }: PaperCardProps) {
                 {paper.conference}
               </Badge>
               {isAcceptedStatus(paper.status) ? (
-                <StatusBadge status={paper.status} size="sm" showSubtitle={false} />
+                <StatusBadge status={paper.status} size="sm" />
               ) : (
                 <Badge className={cn("border bg-white/5 hover:bg-white/10", getStatusColor(paper.status))}>
                   {paper.status}
