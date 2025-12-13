@@ -298,27 +298,25 @@ function BattleBar({
         {/* Battle Bar - 格斗游戏血条风格 */}
         <div className="relative mb-3">
           {/* 背景框 */}
-          <div className="h-12 rounded-xl bg-black/50 border border-white/10 overflow-hidden flex shadow-inner">
+          <div className="h-8 rounded-lg bg-black/50 border border-white/10 overflow-hidden flex shadow-inner">
             {/* Author (绿色/左侧) */}
             <div 
               className="h-full bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-400 relative transition-all duration-700 ease-out flex items-center justify-start"
               style={{ width: `${authorPercent}%` }}
             >
               <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-transparent to-black/20" />
-              <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent_0%,rgba(255,255,255,0.1)_50%,transparent_100%)] animate-pulse" />
               {authorPercent > 20 && (
-                <div className="relative z-10 flex items-center gap-1.5 pl-3 text-white font-bold text-sm">
-                  <Shield className="w-4 h-4 drop-shadow-md" />
+                <div className="relative z-10 flex items-center gap-1 pl-2.5 text-white font-bold text-xs">
+                  <Shield className="w-3.5 h-3.5 drop-shadow-md" />
                   <span className="drop-shadow-lg tabular-nums">{authorWords.toLocaleString()}</span>
-                  <span className="text-[10px] text-white/60 font-normal">字</span>
                 </div>
               )}
             </div>
             
             {/* 中间分隔 - VS标志 */}
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
-              <div className="w-11 h-11 rounded-full bg-gradient-to-br from-gray-800 to-black border-2 border-white/30 flex items-center justify-center shadow-xl">
-                <span className="text-xs font-black bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent">VS</span>
+              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-gray-800 to-black border border-white/30 flex items-center justify-center shadow-lg">
+                <span className="text-[9px] font-black bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent">VS</span>
               </div>
             </div>
             
@@ -328,12 +326,10 @@ function BattleBar({
               style={{ width: `${reviewerPercent}%` }}
             >
               <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-transparent to-black/20" />
-              <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent_0%,rgba(255,255,255,0.1)_50%,transparent_100%)] animate-pulse" />
               {reviewerPercent > 20 && (
-                <div className="relative z-10 flex items-center gap-1.5 pr-3 text-white font-bold text-sm">
-                  <span className="text-[10px] text-white/60 font-normal">字</span>
+                <div className="relative z-10 flex items-center gap-1 pr-2.5 text-white font-bold text-xs">
                   <span className="drop-shadow-lg tabular-nums">{reviewerWords.toLocaleString()}</span>
-                  <Target className="w-4 h-4 drop-shadow-md" />
+                  <Target className="w-3.5 h-3.5 drop-shadow-md" />
                 </div>
               )}
             </div>
@@ -839,24 +835,21 @@ export default function PaperDetailPage({ params }: { params: Promise<{ id: stri
                 ))}
               </div>
               
-              {/* Meta info card */}
-              <div className="flex flex-wrap items-center gap-4 p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-                <div className="flex items-center gap-2 text-sm">
-                  <Calendar className="w-4 h-4 text-white/30" />
-                  <span className="text-white/50">{formatDate(paper.creation_date)}</span>
+              {/* Meta info */}
+              <div className="flex flex-wrap items-center gap-5 text-sm text-white/40">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4" />
+                  <span>{formatDate(paper.creation_date)}</span>
                 </div>
                 <div className="w-px h-4 bg-white/10" />
-                <div className="flex items-center gap-2 text-sm">
-                  <MessageSquare className="w-4 h-4 text-white/30" />
-                  <span className="text-white/50">{paper.review_count} 条评审</span>
+                <div className="flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4" />
+                  <span>{paper.review_count} 条评审</span>
                 </div>
                 {paper.venue && (
                   <>
                     <div className="w-px h-4 bg-white/10" />
-                    <div className="flex items-center gap-2 text-sm">
-                      <span className="text-white/30">Venue:</span>
-                      <span className="text-white/50">{paper.venue}</span>
-                    </div>
+                    <span>{paper.venue}</span>
                   </>
                 )}
               </div>
