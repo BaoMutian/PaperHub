@@ -1,23 +1,31 @@
-# AI Conference Papers Knowledge Graph (PaperHub)
+# PaperHub - 你的 AI 学术豆瓣
 
-基于知识图谱和 LLM 的 AI 顶会论文 QA 系统，支持 ICLR、ICML、NeurIPS 2025 论文的智能检索、分析和可视化。
+<p align="center">
+  <img src="frontend/public/logo.png" alt="PaperHub Logo" width="300">
+</p>
+
+<p align="center">
+  基于知识图谱和 LLM 的 AI 顶会论文智能检索与分析平台
+  <br>
+  支持 ICLR、ICML、NeurIPS 2025 论文的搜索、问答和可视化
+</p>
 
 ## ✨ 功能特点
 
-- **智能搜索**: 基于向量语义的论文搜索，理解用户意图而非简单关键词匹配
-- **知识图谱**: Neo4j 存储论文、作者、评审等实体及其关系
-- **自然语言 QA**: 用自然语言提问，AI 自动转换为 Cypher 查询并回答
-- **评审总结**: LLM 自动分析评审意见，生成论文优缺点总结
-- **协作网络**: 2D/3D 可视化作者协作关系图谱
-- **数据统计**: 会议接收率、热门关键词等深度统计
-- **Rebuttal Battle**: 可视化作者与审稿人的讨论对抗，格斗游戏血条风格
-- **豆瓣风格徽章**: 为 Oral/Spotlight/Poster 论文提供醒目视觉标识
+- 🔍 **智能搜索**: 基于向量语义的论文搜索，理解用户意图而非简单关键词匹配
+- 🕸️ **知识图谱**: Neo4j 存储论文、作者、评审等实体及其关系
+- 💬 **自然语言 QA**: 用自然语言提问，AI 自动转换为 Cypher 查询并回答
+- 📝 **评审总结**: LLM 自动分析评审意见，生成论文优缺点总结
+- 🌐 **协作网络**: 2D/3D 可视化作者协作关系图谱
+- 📊 **数据统计**: 会议接收率、热门关键词、作者排行等深度统计
+- ⚔️ **Rebuttal Battle**: 可视化作者与审稿人的讨论对抗，格斗游戏血条风格
+- 🏆 **豆瓣风格徽章**: 为 Oral/Spotlight/Poster 论文提供醒目视觉标识
 
 ## 🏗️ 技术架构
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    Frontend (Next.js)                    │
+│                    Frontend (Next.js 16)                │
 │  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────────┐ │
 │  │ 论文浏览 │  │ 作者页面 │  │ 协作网络 │  │ 智能问答    │ │
 │  └─────────┘  └─────────┘  └─────────┘  └─────────────┘ │
@@ -36,35 +44,38 @@
     └───────────┘    └───────────┘    └─────────────┘
 ```
 
-## 📁 项目结构
-
-```
-KG/
-├── papers/                      # 数据集
-│   ├── iclr2025.jsonl
-│   ├── icml2025.jsonl
-│   └── neurips2025.jsonl
-├── backend/                     # FastAPI 后端
-│   ├── app/
-│   │   ├── main.py             # 入口
-│   │   ├── config.py           # 配置
-│   │   ├── models/             # Pydantic 模型
-│   │   ├── routers/            # API 路由
-│   │   ├── services/           # 业务服务
-│   │   └── scripts/            # 数据导入脚本
-│   └── requirements.txt
-├── frontend/                    # Next.js 前端
-│   ├── src/
-│   │   ├── app/                # 页面
-│   │   ├── components/         # 组件
-│   │   └── lib/                # 工具函数
-│   └── package.json
-└── docker-compose.yml          # Neo4j 容器
-```
-
 ## 🚀 快速开始
 
-### 1. 启动 Neo4j
+### 方式一：Docker 一键部署（推荐）
+
+适用于云服务器或本地 Docker 环境。
+
+```bash
+# 1. 克隆项目
+git clone https://github.com/BaoMutian/PaperHub.git
+cd PaperHub
+
+# 2. 设置环境变量
+export SERVER_IP=你的服务器IP
+export OPENROUTER_API_KEY=你的API密钥  # 可选，用于智能问答
+
+# 3. 一键部署
+chmod +x deploy.sh
+./deploy.sh
+
+# 4. 导入数据（首次部署）
+docker exec -it paperhub-backend python -m app.scripts.ingest
+docker exec -it paperhub-backend python -m app.scripts.create_embeddings
+```
+
+部署完成后访问：
+
+- 🌐 前端: `http://你的服务器IP:3000`
+- 📡 API: `http://你的服务器IP:8000/docs`
+
+### 方式二：本地开发环境
+
+#### 1. 启动 Neo4j
 
 ```bash
 docker-compose up -d
@@ -77,73 +88,102 @@ Neo4j 默认配置:
 - 用户名: neo4j
 - 密码: password123
 
-### 2. 安装后端依赖
+#### 2. 安装后端依赖
 
 ```bash
 cd backend
 pip install -r requirements.txt
 ```
 
-### 3. 导入数据
+#### 3. 配置环境变量
+
+创建 `backend/.env` 文件：
+
+```bash
+# Neo4j
+NEO4J_URI=bolt://localhost:7687
+NEO4J_USER=neo4j
+NEO4J_PASSWORD=password123
+
+# OpenRouter (可选，用于智能问答)
+OPENROUTER_API_KEY=sk-or-v1-xxxxx
+
+# LLM 模型
+LLM_MODEL=google/gemini-2.5-flash
+```
+
+#### 4. 导入数据
 
 ```bash
 cd backend
 python -m app.scripts.ingest
-```
 
-### 4. 创建向量索引 (可选，用于语义搜索)
-
-```bash
+# 创建向量索引（用于语义搜索）
 python -m app.scripts.create_embeddings
 
 # 计算论文互动信息
 python -m app.scripts.calculate_interactions
 ```
 
-### 5. 启动后端
+#### 5. 启动后端
 
 ```bash
-cd backend
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 API 文档: http://localhost:8000/docs
 
-### 6. 安装前端依赖
+#### 6. 启动前端
 
 ```bash
 cd frontend
 npm install
-```
-
-### 7. 启动前端
-
-```bash
 npm run dev
 ```
 
 访问: http://localhost:3000
 
+## 📁 项目结构
+
+```
+PaperHub/
+├── papers/                      # 数据集
+│   ├── iclr2025.jsonl
+│   ├── icml2025.jsonl
+│   └── neurips2025.jsonl
+├── backend/                     # FastAPI 后端
+│   ├── app/
+│   │   ├── main.py             # 入口
+│   │   ├── config.py           # 配置
+│   │   ├── models/             # Pydantic 模型
+│   │   ├── routers/            # API 路由
+│   │   ├── services/           # 业务服务
+│   │   └── scripts/            # 数据导入脚本
+│   ├── Dockerfile
+│   └── requirements.txt
+├── frontend/                    # Next.js 前端
+│   ├── src/
+│   │   ├── app/                # 页面
+│   │   ├── components/         # 组件
+│   │   └── lib/                # 工具函数
+│   ├── Dockerfile
+│   └── package.json
+├── docker-compose.yml          # 开发环境
+├── docker-compose.prod.yml     # 生产环境
+└── deploy.sh                   # 一键部署脚本
+```
+
 ## 📊 知识图谱 Schema
 
 ### 节点类型
 
-| 节点       | 属性                                                                                                  | 说明                       |
-| ---------- | ----------------------------------------------------------------------------------------------------- | -------------------------- |
-| Paper      | id, title, abstract, status, conference, keywords, avg_rating, author_word_count, battle_intensity... | 论文 (含互动统计)          |
-| Author     | authorid, name                                                                                        | 作者 (authorid 为唯一标识) |
-| Review     | id, review_type, rating, summary, strengths, weaknesses, content_json...                              | 评审                       |
-| Keyword    | name                                                                                                  | 关键词                     |
-| Conference | name, year, max_rating                                                                                | 会议                       |
-
-### Interaction 统计属性 (Paper)
-
-| 属性                | 说明                             |
-| ------------------- | -------------------------------- |
-| author_word_count   | 作者在 Rebuttal 阶段的总字数     |
-| reviewer_word_count | 所有审稿人回复的总字数           |
-| interaction_rounds  | 最大对话回复层级深度             |
-| battle_intensity    | 归一化的讨论激烈程度 (0.0 - 1.0) |
+| 节点       | 属性                                                               | 说明                       |
+| ---------- | ------------------------------------------------------------------ | -------------------------- |
+| Paper      | id, title, abstract, status, conference, keywords, avg_rating, ... | 论文 (含互动统计)          |
+| Author     | authorid, name                                                     | 作者 (authorid 为唯一标识) |
+| Review     | id, review_type, rating, summary, strengths, weaknesses, ...       | 评审                       |
+| Keyword    | name                                                               | 关键词                     |
+| Conference | name, year, max_rating                                             | 会议                       |
 
 ### 关系类型
 
@@ -162,6 +202,7 @@ npm run dev
 - `GET /papers` - 论文列表 (分页、筛选)
 - `GET /papers/{id}` - 论文详情 (含 Rebuttal 互动统计)
 - `GET /papers/search?q=xxx` - 语义搜索
+- `GET /papers/stats` - 统计数据
 - `GET /papers/trending` - 讨论最激烈的论文
 - `GET /papers/top-rated` - 高分论文排行
 - `GET /papers/{id}/review-summary` - AI 评审总结
@@ -182,7 +223,7 @@ npm run dev
 - `POST /qa/ask` - 自然语言问答
 - `GET /qa/examples` - 示例问题
 
-## 💡 示例查询
+## 💡 示例问题
 
 ### 统计查询
 
@@ -200,23 +241,25 @@ npm run dev
 - "关于 transformer 的论文有哪些？"
 - "这篇论文的主要缺点是什么？"
 
-## ⚙️ 配置
+## ⚙️ 配置说明
 
 ### 环境变量
 
-```bash
-# Neo4j
-NEO4J_URI=bolt://localhost:7687
-NEO4J_USER=neo4j
-NEO4J_PASSWORD=password123
+| 变量                 | 说明                | 默认值                                   |
+| -------------------- | ------------------- | ---------------------------------------- |
+| `NEO4J_URI`          | Neo4j 连接地址      | `bolt://localhost:7687`                  |
+| `NEO4J_USER`         | Neo4j 用户名        | `neo4j`                                  |
+| `NEO4J_PASSWORD`     | Neo4j 密码          | `password123`                            |
+| `OPENROUTER_API_KEY` | OpenRouter API 密钥 | -                                        |
+| `LLM_MODEL`          | LLM 模型            | `google/gemini-2.5-flash`                |
+| `EMBEDDING_MODEL`    | 嵌入模型            | `sentence-transformers/all-MiniLM-L6-v2` |
 
-# OpenRouter
-OPENROUTER_API_KEY=your-api-key
-LLM_MODEL=google/gemini-2.5-flash
+### 嵌入模型选择
 
-# Embedding
-EMBEDDING_MODEL=Qwen/Qwen3-Embedding-0.6B
-```
+| 模型                        | 维度 | 大小   | 速度 | 适用场景           |
+| --------------------------- | ---- | ------ | ---- | ------------------ |
+| `all-MiniLM-L6-v2`          | 384  | ~23MB  | 快   | CPU 服务器（推荐） |
+| `Qwen/Qwen3-Embedding-0.6B` | 1024 | ~1.2GB | 慢   | GPU 服务器         |
 
 ## 📝 数据说明
 
@@ -227,9 +270,14 @@ EMBEDDING_MODEL=Qwen/Qwen3-Embedding-0.6B
 ## 🛠️ 技术栈
 
 - **后端**: FastAPI, Neo4j, sentence-transformers
-- **前端**: Next.js 15, React, TailwindCSS, react-force-graph
-- **LLM**: OpenRouter API (Gemini 2.5 Flash Lite)
+- **前端**: Next.js 16, React 19, TailwindCSS, Recharts, react-force-graph
+- **LLM**: OpenRouter API (Gemini 2.5 Flash)
 - **图数据库**: Neo4j 5.x (含向量索引)
+- **部署**: Docker, Docker Compose
+
+## 🤝 贡献
+
+欢迎提交 Issue 和 Pull Request！
 
 ## 📄 License
 
