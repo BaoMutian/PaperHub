@@ -118,7 +118,7 @@ function RatingCard({
   }
   
   return (
-    <Card className="border-white/10 h-[400px] bg-white/[0.02] backdrop-blur-sm overflow-hidden flex flex-col">
+    <Card className="border-white/10 h-[480px] bg-white/[0.02] backdrop-blur-sm overflow-hidden flex flex-col">
       {/* 平均分展示 - 固定头部 */}
       <div className="flex-shrink-0 p-6 pb-6 border-b border-white/10 flex flex-col items-center relative bg-white/[0.01]">
         <div className="absolute top-4 right-4 text-xs font-mono text-white/20 px-2 py-1 rounded bg-white/5">{conference}</div>
@@ -210,7 +210,7 @@ function RatingCard({
             </div>
             <div className="w-px h-4 bg-white/10" />
             <div className="flex items-center gap-1.5">
-              <span className="text-white/30">σ</span>
+              <span className="text-white/30">STD</span>
               <span className="text-white/70 font-bold text-sm">
                 {(() => {
                   const ratings = validRatings.map(r => r.rating)
