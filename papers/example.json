@@ -1,497 +1,77 @@
 {
-    "id": "00SnKBGTsz",
-    "title": "DataEnvGym: Data Generation Agents in Teacher Environments with Student Feedback",
+    "id": "zlAUnwhE2v",
+    "title": "ChemThinker: Thinking Like a Chemist with Multi-Agent LLMs for Deep Molecular Insights",
     "authors": [
-        "Zaid Khan",
-        "Elias Stengel-Eskin",
-        "Jaemin Cho",
-        "Mohit Bansal"
+        "Jiaxin Ju",
+        "YIZHEN ZHENG",
+        "Huan Yee Koh",
+        "Can Wang",
+        "Shirui Pan"
     ],
     "authorids": [
-        "~Zaid_Khan1",
-        "~Elias_Stengel-Eskin1",
-        "~Jaemin_Cho1",
-        "~Mohit_Bansal2"
+        "~Jiaxin_Ju1",
+        "~YIZHEN_ZHENG1",
+        "~Huan_Yee_Koh1",
+        "~Can_Wang2",
+        "~Shirui_Pan1"
     ],
-    "abstract": "The process of creating training data to teach models is currently driven by humans, who manually analyze model weaknesses and plan how to create data that improves a student model. Recent approaches using large language models (LLMs) as annotators reduce human annotation effort, but still require humans to interpret feedback from evaluations and control the LLM to produce data the student needs. Automating this labor-intensive process by creating autonomous data generation agents – or teachers – is desirable, but requires environments that can simulate the feedback-driven, iterative, closed loop of data creation. To enable rapid and scalable testing for such agents and their modules, we introduce DataEnvGym, a testbed of teacher environments for data generation agents. DataEnvGym frames data generation as a sequential decision-making task, involving an agent consisting of a data generation policy (which generates a plan for creating training data) and a data generation engine (which transforms the plan into data), inside an environment that provides feedback from a student. The agent’s end goal is to improve student model performance. Students are iteratively trained and evaluated on generated data, with their feedback (in the form of errors or weak skills) being reported to the agent after each iteration. As a general-purpose testbed, DataEnvGym includes multiple instantiations of teacher environments across three levels of structure in the state representation and action space, with varying levels of scaffolding support. More structured environments are based on automatically-inferred skills and offer a higher degree of interpretability and control over the curriculum. We support developing and testing data generation agents in four diverse tasks covering text, images, and actions (mathematics, programming, visual question answering, and tool-use) and test multiple student and teacher models. We find that example agents in our teaching environments can iteratively improve students across diverse tasks and settings. Moreover, we show that environments can teach different skill levels and can be used to test variants of key modules, pointing to directions of future work in improving data generation agents, engines, and feedback mechanisms. Project page: https://DataEnvGym.github.io.",
+    "abstract": "Molecular property prediction is vital in drug discovery and cheminformatics, yet many current models lack interpretability, making it difficult for experts to understand the rationale behind predictions. To address this, we introduce ChemThinker, a novel large language models (LLMs) multi-agent framework designed to effectively control the internal representations of concepts and functions within LLMs. ChemThinker emulates the way chemists approach molecular analysis by integrating insights from three perspectives: general molecular properties, data-driven analysis, and task-specific factors. Each perspective uses an agentic approach to stimulate the LLM's internal representations, enabling more targeted and interpretable outputs based on the problem at hand, akin to how stimuli trigger the brain's cognitive processes. By feeding representations from these three perspectives into a simple multi-layer perceptron (MLP), ChemThinker achieves superior performance, significantly outperforming existing baselines across multiple benchmarks. Furthermore, our framework provides interpretable insights into the molecular mechanisms driving the predictions, making it a practical tool for drug discovery and other cheminformatics applications.",
     "keywords": [
-        "iterative data generation",
-        "llm agent",
-        "lifelong learning"
+        "Molecular Property Prediction",
+        "Molecular Representation Learning",
+        "Multi-Agent LLMs"
     ],
-    "primary_area": "foundation or frontier models, including LLMs",
+    "primary_area": "applications to physical sciences (physics, chemistry, biology, etc.)",
     "TLDR": "",
     "creation_date": "2024-09-28",
-    "modification_date": "2025-03-02",
-    "forum_link": "https://openreview.net/forum?id=00SnKBGTsz",
-    "pdf_link": "https://openreview.net/pdf?id=00SnKBGTsz",
-    "venue": "ICLR 2025 Spotlight",
-    "venueid": "ICLR.cc/2025/Conference",
+    "modification_date": "2024-11-20",
+    "forum_link": "https://openreview.net/forum?id=zlAUnwhE2v",
+    "pdf_link": "https://openreview.net/pdf?id=zlAUnwhE2v",
+    "venue": "ICLR 2025 Conference Withdrawn Submission",
+    "venueid": "ICLR.cc/2025/Conference/Withdrawn_Submission",
     "review_details": [
         {
-            "id": "kokKFEn2fw",
-            "replyto": "00SnKBGTsz",
+            "id": "szCWyKXygc",
+            "replyto": "zlAUnwhE2v",
             "number": 1,
-            "cdate": "2025-01-22",
-            "mdate": "2025-02-11",
+            "cdate": "2024-11-20",
+            "mdate": "2024-11-20",
             "content": {
-                "title": {
-                    "value": "Paper Decision"
-                },
-                "decision": {
-                    "value": "Accept (Spotlight)"
-                },
-                "comment": {
-                    "value": ""
+                "withdrawal_confirmation": {
+                    "value": "I have read and agree with the venue's withdrawal policy on behalf of myself and my co-authors."
                 }
             },
             "invitations": [
-                "ICLR.cc/2025/Conference/Submission11063/-/Decision",
-                "ICLR.cc/2025/Conference/-/Edit"
+                "ICLR.cc/2025/Conference/Submission13199/-/Withdrawal"
             ]
         },
         {
-            "id": "zpboemkkjR",
-            "replyto": "00SnKBGTsz",
-            "number": 1,
-            "cdate": "2024-12-20",
-            "mdate": "2025-02-05",
-            "content": {
-                "metareview": {
-                    "value": "The paper frames the problem of automatic data generation (to improve a ML model) as a sequential decision making task, and provides Gym environments as well as LLM-based agents that are effective for them. The resulting datasets are shown to be effective for ML models in math reasoning, coding, and visual question answering domains.\n\nAll of the reviewers agreed that the paper is a solid contribution for ICLR. Reviewers praised the novelty and significance of the DataEnvGym, and anticipated follow-up works on data-generation agents.\nThe authors addressed the weaknesses identified by the reviewers very skillfully during the rebuttal."
-                },
-                "additional_comments_on_reviewer_discussion": {
-                    "value": "Reviewers highlighted that there are missing experiment details (e.g. costs for running experiments) that the authors supplied during the rebuttal.\nThe authors also compared against active learning and random baselines for data generation/selection, and the proposed agents were substantially better across multiple domains.\nReviewers requested a more careful analysis of where the improvements were coming from (from the additional data, or from additional training) and the authors ran a thoughtful experiment to check.\nAll of these findings during the rebuttal period substantially strengthened the paper."
-                }
-            },
-            "invitations": [
-                "ICLR.cc/2025/Conference/Submission11063/-/Meta_Review",
-                "ICLR.cc/2025/Conference/-/Edit"
-            ]
-        },
-        {
-            "id": "wnsiUkDh00",
-            "replyto": "NEsxOTkkIV",
-            "number": 19,
-            "cdate": "2024-11-28",
-            "mdate": "2024-11-28",
-            "content": {
-                "comment": {
-                    "value": "Thank you Reviewer c5nB! We're glad that you felt our additional experiments were well-designed + sound. We truly appreciate your effort in reviewing the paper and are grateful for your thoughtfulness in increasing your score."
-                }
-            },
-            "invitations": [
-                "ICLR.cc/2025/Conference/Submission11063/-/Official_Comment"
-            ]
-        },
-        {
-            "id": "13mj0Rtn5W",
-            "replyto": "hWat8aFBRw",
-            "number": 18,
-            "cdate": "2024-11-28",
-            "mdate": "2024-11-28",
-            "content": {
-                "comment": {
-                    "value": "Thank you Reviewer wuGW for your feedback/engagement and positive appraisal of our work! We're glad our rebuttal was able to address your questions."
-                }
-            },
-            "invitations": [
-                "ICLR.cc/2025/Conference/Submission11063/-/Official_Comment"
-            ]
-        },
-        {
-            "id": "hWat8aFBRw",
-            "replyto": "66buacQmRe",
-            "number": 17,
-            "cdate": "2024-11-27",
-            "mdate": "2024-11-27",
-            "content": {
-                "comment": {
-                    "value": "Thank you so much for looking into my feedback and working on it. I am in the process of reviewing the updated manuscript and will let you know but so far you have pretty much addressed my concerns. Cheers!"
-                }
-            },
-            "invitations": [
-                "ICLR.cc/2025/Conference/Submission11063/-/Official_Comment"
-            ]
-        },
-        {
-            "id": "NEsxOTkkIV",
-            "replyto": "Aq2tBtB0lt",
-            "number": 16,
-            "cdate": "2024-11-27",
-            "mdate": "2024-11-27",
-            "content": {
-                "comment": {
-                    "value": "Dear authors,\n\nThank you for conducting the additional experiments and incorporating the results and findings. This addresses three of my major concerns:\n\nW1: Figure 12 demonstrates that students' performance improves when evaluated on test sets which incorporates the newly generated data points. Although the evaluation was only conducted on the multimodal and MATH environments, and not on the coding environment due to technical difficulties, I believe this set of experiments is well-designed and sound.\n\nQ1: Appendix E (Table 6) proves that the student performance is increased due to the added data rather than insufficient training initially. The result is valid and sound.\n\nQ2: The added figures (Figure 10), combined with the existing ones, provide a good coverage of both qualitative and quantitative results for skill discovery.\n\nTaking these into account, I have raised the score to 8."
-                }
-            },
-            "invitations": [
-                "ICLR.cc/2025/Conference/Submission11063/-/Official_Comment"
-            ]
-        },
-        {
-            "id": "wqTNtVDwef",
-            "replyto": "9OQJoesINr",
-            "number": 15,
-            "cdate": "2024-11-26",
-            "mdate": "2024-11-26",
-            "content": {
-                "comment": {
-                    "value": "Thank you, reviewer VQ9Y! We truly appreciate your kind words and your effort in reviewing our work."
-                }
-            },
-            "invitations": [
-                "ICLR.cc/2025/Conference/Submission11063/-/Official_Comment"
-            ]
-        },
-        {
-            "id": "9OQJoesINr",
-            "replyto": "pOR42YNLtU",
-            "number": 14,
-            "cdate": "2024-11-26",
-            "mdate": "2024-11-26",
-            "content": {
-                "title": {
-                    "value": "Thank you"
-                },
-                "comment": {
-                    "value": "Thanks for the tremedous effort put into the response. It addressed most of my concerns so I raise the score to 8."
-                }
-            },
-            "invitations": [
-                "ICLR.cc/2025/Conference/Submission11063/-/Official_Comment"
-            ]
-        },
-        {
-            "id": "ZqwAYtcmhv",
-            "replyto": "DjVKsUoFN2",
-            "number": 13,
-            "cdate": "2024-11-26",
-            "mdate": "2024-11-26",
-            "content": {
-                "comment": {
-                    "value": "Thank you, reviewer rVo8! We sincerely appreciate your thoughtfulness and engagement."
-                }
-            },
-            "invitations": [
-                "ICLR.cc/2025/Conference/Submission11063/-/Official_Comment"
-            ]
-        },
-        {
-            "id": "C3MhCuKhTf",
-            "replyto": "Aq2tBtB0lt",
-            "number": 12,
-            "cdate": "2024-11-26",
-            "mdate": "2024-11-26",
-            "content": {
-                "title": {
-                    "value": "Follow up to reviewer c5nB"
-                },
-                "comment": {
-                    "value": "Given that there is only one day remaining in the rebuttal period, **we wanted to gently check in whether our rebuttal addressed all your questions or we are happy to address any remaining questions.** We’ve added experiments to address your questions about (a) test sets that incorporate generated data (b) whether added data or training is responsible for performance increases and we also add more qualitative results on skill discovery. We hope that these additional results and answers will allow you to revisit your score — otherwise, we are happy to engage further!"
-                }
-            },
-            "invitations": [
-                "ICLR.cc/2025/Conference/Submission11063/-/Official_Comment"
-            ]
-        },
-        {
-            "id": "DjVKsUoFN2",
-            "replyto": "la5jPwJU4g",
-            "number": 11,
-            "cdate": "2024-11-25",
-            "mdate": "2024-11-25",
-            "content": {
-                "comment": {
-                    "value": "Thank you for the additional experiments and explanation. I have updated my score accordingly."
-                }
-            },
-            "invitations": [
-                "ICLR.cc/2025/Conference/Submission11063/-/Official_Comment"
-            ]
-        },
-        {
-            "id": "la5jPwJU4g",
-            "replyto": "H2h2K6a8x5",
-            "number": 10,
-            "cdate": "2024-11-25",
-            "mdate": "2024-11-25",
-            "content": {
-                "title": {
-                    "value": "Followup to Reviewer rVo8"
-                },
-                "comment": {
-                    "value": "Thanks for the great suggestions and continued engagement\\!\n\nWe've redone Fig. 5 on training dynamics in the style you've suggested: \n\n1. We've run extended experiments instead of truncating them.  \n2. We now show entire training curves to illustrate what the longer training progression would look like and add visual elements to show where the truncation occurred.  \n3. We've added error bands based on our re-runs to characterize variance.   \n4. We’ve rephrased Lines 460 \\- 465 as per your suggestions."
-                }
-            },
-            "invitations": [
-                "ICLR.cc/2025/Conference/Submission11063/-/Official_Comment"
-            ]
-        },
-        {
-            "id": "H2h2K6a8x5",
-            "replyto": "i3QgWgrJff",
-            "number": 9,
-            "cdate": "2024-11-23",
-            "mdate": "2024-11-23",
-            "content": {
-                "comment": {
-                    "value": "I thank the authors for the new experiments and clarifications.\n\n> This is not a typo — we truncate when performance begins to saturate. This is a choice we made to speed up experiments, but it is certainly possible to run environments for longer.\n\nThat does not mean that the performance decreases. Decreases mean that the accuracy is dropping. Also, it is not clear in Figure 5 if the performance increase saturated.\n\n> We repeated the open-ended experiments 3x for each domain. The open-ended environment is the least constrained so we expect the highest variance here. The overall improvement is higher than the variance in each case.\n\nWhy not include it in Figure 5?\n\n> It differs by environment. In the MATH and LiveCodeBench environments, the performance saturates with increased training. In the GQA environment, the performance seems to continue increasing up to 56%, but becomes more unstable (fluctuations up and down).\n\nGiven this, why not include the full training progression in Figure 5 instead of truncating it? Providing more clarification on the decision to truncate would be helpful. Alternatively, adding an indicator on the figure to show where the truncation occurred and illustrating what the longer training progression would look like could address this."
-                }
-            },
-            "invitations": [
-                "ICLR.cc/2025/Conference/Submission11063/-/Official_Comment"
-            ]
-        },
-        {
-            "id": "Bgr7Ol90m7",
-            "replyto": "i3QgWgrJff",
-            "number": 8,
-            "cdate": "2024-11-23",
-            "mdate": "2024-11-23",
-            "content": {
-                "comment": {
-                    "value": "Thank you once again for your valuable feedback! We hope our response has addressed all of your questions and will allow you to revisit your score. We would be happy to engage further and address any further questions you might have in the remaining few days of the discussion period."
-                }
-            },
-            "invitations": [
-                "ICLR.cc/2025/Conference/Submission11063/-/Official_Comment"
-            ]
-        },
-        {
-            "id": "66buacQmRe",
-            "replyto": "7XT4kLWV2f",
-            "number": 7,
-            "cdate": "2024-11-21",
-            "mdate": "2024-11-21",
-            "content": {
-                "title": {
-                    "value": "Response to Reviewer wuGW"
-                },
-                "comment": {
-                    "value": "Thank you for recognizing the value of DataEnvGym and pointing out the “_novel problem_” we address as well as our “_well-defined framework_” and “_promising results_”.\n\n**W1/Q1: We include multiple agent architectures and experiment with two additional teacher LLMs**.  \nEach environment requires a different agent architecture, so we have 3 in total. We also try with different teacher LLMs: GPT-4o (Table 2, L378-393) and GPT-4o-mini (Table 5, L972-986 in the revised PDF). \n\n**W2: Data is generated by several components working together.**   \nIn addition to generating data via LLM, we experiment with multimodal grounding datasets.  \nIn these cases, the data is generated by a text-to-image model. In all cases, the LLM is only a component of a pipeline that involves many modules, such as skill discovery and a data generation engine. For example, in the SKILL-TREE environment, the policy making decisions about what skills to generate data for are not LLMs and can be classical controllers.\n\n**W3/Q2: We have added additional analysis of the learned skills.**  \nFollowing your suggestion, we have added an additional figure showing a full list (Figure 10, L1115-1132 in the revised PDF) of discovered skills for MATH, GQA, and LiveCodeBench in the SKILL-LIST environments in Appendix C. We have also added another figure showing qualitative examples of skill-errors that were fixed by training on synthetic data in Appendix C, highlighting the utility of skills in our framework. In summary, we now have 5 figures showing qualitative examples of skill discovery and one quantitative analysis of skill discovery in Appendix C.\n\n**W4/Q3: We compare with active learning.**  \nWe implement data selection using prototypicality scores \\[A\\] which are standard for active learning. Similar to the random selection baseline, it is hard to improve a well-post-trained LLM like Llama3 or Gemma2 by using readily available data pools — it is much easier to improve them using generated data. Even using the full training dataset cannot improve the student. This motivates our choice to tackle data generation rather than data selection. The training of open-source frontier models (Llama3, for example) includes significant post-training that subsumes publicly available data sources \\[B, $\\\\S$4.2, C$\\\\S$4\\], making it hard to improve them with any amount of already existing data. \n\n|  | Before Training | Data Selection (Prototypicality) | Full Training Dataset | Data Generation (Open-Ended) |  \n|---|---|-----|---|----|  \n| MATH Accuracy | 15.78  | 16.01  | 15.18  | **23.44**  |\n\n**W5/Q4: DataEnvGym has been designed for scalability.**  \nOn a single A6000, the total training time for our most computationally expensive setting (multimodal) is 6h, or about 1.5h/iteration. Most other settings are much faster. Environments are fully parallelizable using Ray and can be scaled up to multiple GPUs and even multiple nodes. We’ve added a full accounting of token and GPU costs in Table 4, L918-931 of the revised PDF.\n\n\\[A\\] Sorscher et al., Beyond neural scaling laws: beating power law scaling via data pruning, NeurIPS 2022 Outstanding Paper Award  \n\\[B\\] Llama Team, AI @ Meta, The Llama 3 Herd of Models, arXiv 2024  \n\\[C\\] Gemma Team, Google Deepmind, Gemma 2: Improving Open Language Models at a Practical Size, arXiv 2024"
-                }
-            },
-            "invitations": [
-                "ICLR.cc/2025/Conference/Submission11063/-/Official_Comment"
-            ]
-        },
-        {
-            "id": "m1iUqPHpwk",
-            "replyto": "i3QgWgrJff",
-            "number": 6,
-            "cdate": "2024-11-21",
-            "mdate": "2024-11-21",
-            "content": {
-                "title": {
-                    "value": "Response to Reviewer rVo8"
-                },
-                "comment": {
-                    "value": "Thank you for stating that we make a good contribution to automated data generation and quality feedback\\!\n\n**W1: We clarify that our focus is on synthetic data generation for training purposes**.  \nWe have added and highlighted text to the introduction in L050-051 in the revised PDF that clarifies our focus is on data generation for training purposes.\n\n**W2: Related works.**  \nThanks for providing the additional related works that fit into our section focused on simulations/games with a fixed set of actions and skills. We have cited them and discussed them in Section 4 under the paragraph “Training Environment Generation” (L503-506 in the revised PDF).\n\n**W3: We truncate experiments when performance decreases**.  \nThis is not a typo — we truncate when performance begins to saturate. This is a choice we made to speed up experiments, but it is certainly possible to run environments for longer.\n\n**W4: We add repeated runs of experiments to characterize variance**.  \nWe repeated the open-ended experiments 3x for each domain. The open-ended environment is the least constrained so we expect the highest variance here. The overall improvement is higher than the variance in each case. \n\n|  | Multimodal (GQA) | MATH  | LiveCodeBench  |  \n|---|---|---|---|  \n| Before Teaching  | 44.18  | 15.78  | 16.50  |  \n| Open-Ended (3 runs) | 53.25 $\\\\pm$ 1.97 | 21.55 $\\\\pm$ 1.42 | 18.55 $\\\\pm$ 0.27 |\n\n**Q1: How does the performance of the data generation agents change over longer interactions?**  \nIt differs by environment. In the MATH and LiveCodeBench environments, the performance saturates with increased training. In the GQA environment, the performance seems to continue increasing up to 56%, but becomes more unstable (fluctuations up and down). \n\n**Q2: Is the total training data fixed in each allocation, or does it vary dynamically?**  \nWe set a maximum budget for an experiment and terminate the experiment when the budget is exhausted or the student saturates, whichever happens earlier. It is up to the policy to decide how it wants to allocate the budget across skills and iterations. In the baseline policies, we leave this decision up to the LLM except for the skill-tree environment, where we allocate data uniformly across skills and subskills because it is a reasonable baseline."
-                }
-            },
-            "invitations": [
-                "ICLR.cc/2025/Conference/Submission11063/-/Official_Comment"
-            ]
-        },
-        {
-            "id": "Aq2tBtB0lt",
-            "replyto": "GMsjHLXdOx",
-            "number": 5,
-            "cdate": "2024-11-21",
-            "mdate": "2024-11-21",
-            "content": {
-                "title": {
-                    "value": "Response to Reviewer c5nB"
-                },
-                "comment": {
-                    "value": "We’re glad you find DataEnvGym novel and insightful\\! \n\n**W1: The student improves on generated test sets over successive iterations.**  \nFollowing your suggestion, we conducted experiments with generated test sets. We summarize the results/findings below and have added them to Appendix D (L1173-1182) and Figure 12 (L1188,1199) in our revised PDF.  \nFor each setting, we show the performance of the student on test sets that incorporate newly generated data points over successive iterations.  \nConcretely, we evaluate the performance of a student from iteration n on a test set created from data generated in iteration n+1 (unseen training data).  \nThis is only easily possible in the multimodal and MATH environments — the coding environment accuracy is determined by unit tests, which we do not currently generate.   \nIn all cases, the student improves on the generated test sets over successive iterations, and accuracy on the generated test set is higher in the last iteration than in the first.\n\n| Iteration | Accuracy (Generated Math Data) | Accuracy (Generated Multimodal Data) |  \n|---|----|-----|  \n| 0  | 29.25  | 45.52  |  \n| 1  | 21.18  | 54.71  |  \n| 2  | 29.41  | 53.85  |  \n| 3  | 41.56  | 60.09  |  \n| 4  | 41.03  | 57.66  |  \n| 5  | 57.53  | N/A  |  \n| 6  | 46.15  | N/A  |  \n| 7  | 50  | N/A  |  \n| 8  | 65.22  | N/A  |  \n| 9  | 67.06  | N/A  |\n\nNote that the multimodal environments were only run for half the iterations of the mathematics environments.\n\n**Q1: The students' performance increases due to added data points rather than insufficient training.**  \nTo substantiate the claim that student performance is increased due to added data points rather than insufficient training, we take a subset of the data and increase the number of epochs such that the student receives a fraction of the added data, but an equivalent number of epochs as training on the full data.   \nFor example, if a student is normally trained for 10 epochs with 1000 generated training data, we take the data from the first data generation iteration (let’s say it contains 200 training data) and train an alternative student for $\\\\frac{1000}{200}\\\\times10=50$ epochs to isolate the effect of the generated training data vs the added training epochs.  \nIn each case, training with less data but for more epochs produces significantly smaller improvements than training with more data for fewer epochs, showing that *data* is responsible for increased performance rather than more training.  \nIn fact, extending training without additional data typically hurts performance — fresh data is essential. This highlights the importance of studying data generation as we do in our paper, as data generation is one of the few ways to get fresh data.  \nWe have added these results in Appendix E (Table 6\\) in L1184-1223 in the revised PDF.\n\n|  | Data | Epochs | Accuracy (GQA) |  \n|----|---|---|---|  \n| Before Teaching  | \\-  | \\-  | 44.18  |  \n| Less Data / Longer Training  | 20%  | 15  | 42.79  |  \n| More Data / Standard Training | 100% | 3  | **47.9**  |\n\n|  | Data | Epochs | Accuracy (MATH) |  \n|----|---|---|---|  \n| Before Teaching  | \\-  | \\-  | 15.78  |  \n| Less Data / Longer Training  | 10%  | 30  | 13.98  |  \n| More Data / Standard Training | 100% | 3  | **23.44**  |\n\n|  | Data | Epochs | Accuracy (LiveCodeBench) |  \n|----|---|---|---|  \n| Before Teaching  | \\-  | \\-  | 16.5  |  \n| Less Data / Longer Training  | 20%  | 15  | 15  |  \n| More Data / Standard Training | 100% | 3  | **18.91**  |\n\n**Q2: We add more qualitative results for skill discovery.**  \nFollowing your suggestion, we have added an additional figure showing a full list (Figure 10, L1115-1132 in the revised PDF)  of discovered skills for MATH, GQA, and LiveCodeBench in the SKILL-LIST environments in Appendix C. We have also added another figure showing qualitative examples of skill-errors that were fixed by training on synthetic data in Appendix C, highlighting the utility of skills in our framework. In summary, we now have 5  figures showing qualitative examples of skill discovery and one quantitative analysis of skill discovery in Appendix C."
-                }
-            },
-            "invitations": [
-                "ICLR.cc/2025/Conference/Submission11063/-/Official_Comment"
-            ]
-        },
-        {
-            "id": "pOR42YNLtU",
-            "replyto": "h1qvpjhRP3",
+            "id": "bAzbgSK8GC",
+            "replyto": "zlAUnwhE2v",
             "number": 4,
-            "cdate": "2024-11-21",
-            "mdate": "2024-11-21",
-            "content": {
-                "title": {
-                    "value": "Response to Reviewer VQ9Y (Part 2/2)"
-                },
-                "comment": {
-                    "value": "**Q1: We implement a random data selection baseline.**\n\nData selection is not possible in general as many domains lack a data source from which to easily sample data (e.g., LiveCodeBench). Therefore, we implement it for MATH, as a standard training set is available. The random selection baseline cannot improve a student when sampling an equivalent amount of data as the data generation baseline. The results are shown below.\n\nWe hypothesize that the random natural data selection baseline cannot improve a student like Gemma2-2B because easily accessible data pools (e.g., the training set for MATH) have already been exhausted by extensive LLM post-training \\[C$\\\\S$4.2,D$\\\\S$4\\] and so do not add new information.\n\n|  | Before Training | Random Data Selection | Data Generation (Without State) | Data Generation (With State) |  \n|---|---|---|----|----|  \n| MATH Accuracy | 15.78  | 15.26  | 19.78  | **23.44**  |\n\n**Q2: We implement a data selection agent.**\n\nWe implement data selection using prototypicality scores \\[A\\] which are standard for active learning. Similar to the random selection baseline, it is hard to improve a well-post-trained LLM like Llama3 or Gemma2 by using readily available data pools — it is much easier to improve them using generated data. Even using the full training dataset cannot improve the student. This motivates our choice to tackle data generation rather than data selection. The training of open-source frontier models (Llama3, for example) includes significant post-training that subsumes publicly available data sources \\[B$\\\\S$4.2, C$\\\\S$4\\], making it hard to improve them with any amount of already existing data. \n\n| | Before Training | Data Selection (Prototypicality) | Full Training Dataset | Data Generation (Open-Ended) |  \n|---|---|-----|---|----|  \n| MATH Accuracy  | 15.78  | 16.01  | 15.18  | **23.44**  |\n\n\\[A\\] Sorscher et al., Beyond neural scaling laws: beating power law scaling via data pruning, NeurIPS 2022 Outstanding Paper Award  \n\\[B\\] Llama Team, AI @ Meta, The Llama 3 Herd of Models, arXiv 2024  \n\\[C\\] Gemma Team, Google Deepmind, Gemma 2: Improving Open Language Models at a Practical Size, arXiv 2024"
-                }
-            },
-            "invitations": [
-                "ICLR.cc/2025/Conference/Submission11063/-/Official_Comment"
-            ]
-        },
-        {
-            "id": "h1qvpjhRP3",
-            "replyto": "r8ZflFk3T7",
-            "number": 3,
-            "cdate": "2024-11-21",
-            "mdate": "2024-11-21",
-            "content": {
-                "title": {
-                    "value": "Response to Reviewer VQ9Y (Part 1/2)"
-                },
-                "comment": {
-                    "value": "Thank you for the quality feedback and for noticing our contributions to open-source infrastructure\\!\n\n**W1: We have added a new Figure 6 in Appendix B (L864-884), guiding the reader through a concrete task example.**  \nThe figure walks a reader through a round of data generation for the multimodal task using GQA as an example.\n\n**W2-1: The data generation engine is swappable and not required for all domains**.  \nThe data generation engine is only fixed for the multimodal setting, where it relies on an off-the-shelf T2I model to generate images. For the code generation and math settings, the data generation policy directly produces the data in an end-to-end manner. \n\n**W2-2: What strategies exist for modifying the data generation engine?**  \nOur framework easily allows updating the data generation agent (policy \\+ engine) when using an open source LLM. For example, we could update the parameters of the data generation policy and data generation engine using experiences from multiple rounds of data generation through reinforcement learning. \n\n**W3: How can the teacher take into account the weaknesses of the data generation engine or itself?**  \nWe have designed DataEnvGym as an RL-style setting so the policy can learn over subsequent iterations what the data generation engine’s capabilities are. Our position is that the capabilities of the data generation engine should be discovered by the policy through a process of experimentation. The Skill-Tree environment explicitly provides a mechanism for this. Our framework supports policy learning of what the teaching capabilities of the agent are. For example, after allocating data for a skill and observing a lack of improvement, the policy can infer that the data generation engine has trouble with generating data for the skill and avoid data generation for that skill in subsequent iterations.\n\n**W4: Experiments can be run for fewer than \\<$1 and under 10h on a single GPU.**  \nOn a single A6000, the total training time for our most computationally expensive setting (multimodal) is 6h, or about 1.5h/iteration. Most other settings are much faster. Environments are fully parallelizable using Ray and can be scaled up to multiple GPUs and even multiple nodes. \n\nWe’ve added a table showing the token and time costs (Appendix B.4, Table 4, L918-931), which we summarize below. Additionally, we conduct experiments with a cheaper teacher, GPT-4o-mini, showing that it can be used as a cheaper alternative for GPT-4o. We’ve added these results in Appendix B.4 (Table 5, L972-986) of the revised PDF.\n\n| Domain  | Environment | Num Tokens | \\$ Cost (GPT-4o-mini) | \\$ Cost (GPT-4o) | GPU Minutes / Iteration |  \n|---|---|---|---|---|---|  \n| Math  | Open-Ended  | 173234  | 0.10  | 1.73  | 24  |  \n| Math  | Skill-List  | 318528  | 0.19  | 3.19  | 24  |  \n| Math  | Skill-Tree  | 355033  | 0.21  | 3.55  | 16  |  \n| Coding  | Open-Ended  | 279304  | 0.17  | 2.79  | 16  |  \n| Coding  | Skill-List  | 497787  | 0.30  | 4.98  | 16  |  \n| Coding  | Skill-Tree  | 967610  | 0.58  | 9.68  | 16  |  \n| Multimodal | Open-Ended  | 25073  | 0.02  | 0.25  | 37  |  \n| Multimodal | Skill-List  | 82419  | 0.05  | 0.82  | 134  |  \n| Multimodal | Skill-Tree  | 33991  | 0.02  | 0.34  | 78  |"
-                }
-            },
-            "invitations": [
-                "ICLR.cc/2025/Conference/Submission11063/-/Official_Comment"
-            ]
-        },
-        {
-            "id": "4CnQpVCYkF",
-            "replyto": "00SnKBGTsz",
-            "number": 2,
-            "cdate": "2024-11-21",
-            "mdate": "2024-11-21",
-            "content": {
-                "title": {
-                    "value": "General Response"
-                },
-                "comment": {
-                    "value": "Reviewers believe we tackle “*a timely and interesting problem*” (VQ9Y) with a “*novel and insightful perspective on the autonomous data generation problem*” (c5nB), making a “*good contribution to automated data generation for model improvement*” (rVo8). \n\nThe potential impact of our work in making a challenging problem accessible is noted by several reviewers: “*necessary infrastructure for the community to study the problem*” (VQ9Y), that our “*structure makes the problem tractable*” (wuGW) and has “*potential for widespread applicability*” (c5nB).\n\nWe show that experiments can be run in half a day with limited compute resources (1x A6000) for under $1 of OpenAI API credits, making it an accessible testbed for developing data generation agents. \n\n**We thank all reviewers for their valuable feedback and suggestions**. We have provided responses to all of the reviewer questions in the rebuttals in the individual responses and the revised PDF (updated text is in blue)."
-                }
-            },
-            "invitations": [
-                "ICLR.cc/2025/Conference/Submission11063/-/Official_Comment"
-            ]
-        },
-        {
-            "id": "r8ZflFk3T7",
-            "replyto": "00SnKBGTsz",
-            "number": 4,
-            "cdate": "2024-11-06",
-            "mdate": "2024-11-26",
-            "content": {
-                "summary": {
-                    "value": "This paper introduces Gym environments for data synthesis, framing the problem as sequential decision-making. In these environments, actions correspond to data-generation plans, and states represent the performance summary of a student model. The paper implements environments for three tasks: visual question answering (VQA), math, and code generation. Each environment offers three state representations: open-ended, skill-list, and skill-tree. Additionally, it proposes an LLM-based policy for data generation. Experimental results demonstrate that the LLM can make strategically effective choices based on environment-state information."
-                },
-                "soundness": {
-                    "value": 4
-                },
-                "presentation": {
-                    "value": 3
-                },
-                "contribution": {
-                    "value": 4
-                },
-                "strengths": {
-                    "value": "- Tackle a timely and interesting problem. \n- Provide the necessary infrastructure for the community to study the problem, opening up opportunities for future contributions. \n- Consider various data generation strategies,\n- Well-desgined experiments which demonstrate the effectiveness of the proposed approaches and conduct insightful analyses."
-                },
-                "weaknesses": {
-                    "value": "* The paper is currently dense and difficult to follow. The introduction includes excessive implementation details, which detract from providing a simple, high-level intuition. Using a specific task example to guide readers through the core concepts would make the paper more accessible.\n\n* The paper focuses solely on the data generation plan rather than a full, end-to-end data generation process. It relies on a fixed, off-the-shelf data-generation engine that cannot be modified. The authors should admit this limitation and discuss potential strategies for overcoming it.\n\n* The quality of the data-generation engine can impact both student performance and the data-generation plan itself. Current approaches do not take into account the data-generation engine capabilities in the design of the policy or the evaluation of the student. For instance, poor student performance might result from the engine producing low-quality data on a specific skill, which could prompt the policy to avoid querying the engine for that skill.\n\n* The learning procedure can be resource-intensive. The authors should report the time, cost, and computing resources used for the experiments."
-                },
-                "questions": {
-                    "value": "- Is it possible to implement a random-policy baseline where you randomly chose a set of (naturally collected) datapoints from a data pool? The no-state baseline has flavor of this baseline but LLM-informed decisions could be biased. \n- Is it possible to compare this approach with active learning, in which instead of doing data generation, you do data *selection* and ask models to generate only synthetic labels, but not synthetic inputs?"
-                },
-                "flag_for_ethics_review": {
-                    "value": [
-                        "No ethics review needed."
-                    ]
-                },
-                "rating": {
-                    "value": 8
-                },
-                "confidence": {
-                    "value": 4
-                },
-                "code_of_conduct": {
-                    "value": "Yes"
-                }
-            },
-            "invitations": [
-                "ICLR.cc/2025/Conference/Submission11063/-/Official_Review",
-                "ICLR.cc/2025/Conference/-/Edit"
-            ]
-        },
-        {
-            "id": "GMsjHLXdOx",
-            "replyto": "00SnKBGTsz",
-            "number": 3,
             "cdate": "2024-11-04",
-            "mdate": "2024-11-27",
+            "mdate": "2024-11-13",
             "content": {
                 "summary": {
-                    "value": "This paper presents a modular system for automated data generation, designed to minimize the need for human annotations. The proposed approach employs a reinforcement learning-inspired methodology, decomposing the process into a sequence of action predictions (data generation policy) based on state information (feedback from model errors) in an iterative manner. The effectiveness of this approach is demonstrated through three diverse tasks, encompassing text, image, and code generation across different modalities."
-                },
-                "soundness": {
-                    "value": 4
-                },
-                "presentation": {
-                    "value": 3
-                },
-                "contribution": {
-                    "value": 3
-                },
-                "strengths": {
-                    "value": "This paper presents a novel and insightful perspective on the autonomous data generation problem, leveraging principles from reinforcement learning to conceptualize it as a sequential decision-making process. The authors provide a thorough explanation of this approach, the motivations behind and the underlying mechanics.\n\nThis paper proposed a modular framework/testbed that can be easily adapted to various tasks, showcasing its versatility and potential for widespread applicability. The authors demonstrate the effectiveness of their approach through experiments on 3 tasks of multiple modalities, including text, image, and code generation, yielding promising early results."
-                },
-                "weaknesses": {
-                    "value": "The experiment part should be conducted more thoroughly: specifically, creating a test set that incorporates newly generated data points from the data generation agent and reporting evaluation results for each retrained model over successive iterations would provide more comprehensive insights into the system's performance."
-                },
-                "questions": {
-                    "value": "In the Experiments section, the authors mention that the baseline student model should not have been heavily post-trained so that there are rooms for further improvements. However, it would be beneficial to provide additional evidence and details to support the claim that the student's performance is improved due to the added data points rather than insufficient training. For instance, the training protocol involved a fixed 10-epoch training period; it remains unclear whether the model had reached convergence within this timeframe or if the introduction of new data points accelerated convergence. Further clarification on this aspect would enhance the overall validity of the results.\n\nAlso the result would be more sound if more quantitative and qualitative results for skill discovery is reported in this paper."
-                },
-                "flag_for_ethics_review": {
-                    "value": [
-                        "No ethics review needed."
-                    ]
-                },
-                "details_of_ethics_concerns": {
-                    "value": "N/A"
-                },
-                "rating": {
-                    "value": 8
-                },
-                "confidence": {
-                    "value": 3
-                },
-                "code_of_conduct": {
-                    "value": "Yes"
-                }
-            },
-            "invitations": [
-                "ICLR.cc/2025/Conference/Submission11063/-/Official_Review",
-                "ICLR.cc/2025/Conference/-/Edit"
-            ]
-        },
-        {
-            "id": "i3QgWgrJff",
-            "replyto": "00SnKBGTsz",
-            "number": 2,
-            "cdate": "2024-11-04",
-            "mdate": "2024-11-25",
-            "content": {
-                "summary": {
-                    "value": "The paper presents DataEnvGym, a framework designed to simulate environments for data generation agents. These agents iteratively generate synthetic data to address weaknesses in student models, aiming to improve model performance across tasks like mathematics, programming, and visual question answering. DataEnvGym provides various structured environments (Open-Ended, Skill-List, and Skill-Tree) where data generation agents create targeted training examples based on feedback from the student model, offering a dynamic approach to automated model improvement."
+                    "value": "ChemThinker leverages a multi-agent structure within large language models (LLMs) to control and interpret the internal representations of molecular concepts and functions. It mimics the way chemists analyze molecules by incorporating insights from three perspectives: general molecular properties, data-driven analysis, and task-specific factors. Each perspective functions as an agent, guiding the model’s internal representation to generate more interpretable and targeted predictions."
                 },
                 "soundness": {
                     "value": 2
                 },
                 "presentation": {
-                    "value": 3
+                    "value": 2
                 },
                 "contribution": {
-                    "value": 3
+                    "value": 2
                 },
                 "strengths": {
-                    "value": "- Good contribution to automated data generation for model improvement.\n- Clearly written with structured sections explaining each environment type and experimental results."
+                    "value": "ChemThinker stands out for its application of a multi-agent framework within large language models (LLMs) to enhance interpretability in molecular property prediction. The approach draws inspiration from the analytical methods used by chemists, applying a novel multi-perspective representation structure to guide the model’s focus on relevant features. This method represents an expert knowledge within LLM capabilities, allowing for a highly targeted interpretability that mirrors real-world chemist reasoning. The integration of LLMs for molecular analysis through a structured, interpretative framework also pushes the boundaries of LLM application in cheminformatics."
                 },
                 "weaknesses": {
-                    "value": "- The paper should clarify early on that the focus is on synthetic data generation for training purposes, as this underpins the motivation for the approach.\n- Important related works on algorithms using feedback from training to generate the next training environments are missing [1, 2, 3, 4].\n- Lines 460 - 465, I believe there is a typo whereby it says that “each experiment is truncated once the performance consistently decreases for multiple iterations”. Should it be “increases”?\n- Repeated runs of experiments without confidence intervals will be valuable, especially since the variance of performance seems to be very high.\n\n[1] Sudhakaran, S., González-Duque, M., Freiberger, M., Glanois, C., Najarro, E., & Risi, S. (2024). Mariogpt: Open-ended text2level generation through large language models. Advances in Neural Information Processing Systems, 36.\n[2] Todd, G., Earle, S., Nasir, M. U., Green, M. C., & Togelius, J. (2023, April). Level generation through large language models. In Proceedings of the 18th International Conference on the Foundations of Digital Games (pp. 1-8).\n[3] Zhang, J., Lehman, J., Stanley, K., & Clune, J. (2023). Omni: Open-endedness via models of human notions of interestingness. arXiv preprint arXiv:2306.01711.\n[4] Faldor, M., Zhang, J., Cully, A., & Clune, J. (2024). OMNI-EPIC: Open-endedness via Models of human Notions of Interestingness with Environments Programmed in Code. arXiv preprint arXiv:2405.15568."
+                    "value": "The method proposed in ChemThinker does not introduce significant innovations compared to existing approaches. The use of LLM embeddings in conjunction with multi-layer perceptrons (MLPs) for molecular property prediction is not a novel concept.\n\nThe multi-agent framework is central to ChemThinker’s design, but the rationale behind choosing three specific perspectives—general molecular properties, data-driven analysis, and task-specific factors—could be clarified. Why were these perspectives selected, and are they mutually exclusive or interdependent in practice? The authors could include a discussion or ablation study examining the impact of each perspective on predictive performance and interpretability to validate their choices.\n\nThe experimental results presented in the paper do not demonstrate that ChemThinker achieves state-of-the-art performance in molecular property prediction across both classification and regression benchmarks. For a comprehensive comparison, the authors should consider the results reported in the following studies:\n\nRoss, Jerret, et al. \"Large-scale chemical language representations capture molecular structure and properties.\" Nature Machine Intelligence 4.12 (2022): 1256-1264.\nSoares, Eduardo, et al. \"A Large Encoder-Decoder Family of Foundation Models For Chemical Language.\" arXiv preprint arXiv:2407.20267 (2024).\nThese references provide significant insights into current methodologies and benchmark performances in the field. Additionally, incorporating the QM9 dataset into their experimental framework would enhance the robustness of their evaluation and allow for a more direct comparison with existing models that utilize this widely recognized benchmark in molecular property prediction."
                 },
                 "questions": {
-                    "value": "- How does the performance of the data generation agents change over longer iterations? The paper truncates experiments when performance increases, but it would be insightful to explore whether performance plateaus or continuously increase over extended training.\n- Is the total training data allocation fixed in each environment, or does it vary dynamically? The methodology mentions rebalancing but lacks clarity on how these allocations adjust adaptively based on feedback."
+                    "value": "1. Can you provide a more detailed explanation of how the three perspectives (general molecular properties, data-driven analysis, and task-specific factors) are integrated within the multi-agent framework? Specifically, how do these perspectives interact to influence the LLM's internal representations?\n\n2.  How does ChemThinker differentiate itself from existing models that also utilize LLM embeddings with MLPs? What specific contributions does your framework make that advance the field of molecular property prediction beyond previous approaches?\n\n3. Why was the QM9 dataset not included in your experimental evaluations? Given its significance in the field, do you plan to evaluate ChemThinker on this dataset in future work?\n\n4. In the results section, could you clarify how ChemThinker's performance compares to recent state-of-the-art models? To strengthen your claims of superior performance, consider including comparisons with a broader range of state-of-the-art models, particularly those referenced in the literature (e.g., studies by Ross et al. and Soares et al.)."
                 },
                 "flag_for_ethics_review": {
                     "value": [
@@ -499,7 +79,7 @@
                     ]
                 },
                 "rating": {
-                    "value": 6
+                    "value": 5
                 },
                 "confidence": {
                     "value": 4
@@ -509,46 +89,99 @@
                 }
             },
             "invitations": [
-                "ICLR.cc/2025/Conference/Submission11063/-/Official_Review",
+                "ICLR.cc/2025/Conference/Submission13199/-/Official_Review",
                 "ICLR.cc/2025/Conference/-/Edit"
             ]
         },
         {
-            "id": "7XT4kLWV2f",
-            "replyto": "00SnKBGTsz",
-            "number": 1,
+            "id": "GjM1Gzsi4K",
+            "replyto": "zlAUnwhE2v",
+            "number": 3,
+            "cdate": "2024-11-03",
+            "mdate": "2024-11-13",
+            "content": {
+                "summary": {
+                    "value": "The contribution introduces multi-agent LLM framework for chemistry that is intended to control the internal representations of concepts and functions within LLMs. The agents are initialized in such contexts that should emulate subject matter experts' approach to molecular analysis. The described agents offer insights into general molecular properties, data-driven analysis, and task-specific factors. Each perspective. Accumulated representations from the agents are processed by multi-layer perceptron (MLP)."
+                },
+                "soundness": {
+                    "value": 2
+                },
+                "presentation": {
+                    "value": 2
+                },
+                "contribution": {
+                    "value": 2
+                },
+                "strengths": {
+                    "value": "I'd love to pinpoint a strength, I just can't find one."
+                },
+                "weaknesses": {
+                    "value": "The paper is poorly written. It is full of typos that should be caught by any spellchecker.\n\nThe paper claims to mirror the way of chemist's thinking. It fails to define the persona of a \"chemist\", though. This is important because chemistry is an exceptionally broad field that absolutely does not reduce to analysis of molecular structure.\n\nWhat is \"general molecular thinking\" in Section 3.1? Traditional computational tools are absolutely going beyond calculating simple chemoinformatic descriptors - there's a huge field of quantum chemistry and molecular simulations that can handle really complicated chemical scenarios. The entire semantic structure of the section is so nebulous, it raises a question as of the authorship of the text. There's no single technical, reproducible, systematically improvable description of the respective agent.\n\nThe questions provided as examples barely makes sense for a trained SME. For example, \"How does the molecule’s 3D shape change, and what are the effects of these changes?\" cannot have a meaningful answer - molecules exist as Boltzman distributions of 3D configurations and the shifts of these distributions depend on the external conditions that have to be specified.\n\nThe same ambiguity and lack of technical substance characterizes sections 3.2 \"intuition-driven thinking\" and 3.3 \"task-specific thinking\". \n\nSection 3.4 \"thought-representation fusion\" describes a  fusion procedure that exists completely out of context of the previous sections. Representations of molecular structure descriptors, such as SMILES, and representation of arbitrary reasoning utterances about SMILES are different entities and the authors clearly do not understand this.\n\nThe performance benchmarks suggest that the paper aims to solve simple supervised learning tasks in QSAR/QSPR domain. The performance sees some improvement compared to alternatives, but it should be noted that this moderate improvement is achieved by increasing computing footprint by the factor that equals the number of agents. This looks a lot like a case of diminishing returns.\n\nSome of the data in the tables are incorrectly labeled to favor the reported model. For example, in Table 2, ESOL(1), performance of LLM4SD should be ranked better than ChemThinker (Gallactica).  There are several instances where comparison of the models in terms of average performance might look different from the comparison of the performance distributions (Table 1: BBBP ChemThinker OpenAI vs LLM4SD; SIDER ChemThinker OpenAI vs UniMol, etc)\n\nOne of the not-so-obvious aspects of this work is that while it is reporting regression and classification of molecules expressed in some electronic format, such as SMILES, it does employ LLMs that have full capability to help bad actors and bring harmful items into the physical world, by proposing synthetic routes. Unfortunately, the authors don't seem to realize that the simple feature-engineering task accomplished by LLM agents places their work in a much broader context that requires ethical guardrails."
+                },
+                "questions": {
+                    "value": "No questions, really. Please rewrite the manuscript with a) clear statement of the task you are solving, b) clear statement of the systematically improvable aspect of the modeling, and without a) nebulous verbiage about outstanding capabilities arising from LLMs in-context learning and multi-agency."
+                },
+                "flag_for_ethics_review": {
+                    "value": [
+                        "Yes, Potentially harmful insights, methodologies and applications"
+                    ]
+                },
+                "details_of_ethics_concerns": {
+                    "value": "Here, LLM agents appear to be used to generate embedding of molecular descriptors. However, these are general-purpose LLMs that can be simultaneously used  by bad actors to propose ways of bringing harmful chemical entities into the world. The authors should address this possibility."
+                },
+                "rating": {
+                    "value": 3
+                },
+                "confidence": {
+                    "value": 5
+                },
+                "code_of_conduct": {
+                    "value": "Yes"
+                }
+            },
+            "invitations": [
+                "ICLR.cc/2025/Conference/Submission13199/-/Official_Review",
+                "ICLR.cc/2025/Conference/-/Edit"
+            ]
+        },
+        {
+            "id": "dFbOQoKZCq",
+            "replyto": "zlAUnwhE2v",
+            "number": 2,
             "cdate": "2024-11-01",
             "mdate": "2024-11-13",
             "content": {
                 "summary": {
-                    "value": "This paper introduces DataEnvGym, a novel testbed of teacher environments for developing data generation agents that iteratively improve student models by generating targeted training data. DataEnvGym frames data generation as a sequential decision-making task where an agent, comprising a data generation policy and engine, interacts with an environment that provides feedback from a student model. The agent's goal is to improve student model performance by generating training data based on student feedback (errors or weak skills). DataEnvGym offers multiple instantiations of teacher environments across three levels of structure: open-ended, skill-list, and skill-tree, each with varying levels of scaffolding support. Experiments across text and image-based tasks (mathematics, programming, and visual question answering) demonstrate that example agents within DataEnvGym can iteratively improve student model performance. Furthermore, the authors analyze the impact of state information, environment structure, and skill discovery quality on agent performance and student learning. The paper concludes that DataEnvGym, with its modular design and support for diverse tasks and student models, provides a valuable platform for developing and evaluating data generation agents, engines, and feedback mechanisms for automated model improvement. The code and leaderboard will be publicly released."
+                    "value": "The authors propose a molecular property prediction method based on using and combinding LLMs' representations."
                 },
                 "soundness": {
-                    "value": 3
-                },
-                "presentation": {
                     "value": 2
                 },
+                "presentation": {
+                    "value": 1
+                },
                 "contribution": {
-                    "value": 3
+                    "value": 1
                 },
                 "strengths": {
-                    "value": "Novel Problem: Automating data generation to improve models is a significant challenge with practical applications. This work directly addresses this problem with a novel approach.\n\nWell-Defined Framework: DataEnvGym is presented as a well-defined framework with clear components (trainer, evaluator, data generation policy, data generation engine) and different levels of structure (open-ended, skill-list, skill-tree). This structure makes the problem tractable and facilitates modular development and testing.\n\nMultiple Tasks and Domains: The inclusion of experiments across diverse tasks (mathematics, programming, visual question answering) and with different student models demonstrates the generalizability of the framework.\n\nPromising Results: The initial results showing improved student model performance across tasks and environments are encouraging and suggest the potential of this approach. The analysis of difficulty/rarity and training dynamics adds value.\n\nOpen-Source Release: The commitment to publicly releasing the code and leaderboard promotes reproducibility and encourages further research in this area."
+                    "value": "- The general topic of molecular property prediction and its interpretability is important."
                 },
                 "weaknesses": {
-                    "value": "Limited Evaluation of Agent Architectures: The focus is primarily on the environment itself, with less emphasis on the architecture and training of the data generation agents. While baseline agents are provided, more sophisticated agent designs (e.g., reinforcement learning agents, agents leveraging larger language models) and their systematic evaluation would significantly strengthen the paper. How do different agent architectures compare in terms of effectiveness and efficiency? Are there specific architectural choices that are particularly well-suited for this task?\n\nOver-Reliance on LLMs for Data Generation: While using LLMs for data generation is a reasonable starting point, it raises concerns about the quality and diversity of the generated data. Exploring alternative data generation methods (e.g., data augmentation techniques, programmatic data generation) and comparing their effectiveness with LLM-based generation would be valuable. How robust is the framework to the quality of the generated data?\n\nLimited Analysis of Skill Discovery Quality: While the paper briefly touches upon the impact of skill discovery quality, a more thorough investigation is needed. How does the quality of the discovered skills affect the performance of the data generation agents and the student models? What are the limitations of the current skill discovery method, and how can it be improved? Quantitative analysis of skill quality (e.g., measuring coherence, coverage, and relevance) would strengthen the paper.\n\nLack of Comparison with Existing Methods: While related work on knowledge distillation and model weakness discovery is discussed, there's no direct comparison with existing methods for model improvement. How does DataEnvGym compare to techniques like curriculum learning or active learning in terms of effectiveness and efficiency? Including such comparisons would better contextualize the contributions and highlight the advantages of the proposed approach.\n\nLimited Discussion of Scalability: The experiments are conducted with relatively small datasets and models. How does DataEnvGym scale to larger datasets and more complex models? What are the computational challenges associated with training data generation agents in more realistic settings? Addressing these scalability concerns is crucial for practical applications."
+                    "value": "# A) Lack of clarity and false and tenuous claims.\n\nThe work completely fails to embed itself into relevant related work. It provides a highly flawed and biased view on the field and misleads readers in many ways. The first paragraph cites completely inappropriate papers, such as (Yang, 2019) for \"molecular property prediction\". Molecular property prediction is a decade-old field an here, for example, papers by Corwin Hansch [1] should be cited. Neural network entered the field in the 1990s [2], and deep learning methods were used from 2014 on [3-6]. Toxicity prediction with deep learning methods started around 2015/2016 [6-7]. The authors should completely re-write the first paragraph and embed their work properly, and carefully assign credit to pioneering works in the field of molecular property prediction. \n\nAls the second paragraph mentions \"current approaches (Xia et al., 2022; Liu et al., 2022; Luo et al., 2024; Rollins et al., 2024)\", which is unclear: does this mean \"currently best performing methods\" (in this case, the claim is false), or \"current LLM-based approaches\". Furthermore, current best-performing approaches for molecular property prediction are hybrid methods that combine deep neural networks on descriptors with GNN-based representations (like Yang, 2019) and those are not \"statistical pattern\" based. The authors should completely re-work the second paragraph to make its theme clear and cite appropriate works. \n\nThe authors claim that LLMs perform \"reasoning\" which is highly debated [8] and questionable. If the authors insist on the point that LLMs indeed perform reasoning, they should provided substantial evidence for that and also cite works critizing the reasoning capabilities of LLMs.\n\nThe authors claim that \" [.fingerprint-based methods.] they normally rely on pre-defined fingerprint and may not fully capture the complex patterns [...]\", while it is rather the other way around: ECFP-based methods are as expressive as 1-WL, while many GNNs are not. SMILES-based approaches often lose stereo-chemical patterns. The authors should rectify this false claim.\n\n\n# B) Significance: The significance is very low due to inappropriate experiments and missing compared methods.\n\nThe authors perform molecular property only on eight tasks, while usually methods perform this on 1000s of tasks (e.g. [9,10]). Additionally, the MoleculeNet benchmarks are outdated and should not be used anymore [11]. There is also for sure an error in evaluation the ClinTox task because it is impossible to predict clinical toxicity of a molecule at 99.4 ROC AUC. Clinical toxicity is a very complicated end-point that depends on a lot of factors of the individual person, other medication, genetic composition, etc, such that even experimental replicates would never reach this quality. Reporting such high values at predicting clinical toxicity also leads to ethical concerns (see below). \n\nThe compared methods should also include several descriptor-based approaches. Since ChemThinker is an LLM-based approach, also other LLM-based method, such as KV-PLM [12] and CLAMP [13] should be compared. \n\nSince the authors claim in the abstract that their method is interpretable, they should rather not compare predictive performance, but focus on interpretability metrics, e.g., whether the toxicity-inducing parts of the molecules could be identified. \n\n# C) Originality: \n\nUsing LLMs and combining representations from different pre-trained models is already known. However, what could indeed provide some additional value is prompting LLMs to think about the general molecular structure. \n\n\n# D) Technical errors: \nThe overall approach is ad-hoc. It is unclear why exactly these components should be put together in the suggested way. The authors should propertly motivate and justify their approach and design decisions. They should perform an ablation study to identify which components yield advances in predictive performance or interpretability. \n\nIt is unclear whether LLMs can properly handle the SMILES strings as input. Usually the tokenizer is inappropraite for molecules. A single molecule can have many different SMILES representations, which could lead to different internal representations of the LLMs. Furthermore, stereochemistry is often lost in the SMILES strings. The authors should perform SMILES augmentation to show that their method is invariant to permuting SMILES strings. The authors should also include several stereo-isomers to show that ChemThinker can meaningfully distinguis stereo-isomers.\n\nThe overall training objective is not mentioned. It is unclear whether only the MLP is trained or whether the whole architecture is fine-tuned. The authors should present their approach clearer, write down the objective function, considered and selected hyperparamters, training and implementation details. \n\nTypos:\n- Chapter 2 \"Reltaed work\"\n\nReferences:\n[1] Hansch, C., Maloney, P. P., Fujita, T., & Muir, R. M. (1962). Correlation of biological activity of phenoxyacetic acids with Hammett substituent constants and partition coefficients. Nature, 194(4824), 178-180.  \n[2] Huuskonen, J., Salo, M., & Taskinen, J. (1998). Aqueous solubility prediction of drugs based on molecular topology and neural network modeling. Journal of chemical information and computer sciences, 38(3), 450-456.  \n[3] Unterthiner, T., Mayr, A., Klambauer, G., Steijaert, M., Wegner, J. K., Ceulemans, H., & Hochreiter, S. (2014, December). Deep learning as an opportunity in virtual screening. In Proceedings of the deep learning workshop at NIPS (Vol. 27, pp. 1-9). Cambridge, MA.  \n[4] Dahl, G. E., Jaitly, N., & Salakhutdinov, R. (2014). Multi-task neural networks for QSAR predictions. arXiv preprint arXiv:1406.1231.  \n[5] Lusci, A., Pollastri, G., & Baldi, P. (2013). Deep architectures and deep learning in chemoinformatics: the prediction of aqueous solubility for drug-like molecules. Journal of chemical information and modeling, 53(7), 1563-1575.  \n[6] Unterthiner, T., Mayr, A., Klambauer, G., & Hochreiter, S. (2015). Toxicity prediction using deep learning. arXiv preprint arXiv:1503.01445.  \n[7] Mayr, A., Klambauer, G., Unterthiner, T., & Hochreiter, S. (2016). DeepTox: toxicity prediction using deep learning. Frontiers in Environmental Science, 3, 80.  \n[8] Wang, B., Yue, X., & Sun, H. (2023). Can ChatGPT defend its belief in truth? evaluating LLM reasoning via debate. arXiv preprint arXiv:2305.13160.  \n[9] Mayr, A., Klambauer, G., Unterthiner, T., Steijaert, M., Wegner, J. K., Ceulemans, H., ... & Hochreiter, S. (2018). Large-scale comparison of machine learning methods for drug target prediction on ChEMBL. Chemical science, 9(24), 5441-5451.  \n[10] Stanley, M., Bronskill, J. F., Maziarz, K., Misztela, H., Lanini, J., Segler, M., ... & Brockschmidt, M. (2021, August). Fs-mol: A few-shot learning dataset of molecules. In Thirty-fifth Conference on Neural Information Processing Systems Datasets and Benchmarks Track (Round 2).  \n[11] Walters, P. (2023). We need better benchmarks for machine learning in drug discovery. Practical Cheminformatics.  \n[12] Zeng, Z., Yao, Y., Liu, Z., & Sun, M. (2022). A deep-learning system bridging molecule structure and biomedical text with comprehension comparable to human professionals. Nature communications, 13(1), 862.  \n[13] Seidl, P., Vall, A., Hochreiter, S., & Klambauer, G. (2023, July). Enhancing activity prediction models in drug discovery with the ability to understand human language. In International Conference on Machine Learning (pp. 30458-30490). PMLR."
                 },
                 "questions": {
-                    "value": "Limited Evaluation of Agent Architectures: The paper primarily focuses on introducing the DataEnvGym environment, but the evaluation of data generation agents is limited to relatively simple baseline policies. Exploring more sophisticated agent architectures, such as reinforcement learning agents (e.g., using policy gradient methods, Q-learning) or agents incorporating larger language models for planning and decision-making (similar to the approaches used in Shimabucoro et al. (2024), would substantially strengthen the paper. A systematic comparison of different agent architectures in terms of their effectiveness in improving student models, their sample efficiency, and their computational cost would provide valuable insights and contribute to a better understanding of the challenges and opportunities in automated data generation.\n\nLimited Analysis of Skill Discovery Quality: The paper briefly discusses the impact of oracle skills on student performance but doesn't delve deeply into the quality of the skills discovered by the proposed LLM-based method. A more thorough analysis is needed to understand the strengths and limitations of the skill discovery module. This could involve quantitative measures of skill quality, such as measuring their coherence, coverage, and relevance to the target task, or qualitative analysis by human experts. Investigating how the quality of the discovered skills affects the performance of the data generation agents and the resulting student models would strengthen the paper's contribution. Exploring alternative skill discovery methods (e.g., clustering-based approaches, topic modeling) and comparing their effectiveness with the proposed method would further enhance the analysis.\n\nLack of Comparison with Existing Methods: The paper positions DataEnvGym as a novel approach for model improvement, but it lacks a direct comparison with existing methods like curriculum learning (Bengio et al., 2009) or active learning (Settles, 2009). Evaluating how DataEnvGym compares to these established techniques in terms of student model performance, data efficiency, and computational cost would provide valuable context and highlight the advantages of the proposed framework. This would also clarify the specific niche and contribution of DataEnvGym within the broader landscape of model improvement techniques.\n\nLimited Discussion of Scalability: The experiments in the paper are conducted with relatively small datasets and models. It's essential to address the scalability of DataEnvGym to more realistic scenarios involving larger datasets, more complex models, and a broader range of skills. Discussing the computational challenges and potential optimizations for scaling the framework to more demanding settings would strengthen the paper's practical relevance. For instance, how can the computational cost of LLM-based data generation be reduced while maintaining data quality? How can the skill discovery and agent training processes be optimized for larger datasets? Addressing these questions would provide valuable insights for future research and practical applications."
+                    "value": "See box above."
                 },
                 "flag_for_ethics_review": {
                     "value": [
-                        "Yes, Discrimination / bias / fairness concerns",
-                        "Yes, Potentially harmful insights, methodologies and applications"
+                        "Yes, Other reasons (please specify below)"
                     ]
                 },
+                "details_of_ethics_concerns": {
+                    "value": "Reporting a ROC-AUC of 99.4% at predicting the clinical toxicity of a molecule can have severe consequences: such high values indicate that the predictions are reliable, and molecules predicted negative might be considered as safe, and non-toxic to humans and might be used in a clinical trial. Thus, potential harm might be done to humans if such incorrect high values performance values are reported."
+                },
                 "rating": {
-                    "value": 8
+                    "value": 1
                 },
                 "confidence": {
                     "value": 4
@@ -558,11 +191,59 @@
                 }
             },
             "invitations": [
-                "ICLR.cc/2025/Conference/Submission11063/-/Official_Review",
+                "ICLR.cc/2025/Conference/Submission13199/-/Official_Review",
+                "ICLR.cc/2025/Conference/-/Edit"
+            ]
+        },
+        {
+            "id": "cs9Y0lNWDg",
+            "replyto": "zlAUnwhE2v",
+            "number": 1,
+            "cdate": "2024-10-31",
+            "mdate": "2024-11-13",
+            "content": {
+                "summary": {
+                    "value": "I thank the authors for a really interesting read, extracting chemical insights from pre-trained LLMs is a great idea, and the amount of work done is clear to see. \n\nSummary:\n* The authors present the ChemThinker framework - a method to orchestrate large language models to extract meaningful insights \n* They use three strands of investigation - one looking at general molecular properties, one on the task specific properties, and one looking at “intuition”\n* The core idea is that LLMs pre-trained on huge quantities of high quality data often includes many scientific papers and textbooks, by prompting the models appropriately much of this information can be extracted for individual molecules / tasks. \n* These textual properties are synthesised through a series of calls to the LLM to iteratively improve the outputs, and then these embeddings are combined and used as inputs to the final MLP layers for downstream tasks. \n* Of particular interest was the component contribution analysis where the authors showed how different tasks relied on the different LLM pathways with different strengths, \n* This paper shows an interesting approach to extracting the knowledge contained in LLMs for scientific work - as demonstrated here, this is clearly a promising avenue."
+                },
+                "soundness": {
+                    "value": 1
+                },
+                "presentation": {
+                    "value": 2
+                },
+                "contribution": {
+                    "value": 2
+                },
+                "strengths": {
+                    "value": "* Taking advantage of the knowledge contained in LLMs is a clear path for lots of scientific work and creating evaluations / proof of use cases is vital to increase adoption of this kind of approach. \n* The analysis of the way in which different models / lines of investigation contribute to solving each task offers insight into how the tasks benefit relatively from factual information learned during the pre-training stage of the LLM vs numerical information obtained through RDKit. \n* Evaluating over multiple backbones for the ChemThinker framework is good and starts to give insight into which models are strongest in different settings."
+                },
+                "weaknesses": {
+                    "value": "* The exact orchestration of LLM calls was hard to extract from the paper. I was unsure if the processes were a single string of pre-defined prompts to extract answers, or if as was suggested in Fig 1. There was more iteration involved to obtain the final answers. \n* The questions shown (if they are the full extent of the prompts) could be improved / expanded. It prompts the question of why only 3? Why those three in that exact phrasing? \n* The process was less transparent for the intuition driven thinking in 3.2 - I can tell the LLMs are given a persona to derive “rules” but no examples of this are shown. Given that these rules are used to control which RDKit features are generated this makes it hard to understand exactly what is being done here. \n* I had a similar problem with the task specific thinking in 3.3 - It is not clear where the tailored insights to T are coming from / how that is being prompted of the LLM. An example is said to be in the appendix, but the appendix was missing from the PDF submitted to open Review. \n* It is unclear the typical size of the total concatenated embedding vector that is extracted per molecule, the number of calls to each LLM to generate this, the prompt structure used for each “agent” and the size of the final MLP. Personally I would want to see these details to place the evaluation in context. \n* The comparison to other work was fairly extensive - but due to the limited detail on the ChemThinker pipeline / model configuration this made the comparisons harder to understand."
+                },
+                "questions": {
+                    "value": "My main request is for more detail to be included in section 3 specifically to show the reader what the orchestration of the LLMs are actually doing. I would want to understand what kind of questions to ask to get the best performance (and how they were reached), how to get task specific insights and how to generate inputs for RDkit. Sections 3.1, 3.2, and 3.3 would be really useful, but in their current state are lacking enough information to adequately replicate any sort of results. \n\nFurther specific questions:\n\n* Why were the results only shown for the top 2 backbones in the tables, I would have expected to see all results there to better understand the properties of each model \n* Figure 3 was excellent - but I would like to see cleaner presentation, certainly flat bars if you think it should be a plot, but crucially the  lack of numerical values to extract made analysis of these results impossible. Maybe consider a table as I think this result is great!\n* In the conclusion and introduction you make claims about providing insights into the predictions, it would be good to see more evidence of these insights. Perhaps these are included in the appendix and were missing in the submission. \n* I also have questions about data leakage - many of the molecules in the dataset have well know properties and how much the LLMs are reporting the answers may not be reflective of performance on the benchmark. On one hand this doesn’t matter as the method is demonstrating how to extract this information from the models, but on the other the comparison against other SOTA models could be misleading in these cases. How do you think this could impact the results?\n    * I had specific concerns in Table 1 for ClinTox where the results are reaching over 99.0, and in Table 2 for ESOL where the result of 0.44 is significantly lower than all other results. (NB: LLM4SD gets closest at 0.52)\n    * More discussion on these results would add confidence to the results."
+                },
+                "flag_for_ethics_review": {
+                    "value": [
+                        "No ethics review needed."
+                    ]
+                },
+                "rating": {
+                    "value": 3
+                },
+                "confidence": {
+                    "value": 4
+                },
+                "code_of_conduct": {
+                    "value": "Yes"
+                }
+            },
+            "invitations": [
+                "ICLR.cc/2025/Conference/Submission13199/-/Official_Review",
                 "ICLR.cc/2025/Conference/-/Edit"
             ]
         }
     ],
-    "status": "spotlight",
+    "status": "withdrawn",
     "conference": "ICLR"
 }
