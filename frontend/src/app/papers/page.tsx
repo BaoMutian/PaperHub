@@ -13,8 +13,8 @@ const SORT_OPTIONS = [
   { value: "", label: "默认排序", icon: Calendar },
   { value: "rating_desc", label: "评分 ↓", icon: Star },
   { value: "rating_asc", label: "评分 ↑", icon: Star },
-  { value: "reviews_desc", label: "评审数 ↓", icon: MessageSquare },
-  { value: "reviews_asc", label: "评审数 ↑", icon: MessageSquare },
+  { value: "reviews_desc", label: "讨论度 ↓", icon: MessageSquare },
+  { value: "reviews_asc", label: "讨论度 ↑", icon: MessageSquare },
 ]
 
 function PapersContent() {
