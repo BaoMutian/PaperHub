@@ -148,23 +148,6 @@ PaperHub/
 | **Review**     | id, replyto, number, cdate, mdate, review_type, rating, confidence, summary, strengths, weaknesses, questions, decision, comment, content_json                                                                                                                                                       | 评审节点   |
 | **Keyword**    | name (小写归一化)                                                                                                                                                                                                                                                                                    | 关键词节点 |
 | **Conference** | name, year, max_rating                                                                                                                                                                                                                                                                               | 会议节点   |
-
-### 4.6 Interaction 统计属性 (Paper 节点)
-
-| 属性                | 类型            | 说明                         |
-| ------------------- | --------------- | ---------------------------- |
-| author_word_count   | Integer         | 作者在 Rebuttal 阶段的总字数 |
-| reviewer_word_count | Integer         | 所有审稿人回复的总字数       |
-| interaction_rounds  | Integer         | 最大对话回复层级深度         |
-| battle_intensity    | Float (0.0-1.0) | 归一化的讨论激烈程度指数     |
-
-**battle_intensity 计算因子:**
-
-- 总字数 (word_factor): 35%
-- 对话深度 (depth_factor): 30%
-- 评审数量 (review_factor): 20%
-- 双方平衡度 (balance_factor): 15%
-
 ### 4.2 关系类型
 
 | 关系         | 方向               | 属性        | 说明                             |
@@ -201,6 +184,21 @@ PaperHub/
 - `withdrawn`: 撤稿
 - `desk_rejected`: 直接拒稿
 
+### 4.6 Interaction 统计属性
+
+| 属性                | 类型            | 说明                         |
+| ------------------- | --------------- | ---------------------------- |
+| author_word_count   | Integer         | 作者在 Rebuttal 阶段的总字数 |
+| reviewer_word_count | Integer         | 所有审稿人回复的总字数       |
+| interaction_rounds  | Integer         | 最大对话回复层级深度         |
+| battle_intensity    | Float (0.0-1.0) | 归一化的讨论激烈程度指数     |
+
+**battle_intensity 计算因子:**
+
+- 总字数 (word_factor): 35%
+- 对话深度 (depth_factor): 30%
+- 评审数量 (review_factor): 20%
+- 双方平衡度 (balance_factor): 15%
 ---
 
 ## 5. API 规范
