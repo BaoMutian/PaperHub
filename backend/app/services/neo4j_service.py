@@ -309,21 +309,21 @@ class Neo4jService:
         query = """
         MATCH (p:Paper)
         OPTIONAL MATCH (p)<-[:AUTHORED]-(a:Author)
-        WITH p, collect(a.name) as authors, collect(lower(a.name)) as author_names_lower
+        WITH p, collect(a.name) as authors, collect(toLower(a.name)) as author_names_lower
         OPTIONAL MATCH (p)-[:HAS_KEYWORD]->(k:Keyword)
         WITH p, authors, author_names_lower, collect(k.name) as keywords
         
         WITH p, authors, author_names_lower, keywords,
              // Title exact match (highest priority)
-             CASE WHEN lower(p.title) CONTAINS $search_lower THEN 100 ELSE 0 END as title_score,
+             CASE WHEN toLower(p.title) CONTAINS $search_lower THEN 100 ELSE 0 END as title_score,
              // Title contains any search term
-             CASE WHEN any(term IN $search_terms WHERE lower(p.title) CONTAINS term) THEN 50 ELSE 0 END as title_term_score,
+             CASE WHEN any(term IN $search_terms WHERE toLower(p.title) CONTAINS term) THEN 50 ELSE 0 END as title_term_score,
              // Author name match
              CASE WHEN any(name IN author_names_lower WHERE name CONTAINS $search_lower) THEN 80 ELSE 0 END as author_score,
              // Keyword match
              CASE WHEN any(kw IN keywords WHERE kw CONTAINS $search_lower) THEN 40 ELSE 0 END as keyword_score,
              // Abstract contains search
-             CASE WHEN lower(p.abstract) CONTAINS $search_lower THEN 20 ELSE 0 END as abstract_score
+             CASE WHEN toLower(p.abstract) CONTAINS $search_lower THEN 20 ELSE 0 END as abstract_score
         
         WITH p, authors, keywords, 
              (title_score + title_term_score + author_score + keyword_score + abstract_score) as total_score
