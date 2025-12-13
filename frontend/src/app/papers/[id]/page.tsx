@@ -314,6 +314,30 @@ const SKIP_FIELDS = new Set([
   'retraction_confirmation', 'retraction_approval', 'ethics_expertise_needed'
 ])
 
+// 检查评论是否有有效内容
+function hasValidContent(review: ReviewThread): boolean {
+  const content = review.content
+  if (!content || Object.keys(content).length === 0) return false
+  
+  // 检查是否有至少一个有效字段
+  for (const [key, data] of Object.entries(content)) {
+    if (SKIP_FIELDS.has(key)) continue
+    if (!data || data.value === undefined || data.value === null) continue
+    const val = data.value
+    if (typeof val === 'string' && val.trim() === '') continue
+    // 找到一个有效字段
+    return true
+  }
+  return false
+}
+
+// 递归检查评论树是否有有效内容（包括回复）
+function hasValidContentTree(review: ReviewThread): boolean {
+  if (hasValidContent(review)) return true
+  // 检查是否有任何回复有有效内容
+  return review.replies.some(r => hasValidContentTree(r))
+}
+
 // 将字段名转换为显示标签
 function fieldToLabel(field: string): string {
   return field
@@ -401,8 +425,8 @@ function ReviewItem({
   const TypeIcon = typeInfo.icon
   const indentClass = review.depth > 0 ? `ml-${Math.min(review.depth * 4, 16)}` : ""
   
-  // 检查是否有动态content
-  const hasContent = review.content && Object.keys(review.content).length > 0
+  // 检查是否有有效的动态content（使用与过滤相同的逻辑）
+  const hasContent = hasValidContent(review)
 
   return (
     <div className={cn("border-l-2 border-white/10 pl-4", indentClass)}>
@@ -495,10 +519,13 @@ export default function PaperDetailPage({ params }: { params: Promise<{ id: stri
     return buildReviewTree(paper.reviews)
   }, [paper?.reviews])
   
-  // 分类评论
+  // 分类评论（过滤掉没有有效内容的讨论）
   const { officialReviews, discussions } = useMemo(() => {
     const official = reviewTree.filter(r => r.review_type === "official_review")
-    const others = reviewTree.filter(r => r.review_type !== "official_review")
+    // 只保留有有效内容的讨论（包括其回复链中有内容的）
+    const others = reviewTree
+      .filter(r => r.review_type !== "official_review")
+      .filter(r => hasValidContentTree(r))
     return { officialReviews: official, discussions: others }
   }, [reviewTree])
   
