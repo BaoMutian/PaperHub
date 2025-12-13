@@ -1,10 +1,9 @@
 "use client"
 
-import { useEffect, useState, useRef, useCallback } from "react"
+import { useEffect, useState, useRef, useCallback, useMemo } from "react"
 import { getCollaborationNetwork, type CollaborationNetwork } from "@/lib/api"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { Network, Users, GitBranch, Loader2, Maximize2, Minimize2, Box, Grid2x2, Info } from "lucide-react"
 import dynamic from "next/dynamic"
@@ -36,6 +35,13 @@ export default function NetworkPage() {
   const [is3D, setIs3D] = useState(false)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const fgRef = useRef<any>(null)
+  
+  // Use refs for tooltip to avoid re-renders
+  const [hoveredNode, setHoveredNode] = useState<ForceGraphNode | null>(null)
+  const mousePosRef = useRef({ x: 0, y: 0 })
+  const tooltipRef = useRef<HTMLDivElement>(null)
   
   useEffect(() => {
     setLoading(true)
@@ -49,16 +55,41 @@ export default function NetworkPage() {
       .finally(() => setLoading(false))
   }, [conference, minCollaborations])
   
-  // 监听全屏状态变化（包括ESC键退出）
+  // Track mouse position using ref (no re-renders)
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect()
+        mousePosRef.current = {
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top
+        }
+        // Update tooltip position directly via DOM
+        if (tooltipRef.current) {
+          const maxX = (containerRef.current?.clientWidth || 600) - 220
+          const x = Math.min(mousePosRef.current.x + 16, maxX)
+          const y = Math.max(mousePosRef.current.y - 100, 10)
+          tooltipRef.current.style.left = `${x}px`
+          tooltipRef.current.style.top = `${y}px`
+        }
+      }
+    }
+    
+    const container = containerRef.current
+    if (container) {
+      container.addEventListener("mousemove", handleMouseMove)
+      return () => container.removeEventListener("mousemove", handleMouseMove)
+    }
+  }, [])
+  
+  // Fullscreen state listener
   useEffect(() => {
     const handleFullscreenChange = () => {
       setIsFullscreen(!!document.fullscreenElement)
     }
     
     document.addEventListener("fullscreenchange", handleFullscreenChange)
-    return () => {
-      document.removeEventListener("fullscreenchange", handleFullscreenChange)
-    }
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange)
   }, [])
   
   const toggleFullscreen = () => {
@@ -89,48 +120,30 @@ export default function NetworkPage() {
     { value: 10, label: "≥10次" }
   ]
   
-  // Hover state for tooltip - use mouse position to avoid jitter
-  const [hoveredNode, setHoveredNode] = useState<ForceGraphNode | null>(null)
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
-  
-  // Track mouse position for stable tooltip positioning
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (containerRef.current) {
-        const rect = containerRef.current.getBoundingClientRect()
-        setMousePos({
-          x: e.clientX - rect.left,
-          y: e.clientY - rect.top
-        })
-      }
-    }
+  // CRITICAL: Memoize graphData to prevent force simulation reset on re-renders
+  const graphData = useMemo(() => {
+    if (!network) return { nodes: [], links: [] }
     
-    const container = containerRef.current
-    if (container) {
-      container.addEventListener("mousemove", handleMouseMove)
-      return () => container.removeEventListener("mousemove", handleMouseMove)
+    return {
+      nodes: network.nodes.map(n => ({
+        id: n.id,
+        name: n.label,
+        val: n.size || 5,
+        color: n.color || "#8b5cf6",
+        degree: n.properties?.degree as number || 0,
+        totalPapers: n.properties?.total_papers as number || 0,
+        maxCollab: n.properties?.max_collab as number || 0,
+        intensity: n.properties?.intensity as number || 0
+      })),
+      links: network.links.map(l => ({
+        source: l.source,
+        target: l.target,
+        value: l.weight
+      }))
     }
-  }, [])
+  }, [network])
   
-  const graphData = network ? {
-    nodes: network.nodes.map(n => ({
-      id: n.id,
-      name: n.label,
-      val: n.size || 5,
-      color: n.color || "#8b5cf6",
-      degree: n.properties?.degree as number || 0,
-      totalPapers: n.properties?.total_papers as number || 0,
-      maxCollab: n.properties?.max_collab as number || 0,
-      intensity: n.properties?.intensity as number || 0
-    })),
-    links: network.links.map(l => ({
-      source: l.source,
-      target: l.target,
-      value: l.weight
-    }))
-  } : { nodes: [], links: [] }
-  
-  // Custom node rendering for 2D
+  // Custom node rendering for 2D - stable callback
   const nodeCanvasObject = useCallback((node: ForceGraphNode, ctx: CanvasRenderingContext2D, globalScale: number) => {
     const size = node.val || 5
     const x = node.x || 0
@@ -165,24 +178,32 @@ export default function NetworkPage() {
     ctx.stroke()
     
     // Draw label for larger nodes or when zoomed in
-    const showLabel = globalScale > 0.8 || size > 10
+    const showLabel = globalScale > 1.5 || size > 12
     if (showLabel) {
-      const fontSize = Math.max(3, Math.min(size * 0.6, 12 / globalScale))
+      const fontSize = Math.max(3, Math.min(size * 0.5, 10 / globalScale))
       ctx.font = `${fontSize}px "Inter", sans-serif`
       ctx.textAlign = "center"
-      ctx.textBaseline = "middle"
+      ctx.textBaseline = "top"
       
       // Text shadow for readability
       ctx.fillStyle = "rgba(0, 0, 0, 0.8)"
-      ctx.fillText(node.name, x + 0.5, y + size + fontSize + 0.5)
+      ctx.fillText(node.name, x + 0.5, y + size + 2.5)
       ctx.fillStyle = "#ffffff"
-      ctx.fillText(node.name, x, y + size + fontSize)
+      ctx.fillText(node.name, x, y + size + 2)
     }
   }, [])
   
-  // Handle node hover - simplified, position comes from mouse tracking
+  // Handle node hover - pause simulation on hover to prevent jitter
   const handleNodeHover = useCallback((node: ForceGraphNode | null) => {
     setHoveredNode(node)
+    // Pause/resume force simulation on hover
+    if (fgRef.current) {
+      if (node) {
+        fgRef.current.pauseAnimation()
+      } else {
+        fgRef.current.resumeAnimation()
+      }
+    }
   }, [])
   
   // Link styling based on weight
@@ -362,6 +383,7 @@ export default function NetworkPage() {
                 />
               ) : (
                 <ForceGraph2D
+                  ref={fgRef}
                   graphData={graphData}
                   nodeCanvasObject={nodeCanvasObject}
                   nodePointerAreaPaint={(node: ForceGraphNode, color: string, ctx: CanvasRenderingContext2D) => {
@@ -374,25 +396,23 @@ export default function NetworkPage() {
                   onNodeHover={handleNodeHover}
                   linkWidth={linkWidth}
                   linkColor={linkColor}
-                  linkDirectionalParticles={1}
-                  linkDirectionalParticleWidth={(link: { value?: number }) => Math.min((link.value || 1) * 0.4, 2)}
-                  linkDirectionalParticleSpeed={0.003}
-                  linkDirectionalParticleColor={() => "rgba(139, 92, 246, 0.6)"}
+                  linkDirectionalParticles={0}
                   backgroundColor="transparent"
-                  warmupTicks={50}
-                  cooldownTicks={100}
-                  d3AlphaDecay={0.02}
-                  d3VelocityDecay={0.4}
+                  warmupTicks={100}
+                  cooldownTicks={0}
+                  d3AlphaDecay={0.05}
+                  d3VelocityDecay={0.5}
                 />
               )}
               
-              {/* Tooltip for hovered node - positioned by mouse */}
+              {/* Tooltip for hovered node - positioned by mouse ref */}
               {hoveredNode && !is3D && (
                 <div 
+                  ref={tooltipRef}
                   className="absolute z-20 pointer-events-none bg-slate-900/95 backdrop-blur-md border border-white/20 rounded-xl px-4 py-3 shadow-2xl"
                   style={{
-                    left: Math.min(mousePos.x + 16, (containerRef.current?.clientWidth || 600) - 220),
-                    top: Math.max(mousePos.y - 100, 10),
+                    left: Math.min(mousePosRef.current.x + 16, (containerRef.current?.clientWidth || 600) - 220),
+                    top: Math.max(mousePosRef.current.y - 100, 10),
                   }}
                 >
                   <div className="font-semibold text-white mb-2">{hoveredNode.name}</div>
