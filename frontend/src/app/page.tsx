@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { getPaperStats, searchPapers, type Paper } from "@/lib/api"
 import { PaperCard } from "@/components/papers/paper-card"
-import { Search, ArrowRight, Sparkles, Network, BarChart3, BookOpen, TrendingUp, Loader2, ChevronDown, GraduationCap, Quote } from "lucide-react"
+import { Search, ArrowRight, Sparkles, Network, BarChart3, BookOpen, TrendingUp, Loader2, ChevronDown, User, FileText, MessageSquare } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export default function HomePage() {
@@ -54,110 +54,109 @@ export default function HomePage() {
   }
   
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-violet-500/30">
-      {/* Background Effects */}
-      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-violet-600/10 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-fuchsia-600/10 rounded-full blur-[120px]" />
-        <div className="absolute top-[20%] right-[20%] w-[30%] h-[30%] bg-emerald-600/5 rounded-full blur-[100px]" />
-        {/* Grid Pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,black,transparent)]" />
+    <div className="min-h-screen relative selection:bg-violet-500/30">
+      {/* 全局背景光效 */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-violet-500/10 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-fuchsia-500/10 rounded-full blur-[120px]" />
       </div>
 
-      <div className="relative z-10">
-        {/* Hero Section */}
-        <section className="relative pt-32 pb-20 px-4">
-          <div className="max-w-5xl mx-auto text-center">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-white/60 mb-8 backdrop-blur-sm animate-fade-in">
-              <span className="flex h-2 w-2 relative">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-              2025 AI Top Conference Knowledge Graph
-            </div>
-            
-            {/* Title */}
-            <h1 className="text-6xl sm:text-7xl lg:text-8xl font-bold mb-6 tracking-tighter animate-fade-in animation-delay-100">
-              <span className="bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
-                PaperHub
-              </span>
-            </h1>
-            
-            <p className="text-xl sm:text-2xl text-white/60 mb-12 max-w-2xl mx-auto font-light tracking-wide animate-fade-in animation-delay-200">
-              Your Academic AI Douban
-            </p>
-            
-            {/* Search Bar */}
-            <div className="max-w-2xl mx-auto mb-16 animate-fade-in animation-delay-300">
-              <form onSubmit={handleSearch} className="relative group">
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-violet-500/50 via-fuchsia-500/50 to-emerald-500/50 rounded-2xl blur opacity-30 group-hover:opacity-50 transition duration-500" />
-                <div className="relative flex items-center bg-black/80 border border-white/10 rounded-2xl p-2 shadow-2xl backdrop-blur-xl">
-                  <Search className="ml-4 w-5 h-5 text-white/40" />
-                  <Input
-                    placeholder="Search papers, authors, keywords..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="flex-1 h-12 bg-transparent border-0 text-lg placeholder:text-white/20 focus-visible:ring-0 focus-visible:ring-offset-0"
-                  />
-                  <Button 
-                    type="submit" 
-                    size="lg"
-                    disabled={isSearching}
-                    className="h-12 px-8 rounded-xl bg-white text-black hover:bg-white/90 font-medium transition-all"
-                  >
-                    {isSearching ? <Loader2 className="w-5 h-5 animate-spin" /> : "Search"}
-                  </Button>
-                </div>
-              </form>
-              
-              {/* Quick Tags */}
-              <div className="flex flex-wrap justify-center gap-2 mt-6 text-sm">
-                <span className="text-white/30 mr-2">Trending:</span>
-                <Link href="/papers?conference=ICLR" className="text-white/50 hover:text-violet-400 transition-colors">ICLR 2025</Link>
-                <span className="text-white/10">•</span>
-                <Link href="/papers?conference=NeurIPS" className="text-white/50 hover:text-fuchsia-400 transition-colors">NeurIPS 2025</Link>
-                <span className="text-white/10">•</span>
-                <Link href="/qa" className="text-white/50 hover:text-emerald-400 transition-colors">LLM QA</Link>
-              </div>
-            </div>
-
-            {/* Stats Row */}
-            {stats && (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto border-t border-white/5 pt-12 animate-fade-in animation-delay-300">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-white mb-1 tracking-tight">{stats.overall.total_papers?.toLocaleString()}</div>
-                  <div className="text-xs text-white/40 uppercase tracking-widest">Papers</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-white mb-1 tracking-tight">{stats.overall.total_authors?.toLocaleString()}</div>
-                  <div className="text-xs text-white/40 uppercase tracking-widest">Authors</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-white mb-1 tracking-tight">{stats.overall.total_reviews?.toLocaleString()}</div>
-                  <div className="text-xs text-white/40 uppercase tracking-widest">Reviews</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-white mb-1 tracking-tight">{stats.overall.total_keywords?.toLocaleString()}</div>
-                  <div className="text-xs text-white/40 uppercase tracking-widest">Concepts</div>
-                </div>
-              </div>
-            )}
+      {/* Hero Section */}
+      <section className="relative pt-32 pb-20 px-4">
+        <div className="max-w-5xl mx-auto text-center relative z-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.08] text-xs font-medium text-white/60 mb-8 backdrop-blur-sm animate-fade-in hover:bg-white/[0.05] transition-colors cursor-default">
+            <Sparkles className="w-3.5 h-3.5 text-violet-400" />
+            <span>AI 顶会论文知识图谱 · 2025</span>
           </div>
-        </section>
+          
+          <h1 className="text-5xl sm:text-7xl lg:text-8xl font-bold mb-8 tracking-tight leading-[1.1]">
+            <span className="bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent">
+              探索 AI 前沿
+            </span>
+            <br />
+            <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-violet-400 bg-clip-text text-transparent bg-[200%_auto] animate-gradient">
+              研究论文
+            </span>
+          </h1>
+          
+          <p className="text-lg sm:text-xl text-white/50 mb-12 max-w-2xl mx-auto leading-relaxed">
+            汇聚 ICLR、ICML、NeurIPS 三大顶会最新论文，<br className="hidden sm:block" />
+            基于知识图谱的智能检索与分析，像逛豆瓣一样探索学术前沿。
+          </p>
+          
+          {/* Search Bar */}
+          <form onSubmit={handleSearch} className="max-w-2xl mx-auto mb-12">
+            <div className="relative group">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-violet-500/50 to-fuchsia-500/50 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500" />
+              <div className="relative flex items-center p-2 bg-[#0A0A0A] border border-white/10 rounded-xl shadow-2xl">
+                <div className="pl-4 pr-3 text-white/40">
+                  <Search className="w-5 h-5" />
+                </div>
+                <Input
+                  placeholder="搜索标题、作者、关键词、摘要..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="flex-1 h-12 bg-transparent border-0 text-lg placeholder:text-white/20 focus-visible:ring-0 px-0"
+                />
+                <Button 
+                  type="submit" 
+                  size="lg"
+                  disabled={isSearching}
+                  className="h-11 px-8 bg-white text-black hover:bg-white/90 font-medium rounded-lg transition-all"
+                >
+                  {isSearching ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    "搜索"
+                  )}
+                </Button>
+              </div>
+            </div>
+            {/* 热门搜索提示 */}
+            <div className="mt-4 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-white/40">
+              <span>热门搜索:</span>
+              <button type="button" onClick={() => setSearchQuery("Large Language Models")} className="hover:text-violet-400 transition-colors">Large Language Models</button>
+              <button type="button" onClick={() => setSearchQuery("Reinforcement Learning")} className="hover:text-violet-400 transition-colors">Reinforcement Learning</button>
+              <button type="button" onClick={() => setSearchQuery("Diffusion Models")} className="hover:text-violet-400 transition-colors">Diffusion Models</button>
+            </div>
+          </form>
 
-        {/* Search Results */}
-        {searchResults.length > 0 && (
-          <section className="py-12 px-4 max-w-7xl mx-auto animate-fade-in">
+          {/* Conference Buttons */}
+          <div className="flex flex-wrap justify-center gap-3">
+            {[
+              { name: "ICLR 2025", color: "text-blue-400" },
+              { name: "ICML 2025", color: "text-violet-400" },
+              { name: "NeurIPS 2025", color: "text-fuchsia-400" },
+            ].map((conf) => (
+              <Link key={conf.name} href={`/papers?conference=${conf.name.split(' ')[0]}`}>
+                <Button variant="outline" className="border-white/10 hover:bg-white/5 hover:border-white/20 backdrop-blur-sm">
+                  <span className={cn("w-2 h-2 rounded-full mr-2", conf.color.replace('text-', 'bg-'))} />
+                  {conf.name}
+                </Button>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+      
+      {/* Search Results */}
+      {searchResults.length > 0 && (
+        <section className="py-12 px-4 border-t border-white/5 bg-black/20">
+          <div className="max-w-7xl mx-auto">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-xl font-medium flex items-center gap-3">
-                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-white/5 border border-white/10 text-white/60">
-                  {totalResults}
+              <div className="flex items-baseline gap-3">
+                <h2 className="text-2xl font-bold">搜索结果</h2>
+                <span className="text-white/40">
+                  找到 {totalResults} 篇相关论文
                 </span>
-                Results Found
-              </h2>
-              <Button variant="ghost" size="sm" onClick={() => { setSearchResults([]); setDisplayCount(6) }} className="text-white/40 hover:text-white">
-                Clear
+              </div>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => { setSearchResults([]); setDisplayCount(6) }}
+                className="text-white/40 hover:text-white"
+              >
+                清除结果
               </Button>
             </div>
             
@@ -171,167 +170,191 @@ export default function HomePage() {
               <div className="flex justify-center mt-12">
                 <Button 
                   variant="outline" 
+                  size="lg"
                   onClick={handleLoadMore}
                   disabled={isLoadingMore}
-                  className="min-w-[200px] border-white/10 hover:bg-white/5 text-white/60 hover:text-white transition-all"
+                  className="min-w-[200px] border-white/10 bg-white/5 hover:bg-white/10"
                 >
                   {isLoadingMore ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Loading...
+                      加载中...
                     </>
                   ) : (
                     <>
-                      Load More ({searchResults.length - displayCount})
-                      <ChevronDown className="w-4 h-4 ml-2" />
+                      <ChevronDown className="w-4 h-4 mr-2" />
+                      加载更多 ({searchResults.length - displayCount})
                     </>
                   )}
                 </Button>
               </div>
             )}
-          </section>
-        )}
-
-        {/* Features Grid */}
-        <section className="py-24 px-4 max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Feature 1 */}
-            <Link href="/qa" className="group md:col-span-2">
-              <Card className="h-full bg-gradient-to-br from-violet-500/10 to-fuchsia-500/10 border-white/10 overflow-hidden hover:border-violet-500/30 transition-all duration-500">
-                <CardContent className="p-8 h-full flex flex-col justify-between relative">
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-violet-500/20 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 group-hover:bg-violet-500/30 transition-all" />
-                  
-                  <div>
-                    <div className="w-12 h-12 rounded-2xl bg-violet-500/20 flex items-center justify-center mb-6 text-violet-300">
-                      <Sparkles className="w-6 h-6" />
-                    </div>
-                    <h3 className="text-2xl font-bold mb-3 group-hover:text-violet-300 transition-colors">Intelligent Q&A</h3>
-                    <p className="text-white/60 text-lg leading-relaxed max-w-md">
-                      Ask complex questions about research trends, specific papers, or authors using natural language. Powered by LLM and Knowledge Graph.
-                    </p>
-                  </div>
-                  
-                  <div className="mt-8 flex items-center text-violet-400 font-medium opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
-                    Try it now <ArrowRight className="w-4 h-4 ml-2" />
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-
-            {/* Feature 2 */}
-            <Link href="/network" className="group">
-              <Card className="h-full bg-white/[0.02] border-white/10 overflow-hidden hover:bg-white/[0.04] transition-all duration-500">
-                <CardContent className="p-8 h-full flex flex-col justify-between">
-                  <div>
-                    <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center mb-6 text-emerald-300">
-                      <Network className="w-6 h-6" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-3 group-hover:text-emerald-300 transition-colors">Collaboration Graph</h3>
-                    <p className="text-white/60">
-                      Explore academic connections and co-author networks in an interactive 3D space.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-
-            {/* Feature 3 */}
-            <Link href="/papers" className="group">
-              <Card className="h-full bg-white/[0.02] border-white/10 overflow-hidden hover:bg-white/[0.04] transition-all duration-500">
-                <CardContent className="p-8 h-full flex flex-col justify-between">
-                  <div>
-                    <div className="w-12 h-12 rounded-2xl bg-amber-500/20 flex items-center justify-center mb-6 text-amber-300">
-                      <BookOpen className="w-6 h-6" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-3 group-hover:text-amber-300 transition-colors">Paper Library</h3>
-                    <p className="text-white/60">
-                      Browse and filter papers by conference, rating, and review count with advanced sorting.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-
-            {/* Feature 4 */}
-            <Link href="/stats" className="group md:col-span-2">
-              <Card className="h-full bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border-white/10 overflow-hidden hover:border-blue-500/30 transition-all duration-500">
-                <CardContent className="p-8 h-full flex flex-col justify-between relative">
-                  <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/20 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/2 group-hover:bg-blue-500/30 transition-all" />
-                  
-                  <div className="relative z-10">
-                    <div className="w-12 h-12 rounded-2xl bg-blue-500/20 flex items-center justify-center mb-6 text-blue-300">
-                      <BarChart3 className="w-6 h-6" />
-                    </div>
-                    <h3 className="text-2xl font-bold mb-3 group-hover:text-blue-300 transition-colors">Deep Analytics</h3>
-                    <p className="text-white/60 text-lg leading-relaxed max-w-md">
-                      Gain insights into acceptance rates, score distributions, and reviewer sentiments across different conferences.
-                    </p>
-                  </div>
-
-                  <div className="mt-8 flex items-center text-blue-400 font-medium opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
-                    View stats <ArrowRight className="w-4 h-4 ml-2" />
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
           </div>
         </section>
-
-        {/* Conference Stats Mini-Cards */}
-        {stats && (
-          <section className="pb-24 px-4 max-w-7xl mx-auto">
-            <h2 className="text-sm font-mono text-white/30 uppercase tracking-widest mb-6 text-center">Conference Overview</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {Object.entries(stats.by_conference).map(([conf, data]) => (
-                <div key={conf} className="group relative">
-                  <div className={cn(
-                    "absolute -inset-0.5 rounded-2xl blur opacity-0 group-hover:opacity-30 transition duration-500",
-                    conf === "ICLR" ? "bg-blue-500" : 
-                    conf === "ICML" ? "bg-violet-500" : "bg-teal-500"
-                  )} />
-                  <Card className="relative bg-black border-white/10 overflow-hidden">
-                    <div className={cn(
-                      "absolute top-0 left-0 w-1 h-full",
-                      conf === "ICLR" ? "bg-blue-500" : 
-                      conf === "ICML" ? "bg-violet-500" : "bg-teal-500"
-                    )} />
-                    <CardContent className="p-6 pl-8">
-                      <div className="flex justify-between items-start mb-4">
-                        <div>
-                          <h3 className="text-lg font-bold">{conf} 2025</h3>
-                          <div className="text-xs text-white/40">Conference</div>
-                        </div>
-                        <div className={cn(
-                          "px-2 py-1 rounded text-xs font-bold",
-                          conf === "ICLR" ? "bg-blue-500/20 text-blue-300" : 
-                          conf === "ICML" ? "bg-violet-500/20 text-violet-300" : "bg-teal-500/20 text-teal-300"
-                        )}>
-                          {data.acceptance_rate}% Rate
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-3 gap-2 text-center">
-                        <div className="p-2 rounded bg-white/5">
-                          <div className="text-white/40 text-[10px] uppercase">Total</div>
-                          <div className="font-mono text-sm">{data.total}</div>
-                        </div>
-                        <div className="p-2 rounded bg-emerald-500/10">
-                          <div className="text-emerald-500/40 text-[10px] uppercase">Accept</div>
-                          <div className="font-mono text-sm text-emerald-400">{data.accepted}</div>
-                        </div>
-                        <div className="p-2 rounded bg-rose-500/10">
-                          <div className="text-rose-500/40 text-[10px] uppercase">Reject</div>
-                          <div className="font-mono text-sm text-rose-400">{data.rejected}</div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
+      )}
+      
+      {/* Dashboard Stats */}
+      <section className="py-24 px-4 border-t border-white/5 relative bg-white/[0.01]">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold mb-4">全景数据概览</h2>
+            <p className="text-white/50 max-w-2xl mx-auto">
+              实时追踪顶会动态，通过数据洞察学术趋势
+            </p>
+          </div>
+          
+          {stats && (
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+              {[
+                { label: "论文总数", value: stats.overall.total_papers, icon: FileText, color: "text-blue-400" },
+                { label: "研究学者", value: stats.overall.total_authors, icon: User, color: "text-violet-400" },
+                { label: "评审记录", value: stats.overall.total_reviews, icon: MessageSquare, color: "text-emerald-400" },
+                { label: "关键词", value: stats.overall.total_keywords, icon: TrendingUp, color: "text-amber-400" },
+              ].map((item, i) => (
+                <Card key={i} className="bg-white/[0.02] border-white/5 backdrop-blur-sm hover:bg-white/[0.04] transition-colors">
+                  <CardContent className="p-6">
+                    <item.icon className={cn("w-6 h-6 mb-4", item.color)} />
+                    <div className="text-3xl font-bold text-white mb-1 tabular-nums tracking-tight">
+                      {item.value?.toLocaleString() || "0"}
+                    </div>
+                    <div className="text-sm text-white/40">{item.label}</div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
-          </section>
-        )}
-      </div>
+          )}
+          
+          {stats && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {Object.entries(stats.by_conference).map(([conf, data]) => (
+                <Card key={conf} className="bg-white/[0.02] border-white/5 overflow-hidden group hover:border-white/10 transition-all">
+                  <div className={cn(
+                    "h-1 w-full transition-all duration-500", 
+                    conf === "ICLR" ? "bg-blue-500 group-hover:bg-blue-400" : 
+                    conf === "ICML" ? "bg-violet-500 group-hover:bg-violet-400" : "bg-fuchsia-500 group-hover:bg-fuchsia-400"
+                  )} />
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-6">
+                      <h3 className="text-xl font-bold">{conf} <span className="text-white/30 text-base font-normal">2025</span></h3>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-white tabular-nums">
+                          {data.acceptance_rate}%
+                        </div>
+                        <div className="text-[10px] text-white/30 uppercase tracking-wider">Acceptance Rate</div>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-white/40">Submitted</span>
+                        <span className="font-mono text-white/70">{data.total.toLocaleString()}</span>
+                      </div>
+                      <div className="w-full bg-white/5 rounded-full h-1.5 overflow-hidden flex">
+                        <div 
+                          className="bg-emerald-500/50 h-full" 
+                          style={{ width: `${data.acceptance_rate}%` }} 
+                        />
+                        <div className="bg-white/5 h-full flex-1" />
+                      </div>
+                      <div className="flex justify-between text-xs text-white/30 pt-1">
+                        <span className="text-emerald-400/70">{data.accepted} Accepted</span>
+                        <span className="text-rose-400/70">{data.rejected} Rejected</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+      
+      {/* Features Grid */}
+      <section className="py-24 px-4">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-16">核心功能引擎</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { 
+                icon: Search, 
+                title: "混合检索", 
+                desc: "融合关键词与向量语义，精准定位目标论文", 
+                href: "/papers",
+                color: "text-blue-400",
+                gradient: "from-blue-500/20"
+              },
+              { 
+                icon: Network, 
+                title: "知识图谱", 
+                desc: "可视化作者协作网络，发现学术圈层", 
+                href: "/authors",
+                color: "text-violet-400",
+                gradient: "from-violet-500/20"
+              },
+              { 
+                icon: Sparkles, 
+                title: "智能问答", 
+                desc: "基于图谱的自然语言问答，支持复杂推理", 
+                href: "/qa",
+                color: "text-fuchsia-400",
+                gradient: "from-fuchsia-500/20"
+              },
+              { 
+                icon: BarChart3, 
+                title: "深度统计", 
+                desc: "多维度的会议数据分析与可视化报表", 
+                href: "/stats", // Note: stats page might not exist yet, but link is placeholder
+                color: "text-emerald-400",
+                gradient: "from-emerald-500/20"
+              },
+            ].map((feature, i) => (
+              <Link key={i} href={feature.href} className="block h-full">
+                <Card className="h-full bg-white/[0.02] border-white/5 hover:border-white/10 hover:bg-white/[0.04] transition-all group overflow-hidden relative">
+                  <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${feature.gradient} to-transparent opacity-0 group-hover:opacity-100 transition-opacity blur-2xl rounded-bl-full pointer-events-none`} />
+                  <CardContent className="p-8 flex flex-col h-full">
+                    <div className="mb-6 p-3 bg-white/5 w-fit rounded-xl border border-white/5 group-hover:border-white/10 transition-colors">
+                      <feature.icon className={cn("w-6 h-6", feature.color)} />
+                    </div>
+                    <h3 className="text-lg font-bold mb-3">{feature.title}</h3>
+                    <p className="text-sm text-white/50 leading-relaxed">
+                      {feature.desc}
+                    </p>
+                    
+                    <div className="mt-auto pt-6 flex items-center text-xs font-medium text-white/30 group-hover:text-white/60 transition-colors">
+                      立即体验 <ArrowRight className="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Footer CTA */}
+      <section className="py-24 px-4 border-t border-white/5 bg-gradient-to-b from-transparent to-white/[0.02]">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold mb-6">准备好开始探索了吗？</h2>
+          <p className="text-lg text-white/50 mb-10">
+            用全新的方式阅读、理解和分析 AI 顶会论文
+          </p>
+          
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link href="/qa">
+              <Button size="lg" className="h-14 px-8 text-lg bg-white text-black hover:bg-white/90 rounded-full">
+                <Sparkles className="w-5 h-5 mr-2" />
+                尝试智能问答
+              </Button>
+            </Link>
+            <Link href="/papers">
+              <Button size="lg" variant="outline" className="h-14 px-8 text-lg rounded-full border-white/10 hover:bg-white/5">
+                浏览全部论文
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
     </div>
   )
 }
