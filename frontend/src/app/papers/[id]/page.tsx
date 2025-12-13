@@ -12,7 +12,7 @@ import {
   ArrowLeft, ExternalLink, FileText, Calendar, Star, 
   Users, MessageSquare, ThumbsUp, ThumbsDown, HelpCircle,
   Sparkles, Loader2, ChevronDown, ChevronUp, Reply, User,
-  MessageCircle, CheckCircle, BarChart3
+  MessageCircle, CheckCircle
 } from "lucide-react"
 
 // 构建评论树结构
@@ -68,76 +68,26 @@ function getConferenceRatingScale(conference: string): { min: number; max: numbe
   }
 }
 
-// 评分分布组件 - 类似豆瓣/IMDB
-function RatingDistribution({ 
-  ratings, 
-  conference 
-}: { 
-  ratings: number[]
-  conference: string 
-}) {
-  const scale = getConferenceRatingScale(conference)
-  const distribution: Record<number, number> = {}
-  
-  // 初始化所有分数
-  for (let i = scale.max; i >= scale.min; i--) {
-    distribution[i] = 0
-  }
-  
-  // 统计分布
-  ratings.forEach(r => {
-    const roundedRating = Math.round(r)
-    if (roundedRating >= scale.min && roundedRating <= scale.max) {
-      distribution[roundedRating]++
-    }
-  })
-  
-  const maxCount = Math.max(...Object.values(distribution), 1)
-  
-  return (
-    <div className="space-y-1">
-      {Object.entries(distribution)
-        .sort(([a], [b]) => Number(b) - Number(a))
-        .map(([score, count]) => {
-          const percentage = (count / ratings.length) * 100
-          const barWidth = (count / maxCount) * 100
-          
-          return (
-            <div key={score} className="flex items-center gap-2 text-xs">
-              <span className="w-4 text-right text-white/60">{score}</span>
-              <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
-              <div className="flex-1 h-4 bg-white/5 rounded overflow-hidden">
-                <div 
-                  className="h-full bg-gradient-to-r from-amber-500 to-amber-400 transition-all duration-500"
-                  style={{ width: `${barWidth}%` }}
-                />
-              </div>
-              <span className="w-8 text-right text-white/40">
-                {count > 0 ? `${percentage.toFixed(0)}%` : "-"}
-              </span>
-            </div>
-          )
-        })}
-    </div>
-  )
+// 审稿人评分数据接口
+interface ReviewerRating {
+  rating: number
+  confidence?: number
 }
 
-// 主评分展示组件 - IMDB/豆瓣风格
+// 主评分展示组件 - 展示各审稿人评分和置信度
 function RatingCard({ 
   avgRating, 
-  ratings, 
-  conference, 
-  reviewCount 
+  reviewerRatings, 
+  conference
 }: { 
   avgRating?: number
-  ratings: number[]
+  reviewerRatings: ReviewerRating[]
   conference: string
-  reviewCount: number
 }) {
   const scale = getConferenceRatingScale(conference)
-  const validRatings = ratings.filter(r => r != null && !isNaN(r))
+  const validRatings = reviewerRatings.filter(r => r.rating != null && !isNaN(r.rating))
   const actualAvg = validRatings.length > 0 
-    ? validRatings.reduce((a, b) => a + b, 0) / validRatings.length 
+    ? validRatings.reduce((a, b) => a + b.rating, 0) / validRatings.length 
     : avgRating
   
   // 根据评分计算颜色
@@ -149,18 +99,18 @@ function RatingCard({
     return "text-rose-400"
   }
   
-  const getBgColor = (rating: number) => {
+  const getRatingBgColor = (rating: number) => {
     const normalized = (rating - scale.min) / (scale.max - scale.min)
-    if (normalized >= 0.7) return "from-emerald-500/20 to-emerald-600/10"
-    if (normalized >= 0.5) return "from-amber-500/20 to-amber-600/10"
-    if (normalized >= 0.3) return "from-orange-500/20 to-orange-600/10"
-    return "from-rose-500/20 to-rose-600/10"
+    if (normalized >= 0.7) return "bg-emerald-500/20"
+    if (normalized >= 0.5) return "bg-amber-500/20"
+    if (normalized >= 0.3) return "bg-orange-500/20"
+    return "bg-rose-500/20"
   }
   
   if (!actualAvg && validRatings.length === 0) {
     return (
-      <Card className="border-white/10">
-        <CardContent className="p-6 text-center">
+      <Card className="border-white/10 h-full">
+        <CardContent className="p-6 flex items-center justify-center h-full min-h-[200px]">
           <div className="text-white/30">暂无评分</div>
         </CardContent>
       </Card>
@@ -168,58 +118,70 @@ function RatingCard({
   }
   
   return (
-    <Card className={cn("border-white/10 bg-gradient-to-br", getBgColor(actualAvg || 0))}>
-      <CardContent className="p-6">
-        <div className="flex gap-6">
-          {/* 主评分 */}
-          <div className="text-center flex-shrink-0">
-            <div className={cn("text-5xl font-bold", getRatingColor(actualAvg || 0))}>
+    <Card className="border-white/10 h-full">
+      <CardContent className="p-5">
+        {/* 平均分 */}
+        <div className="flex items-center justify-between mb-4 pb-4 border-b border-white/10">
+          <div className="flex items-center gap-3">
+            <div className={cn("text-4xl font-bold", getRatingColor(actualAvg || 0))}>
               {actualAvg?.toFixed(1) || "N/A"}
             </div>
-            <div className="flex items-center justify-center gap-1 mt-1">
-              {[...Array(Math.round(actualAvg || 0))].map((_, i) => (
-                <Star key={i} className="w-3 h-3 text-amber-400 fill-amber-400" />
-              ))}
-              {[...Array(scale.max - Math.round(actualAvg || 0))].map((_, i) => (
-                <Star key={i} className="w-3 h-3 text-white/20" />
-              ))}
-            </div>
-            <div className="text-xs text-white/40 mt-2">
-              满分 {scale.max} · {validRatings.length} 人评分
+            <div className="text-sm text-white/50">
+              <div>平均分</div>
+              <div className="text-xs">满分 {scale.max}</div>
             </div>
           </div>
-          
-          {/* 分数分布 */}
-          {validRatings.length > 0 && (
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-2 text-xs text-white/50">
-                <BarChart3 className="w-4 h-4" />
-                评分分布
+          <div className="text-right text-sm text-white/40">
+            {validRatings.length} 位审稿人
+          </div>
+        </div>
+        
+        {/* 各审稿人评分 */}
+        <div className="space-y-2.5">
+          {validRatings.map((r, i) => (
+            <div key={i} className="flex items-center gap-3">
+              <div className="w-16 text-xs text-white/50 shrink-0">
+                Reviewer {i + 1}
               </div>
-              <RatingDistribution ratings={validRatings} conference={conference} />
+              <div className="flex-1 flex items-center gap-2">
+                <div className={cn(
+                  "px-2.5 py-1 rounded-md text-sm font-semibold min-w-[40px] text-center",
+                  getRatingBgColor(r.rating),
+                  getRatingColor(r.rating)
+                )}>
+                  {r.rating}
+                </div>
+                {r.confidence != null && (
+                  <div className="text-xs text-white/40 flex items-center gap-1">
+                    <span className="text-white/30">置信度:</span>
+                    <span className={cn(
+                      r.confidence >= 4 ? "text-emerald-400/80" : 
+                      r.confidence >= 3 ? "text-amber-400/80" : "text-white/50"
+                    )}>
+                      {r.confidence}
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
-          )}
+          ))}
         </div>
         
         {/* 统计摘要 */}
         {validRatings.length > 1 && (
-          <div className="flex gap-4 mt-4 pt-4 border-t border-white/10 text-xs text-white/50">
+          <div className="flex gap-4 mt-4 pt-3 border-t border-white/10 text-xs text-white/50">
             <div>
-              <span className="text-white/70">最高: </span>
-              <span className="text-emerald-400">{Math.max(...validRatings).toFixed(1)}</span>
+              <span className="text-white/40">最高 </span>
+              <span className="text-emerald-400">{Math.max(...validRatings.map(r => r.rating)).toFixed(0)}</span>
             </div>
             <div>
-              <span className="text-white/70">最低: </span>
-              <span className="text-rose-400">{Math.min(...validRatings).toFixed(1)}</span>
+              <span className="text-white/40">最低 </span>
+              <span className="text-rose-400">{Math.min(...validRatings.map(r => r.rating)).toFixed(0)}</span>
             </div>
             <div>
-              <span className="text-white/70">标准差: </span>
-              <span className="text-white/70">
-                {(() => {
-                  const mean = validRatings.reduce((a, b) => a + b, 0) / validRatings.length
-                  const variance = validRatings.reduce((sum, r) => sum + Math.pow(r - mean, 2), 0) / validRatings.length
-                  return Math.sqrt(variance).toFixed(2)
-                })()}
+              <span className="text-white/40">差异 </span>
+              <span className="text-white/60">
+                {(Math.max(...validRatings.map(r => r.rating)) - Math.min(...validRatings.map(r => r.rating))).toFixed(0)}
               </span>
             </div>
           </div>
@@ -540,12 +502,15 @@ export default function PaperDetailPage({ params }: { params: Promise<{ id: stri
     return { officialReviews: official, discussions: others }
   }, [reviewTree])
   
-  // 提取所有评分
-  const allRatings = useMemo(() => {
+  // 提取所有审稿人评分和置信度
+  const reviewerRatings = useMemo(() => {
     if (!paper?.reviews) return []
     return paper.reviews
       .filter(r => r.review_type === "official_review" && r.rating != null)
-      .map(r => r.rating as number)
+      .map(r => ({
+        rating: r.rating as number,
+        confidence: r.content?.confidence?.value as number | undefined
+      }))
   }, [paper?.reviews])
   
   const loadSummary = async () => {
@@ -657,13 +622,12 @@ export default function PaperDetailPage({ params }: { params: Promise<{ id: stri
             </div>
           </div>
           
-          {/* Right: Rating Card - IMDB Style */}
+          {/* Right: Rating Card */}
           <div className="lg:col-span-1">
             <RatingCard 
               avgRating={paper.avg_rating}
-              ratings={allRatings}
+              reviewerRatings={reviewerRatings}
               conference={paper.conference}
-              reviewCount={paper.review_count}
             />
           </div>
         </div>

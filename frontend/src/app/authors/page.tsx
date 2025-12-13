@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import { Search, Users, TrendingUp, Award, Loader2 } from "lucide-react"
+import { Search, Users, TrendingUp, Award, Loader2, ChevronDown } from "lucide-react"
 
 export default function AuthorsPage() {
   const [topAuthors, setTopAuthors] = useState<{
@@ -23,6 +23,8 @@ export default function AuthorsPage() {
   const [conference, setConference] = useState("")
   const [loading, setLoading] = useState(true)
   const [searching, setSearching] = useState(false)
+  const [displayCount, setDisplayCount] = useState(12)
+  const [totalResults, setTotalResults] = useState(0)
   
   useEffect(() => {
     setLoading(true)
@@ -37,14 +39,20 @@ export default function AuthorsPage() {
     if (!searchQuery.trim()) return
     
     setSearching(true)
+    setDisplayCount(12)
     try {
-      const result = await searchAuthors(searchQuery)
+      const result = await searchAuthors(searchQuery, 100) // 获取更多结果
       setSearchResults(result.results)
+      setTotalResults(result.count)
     } catch (error) {
       console.error(error)
     } finally {
       setSearching(false)
     }
+  }
+  
+  const handleLoadMore = () => {
+    setDisplayCount(prev => Math.min(prev + 12, searchResults.length))
   }
   
   const conferences = [
@@ -104,13 +112,18 @@ export default function AuthorsPage() {
         {searchResults.length > 0 && (
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">搜索结果</h2>
-              <Button variant="ghost" size="sm" onClick={() => setSearchResults([])}>
+              <h2 className="text-lg font-semibold">
+                搜索结果
+                <span className="text-white/50 text-sm font-normal ml-2">
+                  共 {totalResults} 位，显示 {Math.min(displayCount, searchResults.length)} 位
+                </span>
+              </h2>
+              <Button variant="ghost" size="sm" onClick={() => { setSearchResults([]); setDisplayCount(12) }}>
                 清除
               </Button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {searchResults.map((author) => (
+              {searchResults.slice(0, displayCount).map((author) => (
                 <Link key={author.authorid} href={`/authors/${encodeURIComponent(author.authorid)}`}>
                   <Card className="hover:border-white/20 hover:bg-white/[0.07] transition-all cursor-pointer">
                     <CardContent className="p-4">
@@ -130,6 +143,19 @@ export default function AuthorsPage() {
                 </Link>
               ))}
             </div>
+            {/* Load More Button */}
+            {displayCount < searchResults.length && (
+              <div className="flex justify-center mt-6">
+                <Button 
+                  variant="outline" 
+                  onClick={handleLoadMore}
+                  className="min-w-[200px]"
+                >
+                  <ChevronDown className="w-4 h-4 mr-2" />
+                  加载更多 ({searchResults.length - displayCount} 位)
+                </Button>
+              </div>
+            )}
           </div>
         )}
         

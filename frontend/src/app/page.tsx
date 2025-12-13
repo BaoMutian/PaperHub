@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { getPaperStats, searchPapers, type Paper } from "@/lib/api"
 import { PaperCard } from "@/components/papers/paper-card"
-import { Search, ArrowRight, Sparkles, Network, BarChart3, BookOpen, TrendingUp } from "lucide-react"
+import { Search, ArrowRight, Sparkles, Network, BarChart3, BookOpen, TrendingUp, Loader2, ChevronDown } from "lucide-react"
 
 export default function HomePage() {
   const [stats, setStats] = useState<{
@@ -17,6 +17,9 @@ export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [searchResults, setSearchResults] = useState<Paper[]>([])
   const [isSearching, setIsSearching] = useState(false)
+  const [displayCount, setDisplayCount] = useState(6)
+  const [totalResults, setTotalResults] = useState(0)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
   
   useEffect(() => {
     getPaperStats()
@@ -29,14 +32,24 @@ export default function HomePage() {
     if (!searchQuery.trim()) return
     
     setIsSearching(true)
+    setDisplayCount(6)
     try {
-      const result = await searchPapers(searchQuery, true, 6)
+      const result = await searchPapers(searchQuery, true, 50) // 获取更多结果
       setSearchResults(result.results)
+      setTotalResults(result.count)
     } catch (error) {
       console.error(error)
     } finally {
       setIsSearching(false)
     }
+  }
+  
+  const handleLoadMore = () => {
+    setIsLoadingMore(true)
+    setTimeout(() => {
+      setDisplayCount(prev => Math.min(prev + 6, searchResults.length))
+      setIsLoadingMore(false)
+    }, 300)
   }
   
   return (
@@ -77,7 +90,7 @@ export default function HomePage() {
                 <div className="relative flex-1">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
                   <Input
-                    placeholder="搜索论文、作者、关键词..."
+                    placeholder="搜索标题、作者、关键词、摘要..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-12 h-12 bg-transparent border-0 text-base focus:ring-0"
@@ -116,16 +129,44 @@ export default function HomePage() {
         <section className="py-12 px-4 border-t border-white/5">
           <div className="max-w-7xl mx-auto">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold">搜索结果</h2>
-              <Button variant="ghost" size="sm" onClick={() => setSearchResults([])}>
+              <h2 className="text-xl font-semibold">
+                搜索结果 
+                <span className="text-white/50 text-base font-normal ml-2">
+                  共 {totalResults} 篇，显示 {Math.min(displayCount, searchResults.length)} 篇
+                </span>
+              </h2>
+              <Button variant="ghost" size="sm" onClick={() => { setSearchResults([]); setDisplayCount(6) }}>
                 清除结果
               </Button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {searchResults.map((paper) => (
+              {searchResults.slice(0, displayCount).map((paper) => (
                 <PaperCard key={paper.id} paper={paper} />
               ))}
             </div>
+            {/* Load More Button */}
+            {displayCount < searchResults.length && (
+              <div className="flex justify-center mt-8">
+                <Button 
+                  variant="outline" 
+                  onClick={handleLoadMore}
+                  disabled={isLoadingMore}
+                  className="min-w-[200px]"
+                >
+                  {isLoadingMore ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      加载中...
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown className="w-4 h-4 mr-2" />
+                      加载更多 ({searchResults.length - displayCount} 篇)
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
           </div>
         </section>
       )}
