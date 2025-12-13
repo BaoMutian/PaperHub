@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Query, Depends
 from typing import Optional
 import logging
+import math
 
 from ..services.neo4j_service import Neo4jService, get_neo4j_service
 from ..models.graph import GraphData, CollaborationNetwork
@@ -23,16 +24,66 @@ async def get_collaboration_network(
         limit=limit
     )
     
-    # Add size based on degree (number of connections)
-    node_degrees = {}
+    # Calculate node statistics: degree (连接数) and total_papers (合作论文总数)
+    node_stats = {}
     for link in network["links"]:
-        node_degrees[link["source"]] = node_degrees.get(link["source"], 0) + 1
-        node_degrees[link["target"]] = node_degrees.get(link["target"], 0) + 1
+        source, target = link["source"], link["target"]
+        weight = link.get("weight", 1)
+        
+        if source not in node_stats:
+            node_stats[source] = {"degree": 0, "total_papers": 0, "max_collab": 0}
+        if target not in node_stats:
+            node_stats[target] = {"degree": 0, "total_papers": 0, "max_collab": 0}
+        
+        node_stats[source]["degree"] += 1
+        node_stats[target]["degree"] += 1
+        node_stats[source]["total_papers"] += weight
+        node_stats[target]["total_papers"] += weight
+        node_stats[source]["max_collab"] = max(node_stats[source]["max_collab"], weight)
+        node_stats[target]["max_collab"] = max(node_stats[target]["max_collab"], weight)
+    
+    # Find global max values for normalization
+    max_degree = max((s["degree"] for s in node_stats.values()), default=1)
+    max_papers = max((s["total_papers"] for s in node_stats.values()), default=1)
+    
+    # Color gradient based on collaboration intensity (从冷到暖)
+    def get_color(intensity: float) -> str:
+        """Generate color from violet (low) to gold (high) based on intensity"""
+        if intensity < 0.25:
+            return "#8b5cf6"  # violet
+        elif intensity < 0.5:
+            return "#a855f7"  # purple
+        elif intensity < 0.7:
+            return "#ec4899"  # pink
+        elif intensity < 0.85:
+            return "#f97316"  # orange
+        else:
+            return "#eab308"  # gold
     
     for node in network["nodes"]:
-        degree = node_degrees.get(node["id"], 1)
-        node["size"] = min(5 + degree * 2, 30)  # Size between 5 and 30
-        node["properties"] = {"degree": degree}
+        stats = node_stats.get(node["id"], {"degree": 1, "total_papers": 1, "max_collab": 1})
+        degree = stats["degree"]
+        total_papers = stats["total_papers"]
+        
+        # Size calculation: combine degree and total papers (加权计算)
+        # Normalized score: 70% based on total papers, 30% based on degree
+        degree_norm = degree / max_degree if max_degree > 0 else 0
+        papers_norm = total_papers / max_papers if max_papers > 0 else 0
+        combined_score = 0.3 * degree_norm + 0.7 * papers_norm
+        
+        # Size: exponential scaling for better visual distinction (3 to 25)
+        node["size"] = 3 + 22 * math.pow(combined_score, 0.6)
+        
+        # Color based on combined intensity
+        node["color"] = get_color(combined_score)
+        
+        # Store detailed properties
+        node["properties"] = {
+            "degree": degree,
+            "total_papers": total_papers,
+            "max_collab": stats["max_collab"],
+            "intensity": round(combined_score, 3)
+        }
     
     # Calculate average collaborations
     avg_collab = sum(l["weight"] for l in network["links"]) / len(network["links"]) if network["links"] else 0

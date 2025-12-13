@@ -1,17 +1,32 @@
 "use client"
 
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState, useRef, useCallback } from "react"
 import { getCollaborationNetwork, type CollaborationNetwork } from "@/lib/api"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import { Network, Users, GitBranch, Loader2, Maximize2, Minimize2, Box, Grid2x2 } from "lucide-react"
+import { Network, Users, GitBranch, Loader2, Maximize2, Minimize2, Box, Grid2x2, Info } from "lucide-react"
 import dynamic from "next/dynamic"
 
 // Dynamic imports for Force Graph (client-side only)
 const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), { ssr: false })
 const ForceGraph3D = dynamic(() => import("react-force-graph-3d"), { ssr: false })
+
+// Extended node type for force graph
+interface ForceGraphNode {
+  id: string
+  name: string
+  val: number
+  color: string
+  degree: number
+  totalPapers: number
+  maxCollab: number
+  intensity: number
+  x?: number
+  y?: number
+  z?: number
+}
 
 export default function NetworkPage() {
   const [network, setNetwork] = useState<CollaborationNetwork | null>(null)
@@ -74,12 +89,20 @@ export default function NetworkPage() {
     { value: 10, label: "≥10次" }
   ]
   
+  // Hover state for tooltip
+  const [hoveredNode, setHoveredNode] = useState<ForceGraphNode | null>(null)
+  const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 })
+  
   const graphData = network ? {
     nodes: network.nodes.map(n => ({
       id: n.id,
       name: n.label,
       val: n.size || 5,
-      color: n.color || "#8b5cf6"
+      color: n.color || "#8b5cf6",
+      degree: n.properties?.degree as number || 0,
+      totalPapers: n.properties?.total_papers as number || 0,
+      maxCollab: n.properties?.max_collab as number || 0,
+      intensity: n.properties?.intensity as number || 0
     })),
     links: network.links.map(l => ({
       source: l.source,
@@ -87,6 +110,80 @@ export default function NetworkPage() {
       value: l.weight
     }))
   } : { nodes: [], links: [] }
+  
+  // Custom node rendering for 2D
+  const nodeCanvasObject = useCallback((node: ForceGraphNode, ctx: CanvasRenderingContext2D, globalScale: number) => {
+    const size = node.val || 5
+    const x = node.x || 0
+    const y = node.y || 0
+    
+    // Draw outer glow for high-intensity nodes
+    if (node.intensity > 0.5) {
+      const glowSize = size * 1.5
+      const gradient = ctx.createRadialGradient(x, y, size * 0.5, x, y, glowSize)
+      gradient.addColorStop(0, node.color + "40")
+      gradient.addColorStop(1, "transparent")
+      ctx.beginPath()
+      ctx.arc(x, y, glowSize, 0, 2 * Math.PI)
+      ctx.fillStyle = gradient
+      ctx.fill()
+    }
+    
+    // Draw main circle with gradient
+    const mainGradient = ctx.createRadialGradient(x - size * 0.3, y - size * 0.3, 0, x, y, size)
+    mainGradient.addColorStop(0, node.color + "ff")
+    mainGradient.addColorStop(0.7, node.color + "cc")
+    mainGradient.addColorStop(1, node.color + "88")
+    
+    ctx.beginPath()
+    ctx.arc(x, y, size, 0, 2 * Math.PI)
+    ctx.fillStyle = mainGradient
+    ctx.fill()
+    
+    // Draw border
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.3)"
+    ctx.lineWidth = Math.max(0.5, size * 0.1)
+    ctx.stroke()
+    
+    // Draw label for larger nodes or when zoomed in
+    const showLabel = globalScale > 0.8 || size > 10
+    if (showLabel) {
+      const fontSize = Math.max(3, Math.min(size * 0.6, 12 / globalScale))
+      ctx.font = `${fontSize}px "Inter", sans-serif`
+      ctx.textAlign = "center"
+      ctx.textBaseline = "middle"
+      
+      // Text shadow for readability
+      ctx.fillStyle = "rgba(0, 0, 0, 0.8)"
+      ctx.fillText(node.name, x + 0.5, y + size + fontSize + 0.5)
+      ctx.fillStyle = "#ffffff"
+      ctx.fillText(node.name, x, y + size + fontSize)
+    }
+  }, [])
+  
+  // Handle node hover
+  const handleNodeHover = useCallback((node: ForceGraphNode | null, prevNode: ForceGraphNode | null) => {
+    setHoveredNode(node)
+    if (node && containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect()
+      setTooltipPos({
+        x: (node.x || 0) + rect.width / 2,
+        y: (node.y || 0) + rect.height / 2
+      })
+    }
+  }, [])
+  
+  // Link styling based on weight
+  const linkColor = useCallback((link: { value?: number }) => {
+    const weight = link.value || 1
+    const alpha = Math.min(0.15 + weight * 0.08, 0.6)
+    return `rgba(255, 255, 255, ${alpha})`
+  }, [])
+  
+  const linkWidth = useCallback((link: { value?: number }) => {
+    const weight = link.value || 1
+    return Math.sqrt(weight) * 1.2
+  }, [])
   
   return (
     <div className="min-h-screen py-8 px-4">
@@ -236,28 +333,85 @@ export default function NetworkPage() {
               <Loader2 className="w-8 h-8 animate-spin text-violet-400" />
             </div>
           ) : network && network.nodes.length > 0 ? (
-            is3D ? (
-              <ForceGraph3D
-                graphData={graphData}
-                nodeLabel="name"
-                nodeColor="color"
-                nodeRelSize={4}
-                linkWidth={(link) => Math.sqrt((link as { value?: number }).value || 1)}
-                linkColor={() => "rgba(255,255,255,0.15)"}
-                backgroundColor="#000000"
-                showNavInfo={false}
-              />
-            ) : (
-              <ForceGraph2D
-                graphData={graphData}
-                nodeLabel="name"
-                nodeColor="color"
-                nodeRelSize={4}
-                linkWidth={(link) => Math.sqrt((link as { value?: number }).value || 1)}
-                linkColor={() => "rgba(255,255,255,0.2)"}
-                backgroundColor="transparent"
-              />
-            )
+            <>
+              {is3D ? (
+                <ForceGraph3D
+                  graphData={graphData}
+                  nodeLabel={(node: ForceGraphNode) => `${node.name}\n合作者: ${node.degree} | 论文: ${node.totalPapers}`}
+                  nodeColor="color"
+                  nodeVal="val"
+                  nodeRelSize={1}
+                  linkWidth={linkWidth}
+                  linkColor={linkColor}
+                  linkOpacity={0.6}
+                  backgroundColor="#000000"
+                  showNavInfo={false}
+                  nodeResolution={16}
+                />
+              ) : (
+                <ForceGraph2D
+                  graphData={graphData}
+                  nodeCanvasObject={nodeCanvasObject}
+                  nodePointerAreaPaint={(node: ForceGraphNode, color: string, ctx: CanvasRenderingContext2D) => {
+                    const size = (node.val || 5) * 1.5
+                    ctx.fillStyle = color
+                    ctx.beginPath()
+                    ctx.arc(node.x || 0, node.y || 0, size, 0, 2 * Math.PI)
+                    ctx.fill()
+                  }}
+                  onNodeHover={handleNodeHover}
+                  linkWidth={linkWidth}
+                  linkColor={linkColor}
+                  linkDirectionalParticles={2}
+                  linkDirectionalParticleWidth={(link: { value?: number }) => Math.min((link.value || 1) * 0.5, 3)}
+                  linkDirectionalParticleSpeed={0.005}
+                  backgroundColor="transparent"
+                  cooldownTicks={100}
+                  d3VelocityDecay={0.3}
+                />
+              )}
+              
+              {/* Tooltip for hovered node */}
+              {hoveredNode && !is3D && (
+                <div 
+                  className="absolute z-20 pointer-events-none bg-black/90 backdrop-blur-sm border border-white/20 rounded-lg px-4 py-3 shadow-xl"
+                  style={{
+                    left: Math.min(tooltipPos.x + 15, (containerRef.current?.clientWidth || 600) - 200),
+                    top: Math.min(tooltipPos.y - 60, (containerRef.current?.clientHeight || 400) - 120),
+                  }}
+                >
+                  <div className="font-semibold text-white mb-2">{hoveredNode.name}</div>
+                  <div className="text-sm space-y-1 text-white/70">
+                    <div className="flex justify-between gap-4">
+                      <span>合作者数量:</span>
+                      <span className="text-violet-400 font-medium">{hoveredNode.degree}</span>
+                    </div>
+                    <div className="flex justify-between gap-4">
+                      <span>合作论文总数:</span>
+                      <span className="text-fuchsia-400 font-medium">{hoveredNode.totalPapers}</span>
+                    </div>
+                    <div className="flex justify-between gap-4">
+                      <span>最强合作关系:</span>
+                      <span className="text-emerald-400 font-medium">{hoveredNode.maxCollab} 篇</span>
+                    </div>
+                  </div>
+                  <div className="mt-2 pt-2 border-t border-white/10">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-white/50">合作强度:</span>
+                      <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full rounded-full"
+                          style={{
+                            width: `${hoveredNode.intensity * 100}%`,
+                            background: `linear-gradient(90deg, #8b5cf6, ${hoveredNode.color})`
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
           ) : (
             <div className="h-full flex items-center justify-center text-white/50">
               没有足够的数据来显示协作网络
@@ -265,30 +419,74 @@ export default function NetworkPage() {
           )}
         </div>
         
-        {/* Instructions */}
-        <Card className="mt-6">
-          <CardContent className="p-4">
-            <div className="flex items-start gap-4 text-sm text-white/60">
-              <div className="flex-1">
-                <div className="font-medium text-white/80 mb-1">交互说明</div>
-                <ul className="space-y-1">
-                  <li>• 拖拽节点可移动位置</li>
-                  <li>• 滚轮缩放视图</li>
-                  <li>• 点击节点查看作者名称</li>
-                  <li>• 3D模式下可旋转视角</li>
-                </ul>
+        {/* Instructions & Legend */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6">
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-start gap-4 text-sm text-white/60">
+                <div className="flex-1">
+                  <div className="font-medium text-white/80 mb-2 flex items-center gap-2">
+                    <Info className="w-4 h-4" />
+                    交互说明
+                  </div>
+                  <ul className="space-y-1">
+                    <li>• 拖拽节点可移动位置</li>
+                    <li>• 滚轮缩放视图</li>
+                    <li>• 悬停节点查看详细信息</li>
+                    <li>• 3D模式下可旋转视角</li>
+                  </ul>
+                </div>
+                <div className="flex-1">
+                  <div className="font-medium text-white/80 mb-2">视觉编码</div>
+                  <ul className="space-y-1">
+                    <li>• <strong>节点大小</strong> = 合作强度（合作者数 + 论文数）</li>
+                    <li>• <strong>连线粗细</strong> = 合作论文数量</li>
+                    <li>• <strong>连线粒子</strong> = 数据流动，越快越频繁</li>
+                  </ul>
+                </div>
               </div>
-              <div className="flex-1">
-                <div className="font-medium text-white/80 mb-1">视觉编码</div>
-                <ul className="space-y-1">
-                  <li>• 节点大小 = 协作关系数量</li>
-                  <li>• 连线粗细 = 合作论文数</li>
-                  <li>• 越靠近中心 = 协作越频繁</li>
-                </ul>
+            </CardContent>
+          </Card>
+          
+          {/* Color Legend */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="font-medium text-white/80 mb-3">合作强度图例</div>
+              <div className="flex items-center gap-2">
+                <div className="flex-1 h-3 rounded-full overflow-hidden" style={{
+                  background: "linear-gradient(90deg, #8b5cf6 0%, #a855f7 25%, #ec4899 50%, #f97316 75%, #eab308 100%)"
+                }} />
               </div>
-            </div>
-          </CardContent>
-        </Card>
+              <div className="flex justify-between text-xs text-white/50 mt-1">
+                <span>较少合作</span>
+                <span>中等合作</span>
+                <span>频繁合作</span>
+              </div>
+              <div className="mt-4 flex flex-wrap gap-3 text-xs">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded-full bg-violet-500" />
+                  <span className="text-white/60">0-25%</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded-full bg-purple-500" />
+                  <span className="text-white/60">25-50%</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded-full bg-pink-500" />
+                  <span className="text-white/60">50-70%</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded-full bg-orange-500" />
+                  <span className="text-white/60">70-85%</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded-full bg-yellow-500" />
+                  <span className="text-white/60">85-100%</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   )
