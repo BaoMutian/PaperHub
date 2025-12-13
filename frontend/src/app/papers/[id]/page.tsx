@@ -415,11 +415,13 @@ function DynamicReviewContent({ content }: { content?: Record<string, { value: s
 function ReviewItem({ 
   review, 
   isExpanded, 
-  onToggle 
+  onToggle,
+  expandAll
 }: { 
   review: ReviewThread
   isExpanded: boolean
   onToggle: () => void
+  expandAll?: boolean
 }) {
   const typeInfo = getReviewTypeInfo(review.review_type || "comment")
   const TypeIcon = typeInfo.icon
@@ -473,7 +475,7 @@ function ReviewItem({
           {review.replies
             .filter(r => hasValidContentTree(r))
             .map((reply) => (
-              <ReviewItemWrapper key={reply.id} review={reply} />
+              <ReviewItemWrapper key={reply.id} review={reply} expandAll={expandAll} />
             ))}
         </div>
       )}
@@ -482,8 +484,15 @@ function ReviewItem({
 }
 
 // Wrapper to manage individual expand state
-function ReviewItemWrapper({ review }: { review: ReviewThread }) {
+function ReviewItemWrapper({ review, expandAll }: { review: ReviewThread; expandAll?: boolean }) {
   const [isExpanded, setIsExpanded] = useState(false)
+  
+  // 响应全局展开/收起状态变化
+  useEffect(() => {
+    if (expandAll !== undefined) {
+      setIsExpanded(expandAll)
+    }
+  }, [expandAll])
   
   // 如果评论本身没有内容，也没有有效回复，不渲染
   if (!hasValidContentTree(review)) {
@@ -494,7 +503,8 @@ function ReviewItemWrapper({ review }: { review: ReviewThread }) {
     <ReviewItem 
       review={review} 
       isExpanded={isExpanded} 
-      onToggle={() => setIsExpanded(!isExpanded)} 
+      onToggle={() => setIsExpanded(!isExpanded)}
+      expandAll={expandAll}
     />
   )
 }
@@ -810,7 +820,7 @@ export default function PaperDetailPage({ params }: { params: Promise<{ id: stri
             </CardHeader>
             <CardContent className="space-y-4">
               {officialReviews.map((review) => (
-                <ReviewItemWrapper key={review.id} review={review} />
+                <ReviewItemWrapper key={review.id} review={review} expandAll={expandAllReviews} />
               ))}
             </CardContent>
           </Card>
@@ -830,7 +840,7 @@ export default function PaperDetailPage({ params }: { params: Promise<{ id: stri
             </CardHeader>
             <CardContent className="space-y-4">
               {discussions.map((review) => (
-                <ReviewItemWrapper key={review.id} review={review} />
+                <ReviewItemWrapper key={review.id} review={review} expandAll={expandAllReviews} />
               ))}
             </CardContent>
           </Card>
