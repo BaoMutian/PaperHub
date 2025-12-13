@@ -19,15 +19,15 @@ PaperHub 是一个基于 Neo4j 知识图谱和 LLM 的 AI 顶会论文智能检�
 
 ### 1.3 技术栈
 
-| 层级      | 技术                                                   |
-| --------- | ------------------------------------------------------ |
+| 层级      | 技术                                                           |
+| --------- | -------------------------------------------------------------- |
 | 前端      | Next.js 16, React 19, TailwindCSS, Recharts, react-force-graph |
-| 后端      | FastAPI, Python 3.11+                                  |
-| 数据库    | Neo4j 5.x (含向量索引)                                 |
-| LLM       | OpenRouter API (Gemini 2.5 Flash)                      |
-| Embedding | sentence-transformers (all-MiniLM-L6-v2 / Qwen3)       |
-| 部署      | Docker, Docker Compose                                 |
-| 数据集    | Hugging Face (SkyyyyyMT/paperhub_data)                 |
+| 后端      | FastAPI, Python 3.11+                                          |
+| 数据库    | Neo4j 5.x (含向量索引)                                         |
+| LLM       | OpenRouter API (Gemini 2.5 Flash)                              |
+| Embedding | sentence-transformers (all-MiniLM-L6-v2 / Qwen3)               |
+| 部署      | Docker, Docker Compose                                         |
+| 数据集    | Hugging Face (SkyyyyyMT/paperhub_data)                         |
 
 ---
 
@@ -398,10 +398,10 @@ EMBEDDING_DIMENSION=384  # all-MiniLM: 384, Qwen3: 1024
 
 ### 8.2 嵌入模型选择
 
-| 模型 | 维度 | 大小 | 速度 | 适用场景 |
-|------|------|------|------|----------|
-| `all-MiniLM-L6-v2` | 384 | ~23MB | 快 | CPU 服务器（默认） |
-| `Qwen/Qwen3-Embedding-0.6B` | 1024 | ~1.2GB | 慢 | GPU 服务器 |
+| 模型                        | 维度 | 大小   | 速度 | 适用场景           |
+| --------------------------- | ---- | ------ | ---- | ------------------ |
+| `all-MiniLM-L6-v2`          | 384  | ~23MB  | 快   | CPU 服务器（默认） |
+| `Qwen/Qwen3-Embedding-0.6B` | 1024 | ~1.2GB | 慢   | GPU 服务器         |
 
 > **注意**: 模型在启动时预热，避免首次搜索延迟。
 
@@ -490,14 +490,14 @@ docker exec -it paperhub-backend python -m app.scripts.create_embeddings  # 可�
 
 ## 12. 版本历史
 
-| 版本  | 日期    | 更新内容                                                            |
-| ----- | ------- | ------------------------------------------------------------------- |
-| 1.0.0 | 2024-12 | 初始版本：基础论文浏览、作者网络、QA                                |
-| 1.1.0 | 2024-12 | Review 动态渲染、混合检索、Paper 评分属性、QA 调试面板              |
-| 1.2.0 | 2024-12 | Rebuttal 互动统计、Battle Bar、豆瓣风格徽章、首页 Trending/TopRated |
-| 1.3.0 | 2024-12 | 数据统计页面升级(recharts 图表)、热门关键词语义去重、高产作者排行   |
-| 1.3.1 | 2024-12 | UI 优化：页面标题图标、首页搜索框光效、QA 输入框布局修复            |
-| 1.4.0 | 2024-12 | Docker 生产部署、嵌入模型优化、数据集托管 HuggingFace、脚本整合     |
+| 版本  | 日期    | 更新内容                                                             |
+| ----- | ------- | -------------------------------------------------------------------- |
+| 1.0.0 | 2025-12 | 初始版本：基础论文浏览、作者网络、QA                                 |
+| 1.1.0 | 2025-12 | Review 动态渲染、混合检索、Paper 评分属性、QA 调试面板               |
+| 1.2.0 | 2025-12 | Rebuttal 互动统计、Battle Bar、豆瓣风格徽章、首页 Trending/TopRated  |
+| 1.3.0 | 2025-12 | 数据统计页面升级(recharts 图表)、热门关键词语义去重、高产作者排行    |
+| 1.3.1 | 2025-12 | UI 优化：新 Logo、BattleBar 光效动画、QA 页面布局优化                |
+| 1.4.0 | 2025-12 | Docker 生产部署、嵌入模型 CPU 优化、数据集托管 HuggingFace、脚本整合 |
 
 ---
 
