@@ -118,99 +118,111 @@ function RatingCard({
   }
   
   return (
-    <Card className="border-white/10 h-full bg-white/[0.02] backdrop-blur-sm overflow-hidden">
-      <CardContent className="p-6">
-        {/* 平均分展示 - 豆瓣风格 */}
-        <div className="flex flex-col items-center mb-8 pb-8 border-b border-white/10 relative">
-          <div className="absolute top-0 right-0 text-xs font-mono text-white/20">{conference}</div>
-          
-          <div className="text-xs text-white/40 mb-3 font-medium tracking-widest uppercase">Average Rating</div>
-          
-          <div className="flex items-baseline gap-1 mb-3">
-            <span className={cn("text-6xl font-bold tracking-tighter", getRatingColor(actualAvg || 0))}>
-              {actualAvg?.toFixed(1) || "N/A"}
-            </span>
-            <span className="text-lg text-white/20 font-light">/ {scale.max}</span>
-          </div>
-          
-          <div className="flex items-center gap-3 text-sm text-white/40 bg-white/5 px-3 py-1.5 rounded-full">
-            <div className="flex gap-0.5">
-              {[...Array(5)].map((_, i) => (
-                <Star 
-                  key={i} 
-                  className={cn(
-                    "w-3.5 h-3.5", 
-                    i < Math.round(((actualAvg || 0) - scale.min) / (scale.max - scale.min) * 5) 
-                      ? "text-amber-400 fill-amber-400" 
-                      : "text-white/10 fill-white/10"
-                  )} 
-                />
-              ))}
-            </div>
-            <div className="w-px h-3 bg-white/10" />
-            <span>{validRatings.length} 人评价</span>
-          </div>
+    <Card className="border-white/10 h-[540px] bg-white/[0.02] backdrop-blur-sm overflow-hidden flex flex-col">
+      {/* 平均分展示 - 固定头部 */}
+      <div className="flex-shrink-0 p-6 pb-6 border-b border-white/10 flex flex-col items-center relative bg-white/[0.01]">
+        <div className="absolute top-4 right-4 text-xs font-mono text-white/20 px-2 py-1 rounded bg-white/5">{conference}</div>
+        
+        <div className="text-[10px] text-white/30 mb-2 font-medium tracking-[0.2em] uppercase">AVERAGE RATING</div>
+        
+        <div className="flex items-baseline gap-1.5 mb-3">
+          <span className={cn("text-6xl font-bold tracking-tighter tabular-nums", getRatingColor(actualAvg || 0))}>
+            {actualAvg?.toFixed(1) || "N/A"}
+          </span>
+          <span className="text-lg text-white/20 font-light">/ {scale.max}</span>
         </div>
         
-        {/* 各审稿人评分 - 现代条形图风格 */}
-        <div className="space-y-3">
-          {validRatings.map((r, i) => (
-            <div key={i} className="group flex items-center gap-3">
-              <div className="w-20 text-xs text-white/40 font-medium shrink-0 group-hover:text-white/60 transition-colors uppercase tracking-wide">
-                Reviewer {i + 1}
-              </div>
+        <div className="flex items-center gap-3 text-xs text-white/40 bg-white/5 px-3 py-1.5 rounded-full border border-white/5">
+          <div className="flex gap-0.5">
+            {[...Array(5)].map((_, i) => (
+              <Star 
+                key={i} 
+                className={cn(
+                  "w-3 h-3", 
+                  i < Math.round(((actualAvg || 0) - scale.min) / (scale.max - scale.min) * 5) 
+                    ? "text-amber-400 fill-amber-400" 
+                    : "text-white/10 fill-white/10"
+                )} 
+              />
+            ))}
+          </div>
+          <div className="w-px h-3 bg-white/10" />
+          <span>{validRatings.length} 人评价</span>
+        </div>
+      </div>
+      
+      {/* 各审稿人评分 - 可滚动区域 */}
+      <div className="flex-1 overflow-y-auto p-6 space-y-3 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+        {validRatings.map((r, i) => (
+          <div key={i} className="group flex items-center gap-3">
+            <div className="w-20 text-[10px] text-white/30 font-medium shrink-0 group-hover:text-white/50 transition-colors uppercase tracking-wide">
+              Reviewer {i + 1}
+            </div>
+            
+            <div className="flex-1 h-8 bg-white/5 rounded-md overflow-hidden relative flex items-center px-3 gap-2 group-hover:bg-white/10 transition-colors border border-white/5 group-hover:border-white/10">
+              {/* 进度条背景 */}
+              <div 
+                className={cn("absolute left-0 top-0 bottom-0 opacity-10 transition-all duration-500 group-hover:opacity-20", getRatingBgColor(r.rating))}
+                style={{ width: `${((r.rating - scale.min + 1) / (scale.max - scale.min + 1)) * 100}%` }}
+              />
               
-              <div className="flex-1 h-9 bg-white/5 rounded-md overflow-hidden relative flex items-center px-3 gap-2 group-hover:bg-white/10 transition-colors border border-white/5 group-hover:border-white/10">
-                {/* 进度条背景 */}
-                <div 
-                  className={cn("absolute left-0 top-0 bottom-0 opacity-10 transition-all duration-500 group-hover:opacity-20", getRatingBgColor(r.rating))}
-                  style={{ width: `${((r.rating - scale.min + 1) / (scale.max - scale.min + 1)) * 100}%` }}
-                />
-                
-                {/* 分数 */}
-                <span className={cn("relative z-10 font-bold text-sm tabular-nums", getRatingColor(r.rating))}>
-                  {r.rating}
-                </span>
-                
-                {/* 置信度 */}
-                {r.confidence != null && (
-                  <div className="ml-auto relative z-10 flex items-center gap-2" title={`Confidence: ${r.confidence}`}>
-                    <span className="text-[9px] text-white/20 uppercase tracking-widest font-semibold hidden sm:inline-block">Conf.</span>
-                    <div className="flex gap-0.5 items-end h-3">
-                      {[...Array(5)].map((_, cI) => (
-                        <div 
-                          key={cI} 
-                          className={cn(
-                            "w-1 rounded-[1px] transition-all duration-300", 
-                            cI < (r.confidence || 0) 
-                              ? (r.confidence! >= 4 ? "bg-emerald-400/80 h-full" : "bg-white/40 h-[80%]") 
-                              : "bg-white/5 h-[40%]"
-                          )} 
-                        />
-                      ))}
-                    </div>
+              {/* 分数 */}
+              <span className={cn("relative z-10 font-bold text-xs tabular-nums", getRatingColor(r.rating))}>
+                {r.rating}
+              </span>
+              
+              {/* 置信度 */}
+              {r.confidence != null && (
+                <div className="ml-auto relative z-10 flex items-center gap-2" title={`Confidence: ${r.confidence}`}>
+                  <span className="text-[9px] text-white/20 uppercase tracking-widest font-semibold hidden sm:inline-block">Conf.</span>
+                  <div className="flex gap-0.5 items-end h-2.5">
+                    {[...Array(5)].map((_, cI) => (
+                      <div 
+                        key={cI} 
+                        className={cn(
+                          "w-0.5 rounded-[1px] transition-all duration-300", 
+                          cI < (r.confidence || 0) 
+                            ? (r.confidence! >= 4 ? "bg-emerald-400/80 h-full" : "bg-white/40 h-[80%]") 
+                            : "bg-white/5 h-[40%]"
+                        )} 
+                      />
+                    ))}
                   </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-        
-        {/* 统计摘要 */}
-        {validRatings.length > 1 && (
-          <div className="flex justify-between mt-6 pt-4 border-t border-white/10 text-[10px] text-white/30 font-mono uppercase tracking-wider">
-            <div>
-              MAX <span className="text-emerald-400 ml-1 font-bold">{Math.max(...validRatings.map(r => r.rating)).toFixed(0)}</span>
-            </div>
-            <div>
-              MIN <span className="text-rose-400 ml-1 font-bold">{Math.min(...validRatings.map(r => r.rating)).toFixed(0)}</span>
-            </div>
-            <div>
-              DIFF <span className="text-white/60 ml-1 font-bold">{(Math.max(...validRatings.map(r => r.rating)) - Math.min(...validRatings.map(r => r.rating))).toFixed(0)}</span>
+                </div>
+              )}
             </div>
           </div>
-        )}
-      </CardContent>
+        ))}
+      </div>
+      
+      {/* 统计摘要 - 底部固定 */}
+      {validRatings.length > 1 && (
+        <div className="flex-shrink-0 px-6 py-4 bg-white/[0.02] border-t border-white/5">
+          <div className="flex justify-between text-[10px] text-white/30 font-mono uppercase tracking-wider">
+            <div className="flex flex-col items-center">
+              <span className="mb-1 text-emerald-400/50">MAX</span>
+              <span className="text-emerald-400 font-bold text-lg">{Math.max(...validRatings.map(r => r.rating)).toFixed(0)}</span>
+            </div>
+            <div className="w-px h-8 bg-white/5" />
+            <div className="flex flex-col items-center">
+              <span className="mb-1 text-rose-400/50">MIN</span>
+              <span className="text-rose-400 font-bold text-lg">{Math.min(...validRatings.map(r => r.rating)).toFixed(0)}</span>
+            </div>
+            <div className="w-px h-8 bg-white/5" />
+            <div className="flex flex-col items-center">
+              <span className="mb-1 text-white/30">STD DEV</span>
+              <span className="text-white/70 font-bold text-lg">
+                {(() => {
+                  const ratings = validRatings.map(r => r.rating)
+                  const mean = ratings.reduce((a, b) => a + b, 0) / ratings.length
+                  const variance = ratings.reduce((sum, r) => sum + Math.pow(r - mean, 2), 0) / ratings.length
+                  return Math.sqrt(variance).toFixed(2)
+                })()}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
     </Card>
   )
 }
