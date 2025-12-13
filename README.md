@@ -59,16 +59,18 @@ cd PaperHub
 export SERVER_IP=你的服务器IP
 export OPENROUTER_API_KEY=你的API密钥  # 可选，用于智能问答
 
-# 3. 一键部署
+# 3. 一键部署（自动下载数据集）
 chmod +x deploy.sh
 ./deploy.sh
 
-# 4. 导入数据（首次部署，自动计算互动统计）
+# 4. 导入数据到 Neo4j（首次部署）
 docker exec -it paperhub-backend python -m app.scripts.ingest
 
 # 5. 创建向量索引（可选，用于语义搜索）
 docker exec -it paperhub-backend python -m app.scripts.create_embeddings
 ```
+
+> 📦 数据集托管在 Hugging Face: [SkyyyyyMT/paperhub_data](https://huggingface.co/datasets/SkyyyyyMT/paperhub_data)
 
 部署完成后访问：
 
@@ -114,7 +116,24 @@ OPENROUTER_API_KEY=sk-or-v1-xxxxx
 LLM_MODEL=google/gemini-2.5-flash
 ```
 
-#### 4. 导入数据
+#### 4. 下载数据集
+
+从 Hugging Face 下载论文数据：
+
+```bash
+pip install huggingface_hub
+
+python -c "
+from huggingface_hub import snapshot_download
+snapshot_download(
+    repo_id='SkyyyyyMT/paperhub_data',
+    repo_type='dataset',
+    local_dir='papers'
+)
+"
+```
+
+#### 5. 导入数据
 
 ```bash
 cd backend
@@ -126,7 +145,7 @@ python -m app.scripts.ingest
 python -m app.scripts.create_embeddings
 ```
 
-#### 5. 启动后端
+#### 6. 启动后端
 
 ```bash
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
@@ -134,7 +153,7 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 API 文档: http://localhost:8000/docs
 
-#### 6. 启动前端
+#### 7. 启动前端
 
 ```bash
 cd frontend
@@ -262,17 +281,11 @@ PaperHub/
 | `all-MiniLM-L6-v2`          | 384  | ~23MB  | 快   | CPU 服务器（推荐） |
 | `Qwen/Qwen3-Embedding-0.6B` | 1024 | ~1.2GB | 慢   | GPU 服务器         |
 
-## 📝 数据说明
-
-- **评分字段**: ICLR/NeurIPS 使用 `rating.value`，ICML 使用 `overall_recommendation.value`
-- **评分满分**: ICLR=10, ICML=5, NeurIPS=6
-- **接收状态**: poster/spotlight/oral 均为 accepted
-
 ## 🛠️ 技术栈
 
 - **后端**: FastAPI, Neo4j, sentence-transformers
 - **前端**: Next.js 16, React 19, TailwindCSS, Recharts, react-force-graph
-- **LLM**: OpenRouter API (Gemini 2.5 Flash)
+- **LLM**: OpenRouter API
 - **图数据库**: Neo4j 5.x (含向量索引)
 - **部署**: Docker, Docker Compose
 

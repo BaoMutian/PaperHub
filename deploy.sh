@@ -37,7 +37,42 @@ if ! command -v docker-compose &> /dev/null; then
     chmod +x /usr/local/bin/docker-compose
 fi
 
-# 3. 构建并启动服务
+# 3. 下载数据集（从 Hugging Face）
+echo "正在下载数据集..."
+mkdir -p papers
+
+# 安装 huggingface_hub（如果未安装）
+if ! pip show huggingface_hub &> /dev/null; then
+    pip install huggingface_hub
+fi
+
+# 使用 Python 下载数据集
+python3 << 'EOF'
+from huggingface_hub import hf_hub_download, list_repo_files
+import os
+
+repo_id = "SkyyyyyMT/paperhub_data"
+local_dir = "papers"
+
+print(f"正在从 {repo_id} 下载数据集...")
+
+# 列出仓库中的所有文件
+files = list_repo_files(repo_id, repo_type="dataset")
+
+for file in files:
+    if file.endswith('.jsonl'):
+        print(f"  下载: {file}")
+        hf_hub_download(
+            repo_id=repo_id,
+            filename=file,
+            repo_type="dataset",
+            local_dir=local_dir
+        )
+
+print("数据集下载完成!")
+EOF
+
+# 4. 构建并启动服务
 echo "正在构建并启动服务..."
 docker-compose -f docker-compose.prod.yml up -d --build
 
