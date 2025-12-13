@@ -118,14 +118,14 @@ function RatingCard({
   }
   
   return (
-    <Card className="border-white/10 h-[420px] bg-white/[0.02] backdrop-blur-sm overflow-hidden flex flex-col">
+    <Card className="border-white/10 h-auto min-h-[300px] max-h-[500px] bg-white/[0.02] backdrop-blur-sm overflow-hidden flex flex-col">
       {/* 平均分展示 - 固定头部 */}
       <div className="flex-shrink-0 p-5 pb-4 border-b border-white/10 flex flex-col items-center relative bg-white/[0.01]">
         <div className="absolute top-3 right-3 text-[10px] font-mono text-white/20 px-1.5 py-0.5 rounded bg-white/5">{conference}</div>
         
         <div className="text-[9px] text-white/30 mb-1 font-medium tracking-[0.2em] uppercase">AVERAGE RATING</div>
         
-        <div className="flex items-baseline gap-1 mb-2">
+        <div className="flex items-baseline gap-1.5 mb-2">
           <span className={cn("text-5xl font-bold tracking-tighter tabular-nums", getRatingColor(actualAvg || 0))}>
             {actualAvg?.toFixed(1) || "N/A"}
           </span>
@@ -147,19 +147,19 @@ function RatingCard({
             ))}
           </div>
           <div className="w-px h-2.5 bg-white/10" />
-          <span>{validRatings.length} 评价</span>
+          <span>{validRatings.length} 人评价</span>
         </div>
       </div>
       
       {/* 各审稿人评分 - 可滚动区域 */}
       <div className="flex-1 overflow-y-auto p-5 space-y-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
         {validRatings.map((r, i) => (
-          <div key={i} className="group flex items-center gap-2">
+          <div key={i} className="group flex items-center gap-2.5">
             <div className="w-16 text-[9px] text-white/30 font-medium shrink-0 group-hover:text-white/50 transition-colors uppercase tracking-wide">
               Reviewer {i + 1}
             </div>
             
-            <div className="flex-1 h-6 bg-white/5 rounded-sm overflow-hidden relative flex items-center px-2 gap-2 group-hover:bg-white/10 transition-colors border border-white/5 group-hover:border-white/10">
+            <div className="flex-1 h-7 bg-white/5 rounded overflow-hidden relative flex items-center px-2 gap-2 group-hover:bg-white/10 transition-colors border border-white/5 group-hover:border-white/10">
               {/* 进度条背景 */}
               <div 
                 className={cn("absolute left-0 top-0 bottom-0 opacity-10 transition-all duration-500 group-hover:opacity-20", getRatingBgColor(r.rating))}
@@ -167,7 +167,7 @@ function RatingCard({
               />
               
               {/* 分数 */}
-              <span className={cn("relative z-10 font-bold text-[10px] tabular-nums", getRatingColor(r.rating))}>
+              <span className={cn("relative z-10 font-bold text-xs tabular-nums", getRatingColor(r.rating))}>
                 {r.rating}
               </span>
               
@@ -201,17 +201,17 @@ function RatingCard({
           <div className="flex justify-between text-[9px] text-white/30 font-mono uppercase tracking-wider">
             <div className="flex flex-col items-center">
               <span className="mb-0.5 text-emerald-400/50">MAX</span>
-              <span className="text-emerald-400 font-bold text-sm">{Math.max(...validRatings.map(r => r.rating)).toFixed(0)}</span>
+              <span className="text-emerald-400 font-bold text-base">{Math.max(...validRatings.map(r => r.rating)).toFixed(0)}</span>
             </div>
             <div className="w-px h-6 bg-white/5" />
             <div className="flex flex-col items-center">
               <span className="mb-0.5 text-rose-400/50">MIN</span>
-              <span className="text-rose-400 font-bold text-sm">{Math.min(...validRatings.map(r => r.rating)).toFixed(0)}</span>
+              <span className="text-rose-400 font-bold text-base">{Math.min(...validRatings.map(r => r.rating)).toFixed(0)}</span>
             </div>
             <div className="w-px h-6 bg-white/5" />
             <div className="flex flex-col items-center">
               <span className="mb-0.5 text-white/30">STD DEV</span>
-              <span className="text-white/70 font-bold text-sm">
+              <span className="text-white/70 font-bold text-base">
                 {(() => {
                   const ratings = validRatings.map(r => r.rating)
                   const mean = ratings.reduce((a, b) => a + b, 0) / ratings.length
