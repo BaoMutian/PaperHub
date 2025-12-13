@@ -21,16 +21,19 @@ async def list_papers(
     status: Optional[str] = Query(
         None, description="Filter by status: poster, spotlight, oral, rejected, withdrawn"),
     keyword: Optional[str] = Query(None, description="Filter by keyword"),
+    sort_by: Optional[str] = Query(
+        None, description="Sort by: rating_desc, rating_asc, reviews_desc, reviews_asc, date_desc, date_asc"),
     neo4j: Neo4jService = Depends(get_neo4j_service)
 ):
-    """Get paginated list of papers with optional filters"""
+    """Get paginated list of papers with optional filters and sorting"""
     skip = (page - 1) * page_size
     papers, total = await neo4j.get_papers(
         skip=skip,
         limit=page_size,
         conference=conference,
         status=status,
-        keyword=keyword
+        keyword=keyword,
+        sort_by=sort_by
     )
 
     return PaperList(

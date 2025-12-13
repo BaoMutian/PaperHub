@@ -130,12 +130,12 @@ function RatingCard({
               <div>平均分</div>
               <div className="text-xs">满分 {scale.max}</div>
             </div>
-          </div>
+            </div>
           <div className="text-right text-sm text-white/40">
             {validRatings.length} 位审稿人
+            </div>
           </div>
-        </div>
-        
+          
         {/* 各审稿人评分 */}
         <div className="space-y-2.5">
           {validRatings.map((r, i) => (
@@ -150,7 +150,7 @@ function RatingCard({
                   getRatingColor(r.rating)
                 )}>
                   {r.rating}
-                </div>
+              </div>
                 {r.confidence != null && (
                   <div className="text-xs text-white/40 flex items-center gap-1">
                     <span className="text-white/30">置信度:</span>
@@ -160,8 +160,8 @@ function RatingCard({
                     )}>
                       {r.confidence}
                     </span>
-                  </div>
-                )}
+            </div>
+          )}
               </div>
             </div>
           ))}
@@ -391,7 +391,7 @@ function ReviewItem({
   
   // 检查是否有有效的动态content（使用与过滤相同的逻辑）
   const hasContent = hasValidContent(review)
-
+  
   return (
     <div className={cn("border-l-2 border-white/10 pl-4", indentClass)}>
       <div className="p-4 rounded-lg bg-white/5 hover:bg-white/[0.07] transition-colors">
@@ -438,7 +438,7 @@ function ReviewItem({
             .filter(r => hasValidContentTree(r))
             .map((reply) => (
               <ReviewItemWrapper key={reply.id} review={reply} expandAll={expandAll} />
-            ))}
+          ))}
         </div>
       )}
     </div>
@@ -465,7 +465,7 @@ function ReviewItemWrapper({ review, expandAll }: { review: ReviewThread; expand
     <ReviewItem 
       review={review} 
       isExpanded={isExpanded} 
-      onToggle={() => setIsExpanded(!isExpanded)}
+      onToggle={() => setIsExpanded(!isExpanded)} 
       expandAll={expandAll}
     />
   )

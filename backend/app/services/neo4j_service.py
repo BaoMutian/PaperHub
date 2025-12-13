@@ -107,9 +107,19 @@ class Neo4jService:
         limit: int = 20,
         conference: Optional[str] = None,
         status: Optional[str] = None,
-        keyword: Optional[str] = None
+        keyword: Optional[str] = None,
+        sort_by: Optional[str] = None
     ) -> tuple[List[Dict], int]:
-        """Get paginated papers with optional filters"""
+        """Get paginated papers with optional filters and sorting
+        
+        sort_by options:
+        - rating_desc: by average rating descending
+        - rating_asc: by average rating ascending
+        - reviews_desc: by review count descending
+        - reviews_asc: by review count ascending
+        - date_desc: by creation date descending (default)
+        - date_asc: by creation date ascending
+        """
         where_clauses = []
         params = {"skip": skip, "limit": limit}
         
@@ -125,6 +135,17 @@ class Neo4jService:
         
         where_clause = f"WHERE {' AND '.join(where_clauses)}" if where_clauses else ""
         
+        # Determine sort order
+        sort_mapping = {
+            "rating_desc": "p.avg_rating DESC NULLS LAST",
+            "rating_asc": "p.avg_rating ASC NULLS LAST",
+            "reviews_desc": "p.rating_count DESC NULLS LAST",
+            "reviews_asc": "p.rating_count ASC NULLS LAST",
+            "date_desc": "p.creation_date DESC",
+            "date_asc": "p.creation_date ASC"
+        }
+        order_clause = sort_mapping.get(sort_by, "p.creation_date DESC")
+        
         # Get papers with pre-computed avg_rating (no need to join Review)
         query = f"""
         MATCH (p:Paper)
@@ -135,8 +156,8 @@ class Neo4jService:
                p.status as status, p.conference as conference,
                p.forum_link as forum_link, p.pdf_link as pdf_link,
                p.creation_date as creation_date, p.keywords as keywords,
-               authors, p.avg_rating as avg_rating
-        ORDER BY p.creation_date DESC
+               authors, p.avg_rating as avg_rating, p.rating_count as review_count
+        ORDER BY {order_clause}
         SKIP $skip LIMIT $limit
         """
         

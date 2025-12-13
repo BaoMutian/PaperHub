@@ -77,8 +77,8 @@ export default function HomePage() {
           </h1>
           
           <p className="text-lg text-white/60 mb-10 max-w-2xl mx-auto">
-            汇聚 ICLR、ICML、NeurIPS 2025 三大顶会论文，
-            基于知识图谱的智能检索与分析，
+            汇聚 ICLR、ICML、NeurIPS 三大顶会最新论文，
+            基于知识图谱的智能检索与分析，<br />
             像逛豆瓣一样探索学术前沿。
           </p>
           

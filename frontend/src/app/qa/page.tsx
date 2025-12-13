@@ -146,7 +146,7 @@ function QAContent() {
               {/* Example Questions Grid */}
               <div className="w-full max-w-2xl grid grid-cols-1 md:grid-cols-2 gap-3">
                 {examples.slice(0, 4).map((category, idx) => (
-                  <div key={category.category} className="space-y-2">
+                  <div key={category.category} className="space-y-2 py-6">
                     <div className="flex items-center gap-2 text-xs text-white/40 px-1">
                       <Zap className={cn(
                         "w-3 h-3",

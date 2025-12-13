@@ -117,6 +117,7 @@ export async function getPapers(params: {
   conference?: string
   status?: string
   keyword?: string
+  sort_by?: string
 }) {
   const searchParams = new URLSearchParams()
   Object.entries(params).forEach(([key, value]) => {

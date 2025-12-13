@@ -6,7 +6,16 @@ import { getPapers, type Paper } from "@/lib/api"
 import { PaperCard } from "@/components/papers/paper-card"
 import { PaperFilters } from "@/components/papers/paper-filters"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { ChevronLeft, ChevronRight, Loader2, ArrowUpDown, Star, MessageSquare, Calendar } from "lucide-react"
+
+const SORT_OPTIONS = [
+  { value: "", label: "默认排序", icon: Calendar },
+  { value: "rating_desc", label: "评分 ↓", icon: Star },
+  { value: "rating_asc", label: "评分 ↑", icon: Star },
+  { value: "reviews_desc", label: "评审数 ↓", icon: MessageSquare },
+  { value: "reviews_asc", label: "评审数 ↑", icon: MessageSquare },
+]
 
 function PapersContent() {
   const router = useRouter()
@@ -21,6 +30,7 @@ function PapersContent() {
   const conference = searchParams.get("conference") || ""
   const status = searchParams.get("status") || ""
   const keyword = searchParams.get("keyword") || ""
+  const sortBy = searchParams.get("sort_by") || ""
   
   const updateParams = useCallback((updates: Record<string, string>) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -31,7 +41,7 @@ function PapersContent() {
         params.delete(key)
       }
     })
-    // Reset to page 1 when filters change
+    // Reset to page 1 when filters change (except for page itself)
     if (!("page" in updates)) {
       params.set("page", "1")
     }
@@ -40,14 +50,14 @@ function PapersContent() {
   
   useEffect(() => {
     setLoading(true)
-    getPapers({ page, page_size: pageSize, conference, status, keyword })
+    getPapers({ page, page_size: pageSize, conference, status, keyword, sort_by: sortBy || undefined })
       .then((data) => {
         setPapers(data.papers)
         setTotal(data.total)
       })
       .catch(console.error)
       .finally(() => setLoading(false))
-  }, [page, conference, status, keyword])
+  }, [page, conference, status, keyword, sortBy])
   
   const totalPages = Math.ceil(total / pageSize)
   
@@ -72,6 +82,34 @@ function PapersContent() {
             onStatusChange={(v) => updateParams({ status: v })}
             onKeywordChange={(v) => updateParams({ keyword: v })}
           />
+        </div>
+        
+        {/* Sort Options */}
+        <div className="flex items-center gap-2 mb-6 overflow-x-auto pb-2">
+          <ArrowUpDown className="w-4 h-4 text-white/40 flex-shrink-0" />
+          <span className="text-sm text-white/40 flex-shrink-0">排序:</span>
+          <div className="flex gap-1">
+            {SORT_OPTIONS.map((option) => {
+              const Icon = option.icon
+              return (
+                <Button
+                  key={option.value}
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => updateParams({ sort_by: option.value })}
+                  className={cn(
+                    "h-8 px-3 text-xs whitespace-nowrap",
+                    sortBy === option.value 
+                      ? "bg-violet-500/20 text-violet-300 hover:bg-violet-500/30" 
+                      : "text-white/60 hover:text-white"
+                  )}
+                >
+                  <Icon className="w-3 h-3 mr-1.5" />
+                  {option.label}
+                </Button>
+              )
+            })}
+          </div>
         </div>
         
         {/* Results info */}
