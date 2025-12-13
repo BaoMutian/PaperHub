@@ -63,8 +63,10 @@ export OPENROUTER_API_KEY=你的API密钥  # 可选，用于智能问答
 chmod +x deploy.sh
 ./deploy.sh
 
-# 4. 导入数据（首次部署）
+# 4. 导入数据（首次部署，自动计算互动统计）
 docker exec -it paperhub-backend python -m app.scripts.ingest
+
+# 5. 创建向量索引（可选，用于语义搜索）
 docker exec -it paperhub-backend python -m app.scripts.create_embeddings
 ```
 
@@ -116,13 +118,12 @@ LLM_MODEL=google/gemini-2.5-flash
 
 ```bash
 cd backend
+
+# 导入数据（自动计算互动统计）
 python -m app.scripts.ingest
 
-# 创建向量索引（用于语义搜索）
+# 创建向量索引（可选，用于语义搜索）
 python -m app.scripts.create_embeddings
-
-# 计算论文互动信息
-python -m app.scripts.calculate_interactions
 ```
 
 #### 5. 启动后端

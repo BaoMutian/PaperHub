@@ -8,13 +8,16 @@ This script reads the JSONL files and populates the Neo4j database with:
 - Keyword nodes
 - Conference nodes
 - All relationships between them
+- Interaction statistics (author_word_count, reviewer_word_count, battle_intensity)
 """
 
 import asyncio
 import json
 import logging
+import re
 from pathlib import Path
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional, List, Tuple
+from collections import defaultdict
 
 from neo4j import AsyncGraphDatabase
 
@@ -40,6 +43,80 @@ CONFERENCE_CONFIG = {
 # Data paths
 DATA_DIR = Path(__file__).parent.parent.parent.parent / "papers"
 
+
+# ============== Interaction Calculation Functions ==============
+
+def count_words(text: str) -> int:
+    """Count words in text, handling both English and Chinese"""
+    if not text:
+        return 0
+    text = re.sub(r'[#*_`~\[\]()>]', ' ', text)
+    english_words = len(re.findall(r'[a-zA-Z]+', text))
+    chinese_chars = len(re.findall(r'[\u4e00-\u9fff]', text))
+    return english_words + chinese_chars
+
+
+def extract_text_from_content(content: Dict[str, Any]) -> str:
+    """Extract all text from review content dict"""
+    if not content:
+        return ""
+    texts = []
+    for key, value in content.items():
+        if isinstance(value, dict) and 'value' in value:
+            val = value['value']
+            if isinstance(val, str):
+                texts.append(val)
+            elif isinstance(val, list):
+                texts.extend(str(v) for v in val if v)
+    return ' '.join(texts)
+
+
+def build_reply_tree(reviews: List[Dict]) -> int:
+    """Build reply tree and return max depth"""
+    children = defaultdict(list)
+    review_ids = {r['id'] for r in reviews}
+    root_ids = []
+    
+    for review in reviews:
+        review_id = review['id']
+        replyto = review.get('replyto')
+        if replyto and replyto in review_ids:
+            children[replyto].append(review_id)
+        else:
+            root_ids.append(review_id)
+    
+    depths = {}
+    queue = [(rid, 1) for rid in root_ids]
+    while queue:
+        review_id, depth = queue.pop(0)
+        depths[review_id] = depth
+        for child_id in children[review_id]:
+            queue.append((child_id, depth + 1))
+    
+    return max(depths.values()) if depths else 0
+
+
+def calculate_battle_intensity(author_words: int, reviewer_words: int, max_depth: int, num_reviews: int) -> float:
+    """Calculate normalized battle intensity (0.0 - 1.0)"""
+    if author_words == 0 and reviewer_words == 0:
+        return 0.0
+    
+    total_words = author_words + reviewer_words
+    word_factor = min(1.0, (total_words / 10000) ** 0.5)
+    depth_factor = min(1.0, max_depth / 10)
+    review_factor = min(1.0, num_reviews / 20)
+    
+    if total_words > 0:
+        ratio = min(author_words, reviewer_words) / max(author_words, reviewer_words, 1)
+        balance_factor = ratio
+    else:
+        balance_factor = 0.0
+    
+    intensity = 0.35 * word_factor + 0.30 * depth_factor + 0.20 * review_factor + 0.15 * balance_factor
+    return round(min(1.0, intensity), 3)
+
+
+# ============== Review Type Detection ==============
 
 def determine_review_type(review: Dict[str, Any]) -> str:
     """Determine the type of review based on invitations field"""
@@ -88,7 +165,8 @@ class DataIngester:
             "reviews": 0,
             "keywords": 0,
             "conferences": 0,
-            "relationships": 0
+            "relationships": 0,
+            "papers_with_interactions": 0
         }
     
     async def close(self):
@@ -327,6 +405,96 @@ class DataIngester:
         logger.info(f"Completed {filepath}: {count} papers")
         return count
     
+    async def calculate_all_interactions(self):
+        """Calculate interaction statistics for all papers"""
+        logger.info("Calculating interaction statistics...")
+        
+        # Create indexes for interaction fields
+        index_queries = [
+            "CREATE INDEX paper_interaction_rounds IF NOT EXISTS FOR (p:Paper) ON (p.interaction_rounds)",
+            "CREATE INDEX paper_battle_intensity IF NOT EXISTS FOR (p:Paper) ON (p.battle_intensity)",
+        ]
+        async with self.driver.session() as session:
+            for idx in index_queries:
+                try:
+                    await session.run(idx)
+                except Exception:
+                    pass
+        
+        # Get all papers with reviews
+        query = """
+        MATCH (p:Paper)
+        OPTIONAL MATCH (p)-[:HAS_REVIEW]->(r:Review)
+        WITH p, collect(r {.id, .replyto, .review_type, .content_json}) as reviews
+        WHERE size(reviews) > 0
+        RETURN p.id as paper_id, reviews
+        """
+        
+        async with self.driver.session() as session:
+            result = await session.run(query)
+            papers = await result.data()
+        
+        logger.info(f"Processing interactions for {len(papers)} papers...")
+        
+        for i, paper_data in enumerate(papers):
+            paper_id = paper_data['paper_id']
+            reviews = paper_data['reviews']
+            
+            author_words = 0
+            reviewer_words = 0
+            parsed_reviews = []
+            
+            for review in reviews:
+                parsed = {
+                    'id': review['id'],
+                    'replyto': review.get('replyto'),
+                    'review_type': review.get('review_type', 'other')
+                }
+                
+                content_json = review.get('content_json')
+                if content_json:
+                    try:
+                        content = json.loads(content_json)
+                        text = extract_text_from_content(content)
+                        word_count = count_words(text)
+                        
+                        if parsed['review_type'] == 'rebuttal':
+                            author_words += word_count
+                        else:
+                            reviewer_words += word_count
+                    except json.JSONDecodeError:
+                        pass
+                
+                parsed_reviews.append(parsed)
+            
+            max_depth = build_reply_tree(parsed_reviews)
+            intensity = calculate_battle_intensity(author_words, reviewer_words, max_depth, len(parsed_reviews))
+            
+            # Update paper
+            update_query = """
+            MATCH (p:Paper {id: $paper_id})
+            SET p.author_word_count = $author_word_count,
+                p.reviewer_word_count = $reviewer_word_count,
+                p.interaction_rounds = $interaction_rounds,
+                p.battle_intensity = $battle_intensity
+            """
+            async with self.driver.session() as session:
+                await session.run(update_query, {
+                    "paper_id": paper_id,
+                    "author_word_count": author_words,
+                    "reviewer_word_count": reviewer_words,
+                    "interaction_rounds": max_depth,
+                    "battle_intensity": intensity
+                })
+            
+            if max_depth > 1 or author_words > 0:
+                self.stats['papers_with_interactions'] += 1
+            
+            if (i + 1) % 500 == 0:
+                logger.info(f"  Processed {i + 1}/{len(papers)} papers...")
+        
+        logger.info(f"Interaction calculation complete: {self.stats['papers_with_interactions']} papers with interactions")
+    
     async def run(self):
         """Main ingestion process"""
         logger.info("Starting data ingestion...")
@@ -354,6 +522,9 @@ class DataIngester:
             else:
                 logger.warning(f"File not found: {filepath}")
         
+        # Calculate interaction statistics
+        await self.calculate_all_interactions()
+        
         logger.info(f"\n{'='*50}")
         logger.info("Ingestion Complete!")
         logger.info(f"{'='*50}")
@@ -363,6 +534,7 @@ class DataIngester:
         logger.info(f"Total keywords: {self.stats['keywords']}")
         logger.info(f"Total conferences: {self.stats['conferences']}")
         logger.info(f"Total relationships: {self.stats['relationships']}")
+        logger.info(f"Papers with interactions: {self.stats['papers_with_interactions']}")
 
 
 async def main():
