@@ -268,7 +268,8 @@ class DataIngester:
                     r.weaknesses = $weaknesses,
                     r.questions = $questions,
                     r.decision = $decision,
-                    r.comment = $comment
+                    r.comment = $comment,
+                    r.content_json = $content_json
                 """
                 
                 review_params = {
@@ -285,7 +286,8 @@ class DataIngester:
                     "weaknesses": extract_text_field(content, "weaknesses"),
                     "questions": extract_text_field(content, "questions") or extract_text_field(content, "questions_for_authors"),
                     "decision": extract_text_field(content, "decision"),
-                    "comment": extract_text_field(content, "comment")
+                    "comment": extract_text_field(content, "comment"),
+                    "content_json": json.dumps(content, ensure_ascii=False) if content else None
                 }
                 
                 await session.run(review_query, review_params)

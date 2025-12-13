@@ -192,7 +192,7 @@ NEO4J_PASSWORD=password123
 
 # OpenRouter
 OPENROUTER_API_KEY=your-api-key
-LLM_MODEL=google/gemini-2.5-flash-lite
+LLM_MODEL=google/gemini-2.5-flash
 
 # Embedding
 EMBEDDING_MODEL=Qwen/Qwen3-Embedding-0.6B

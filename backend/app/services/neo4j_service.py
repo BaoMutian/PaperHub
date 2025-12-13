@@ -2,6 +2,7 @@ from neo4j import AsyncGraphDatabase, AsyncDriver
 from typing import List, Dict, Any, Optional
 from contextlib import asynccontextmanager
 import logging
+import json
 
 from ..config import get_settings
 
@@ -167,7 +168,22 @@ class Neo4jService:
         RETURN p {.*, authors: authors, reviews: reviews, keywords: keywords}
         """
         result = await self.execute_query(query, {"paper_id": paper_id})
-        return result[0]["p"] if result else None
+        if not result:
+            return None
+        
+        paper = result[0]["p"]
+        # Parse content_json for each review into content dict
+        if paper.get("reviews"):
+            for review in paper["reviews"]:
+                content_json = review.get("content_json")
+                if content_json:
+                    try:
+                        review["content"] = json.loads(content_json)
+                    except json.JSONDecodeError:
+                        review["content"] = {}
+                else:
+                    review["content"] = {}
+        return paper
     
     # Author operations
     async def get_author_by_id(self, authorid: str) -> Optional[Dict]:
@@ -285,6 +301,110 @@ class Neo4jService:
         LIMIT $limit
         """
         return await self.execute_query(query, {"search": search_text, "limit": limit})
+    
+    async def search_papers_keyword(self, search_text: str, limit: int = 50) -> List[Dict]:
+        """Keyword search with scoring - matches title, authors, keywords"""
+        # Normalize search text
+        search_lower = search_text.lower()
+        search_terms = search_lower.split()
+        
+        # Query that scores matches on different fields
+        query = """
+        MATCH (p:Paper)
+        OPTIONAL MATCH (p)<-[:AUTHORED]-(a:Author)
+        WITH p, collect(a.name) as authors, collect(lower(a.name)) as author_names_lower
+        OPTIONAL MATCH (p)-[:HAS_KEYWORD]->(k:Keyword)
+        WITH p, authors, author_names_lower, collect(k.name) as keywords
+        
+        WITH p, authors, author_names_lower, keywords,
+             // Title exact match (highest priority)
+             CASE WHEN lower(p.title) CONTAINS $search_lower THEN 100 ELSE 0 END as title_score,
+             // Title contains any search term
+             CASE WHEN any(term IN $search_terms WHERE lower(p.title) CONTAINS term) THEN 50 ELSE 0 END as title_term_score,
+             // Author name match
+             CASE WHEN any(name IN author_names_lower WHERE name CONTAINS $search_lower) THEN 80 ELSE 0 END as author_score,
+             // Keyword match
+             CASE WHEN any(kw IN keywords WHERE kw CONTAINS $search_lower) THEN 40 ELSE 0 END as keyword_score,
+             // Abstract contains search
+             CASE WHEN lower(p.abstract) CONTAINS $search_lower THEN 20 ELSE 0 END as abstract_score
+        
+        WITH p, authors, keywords, 
+             (title_score + title_term_score + author_score + keyword_score + abstract_score) as total_score
+        WHERE total_score > 0
+        
+        RETURN p.id as id, p.title as title, p.abstract as abstract,
+               p.status as status, p.conference as conference,
+               p.keywords as paper_keywords, authors, total_score as score
+        ORDER BY total_score DESC
+        LIMIT $limit
+        """
+        
+        return await self.execute_query(query, {
+            "search_lower": search_lower,
+            "search_terms": search_terms,
+            "limit": limit
+        })
+    
+    async def search_papers_hybrid(
+        self,
+        query_text: str,
+        embedding: Optional[List[float]] = None,
+        limit: int = 20
+    ) -> List[Dict]:
+        """Hybrid search combining keyword and semantic search with RRF fusion"""
+        results_map: Dict[str, Dict] = {}
+        
+        # 1. Keyword search
+        keyword_results = await self.search_papers_keyword(query_text, limit=limit * 2)
+        for rank, paper in enumerate(keyword_results):
+            paper_id = paper["id"]
+            # RRF score: 1 / (k + rank), k=60 is common
+            rrf_score = 1.0 / (60 + rank)
+            results_map[paper_id] = {
+                **paper,
+                "keyword_rank": rank,
+                "keyword_score": paper.get("score", 0),
+                "rrf_score": rrf_score,
+                "match_type": ["keyword"]
+            }
+        
+        # 2. Semantic search (if embedding provided)
+        if embedding:
+            try:
+                semantic_results = await self.search_papers_semantic(
+                    embedding=embedding,
+                    limit=limit * 2,
+                    min_score=0.3
+                )
+                for rank, paper in enumerate(semantic_results):
+                    paper_id = paper["id"]
+                    rrf_score = 1.0 / (60 + rank)
+                    
+                    if paper_id in results_map:
+                        # Combine scores
+                        results_map[paper_id]["rrf_score"] += rrf_score
+                        results_map[paper_id]["semantic_rank"] = rank
+                        results_map[paper_id]["semantic_score"] = paper.get("score", 0)
+                        results_map[paper_id]["match_type"].append("semantic")
+                    else:
+                        results_map[paper_id] = {
+                            **paper,
+                            "semantic_rank": rank,
+                            "semantic_score": paper.get("score", 0),
+                            "rrf_score": rrf_score,
+                            "match_type": ["semantic"]
+                        }
+            except Exception as e:
+                logger.warning(f"Semantic search failed, falling back to keyword only: {e}")
+        
+        # 3. Sort by combined RRF score
+        sorted_results = sorted(
+            results_map.values(),
+            key=lambda x: x["rrf_score"],
+            reverse=True
+        )[:limit]
+        
+        return sorted_results
     
     # Statistics
     async def get_statistics(self) -> Dict[str, Any]:

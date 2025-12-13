@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Markdown } from "@/components/ui/markdown"
 import { 
   Sparkles, Send, Loader2, Code, Database, 
-  MessageSquare, Lightbulb, ChevronRight, RefreshCw
+  MessageSquare, Lightbulb, ChevronRight, RefreshCw, Table
 } from "lucide-react"
 
 interface Message {
@@ -18,6 +18,7 @@ interface Message {
   role: "user" | "assistant"
   content: string
   cypher?: string
+  raw_results?: Record<string, unknown>[]
   confidence?: number
   query_type?: string
   timestamp: Date
@@ -32,6 +33,7 @@ function QAContent() {
   const [loading, setLoading] = useState(false)
   const [examples, setExamples] = useState<{ category: string; questions: string[] }[]>([])
   const [showCypher, setShowCypher] = useState<string | null>(null)
+  const [showResults, setShowResults] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   
   useEffect(() => {
@@ -76,6 +78,7 @@ function QAContent() {
         role: "assistant",
         content: response.answer,
         cypher: response.cypher_query || undefined,
+        raw_results: response.raw_results || undefined,
         confidence: response.confidence,
         query_type: response.query_type,
         timestamp: new Date()
@@ -186,20 +189,48 @@ function QAContent() {
                         </p>
                       )}
                       
-                      {message.cypher && (
-                        <div className="mt-3 pt-3 border-t border-white/10">
-                          <button
-                            onClick={() => setShowCypher(showCypher === message.id ? null : message.id)}
-                            className="flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300 transition-colors"
-                          >
-                            <Code className="w-3 h-3" />
-                            {showCypher === message.id ? "隐藏" : "查看"} Cypher 查询
-                          </button>
+                      {/* Debug Panel: Cypher Query and Raw Results */}
+                      {(message.cypher || message.raw_results) && (
+                        <div className="mt-3 pt-3 border-t border-white/10 space-y-2">
+                          <div className="flex items-center gap-3 flex-wrap">
+                            {message.cypher && (
+                              <button
+                                onClick={() => setShowCypher(showCypher === message.id ? null : message.id)}
+                                className="flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300 transition-colors"
+                              >
+                                <Code className="w-3 h-3" />
+                                {showCypher === message.id ? "隐藏" : "查看"} Cypher
+                              </button>
+                            )}
+                            {message.raw_results && message.raw_results.length > 0 && (
+                              <button
+                                onClick={() => setShowResults(showResults === message.id ? null : message.id)}
+                                className="flex items-center gap-1 text-xs text-emerald-400 hover:text-emerald-300 transition-colors"
+                              >
+                                <Table className="w-3 h-3" />
+                                {showResults === message.id ? "隐藏" : "查看"} 查询结果 ({message.raw_results.length})
+                              </button>
+                            )}
+                          </div>
                           
-                          {showCypher === message.id && (
-                            <pre className="mt-2 p-3 rounded-lg bg-black/50 text-xs text-white/60 overflow-x-auto">
-                              <code>{message.cypher}</code>
-                            </pre>
+                          {showCypher === message.id && message.cypher && (
+                            <div>
+                              <div className="text-xs text-white/40 mb-1">Cypher 查询:</div>
+                              <pre className="p-3 rounded-lg bg-black/50 text-xs text-white/60 overflow-x-auto">
+                                <code>{message.cypher}</code>
+                              </pre>
+                            </div>
+                          )}
+                          
+                          {showResults === message.id && message.raw_results && (
+                            <div>
+                              <div className="text-xs text-white/40 mb-1">
+                                数据库返回结果 (共 {message.raw_results.length} 条):
+                              </div>
+                              <pre className="p-3 rounded-lg bg-black/50 text-xs text-white/60 overflow-x-auto max-h-80 overflow-y-auto">
+                                <code>{JSON.stringify(message.raw_results, null, 2)}</code>
+                              </pre>
+                            </div>
                           )}
                         </div>
                       )}

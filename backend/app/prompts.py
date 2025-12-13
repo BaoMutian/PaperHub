@@ -17,23 +17,44 @@ Rules:
 1. Always return valid Cypher syntax
 2. Use parameter placeholders ($param) when appropriate
 3. Include LIMIT clauses for queries that could return many results
-4. For rating queries, note: ICLR max=10, ICML max=5 (overall_recommendation), NeurIPS max=6
-5. Return JSON format with keys: "cypher", "parameters", "explanation"
-6. Status values for accepted papers: 'poster', 'spotlight', 'oral'
-7. Use case-insensitive matching for text searches when appropriate
+4. For rating queries, use Paper's pre-computed avg_rating property directly
+5. Rating scales differ: ICLR max=10, ICML max=5, NeurIPS max=6
+6. Return JSON format with keys: "cypher", "parameters", "explanation"
+7. Status values for accepted papers: 'poster', 'spotlight', 'oral'
+8. Use toLower() and CONTAINS for case-insensitive text searches
+9. Conference names are exactly: 'ICLR', 'ICML', 'NeurIPS'
 
 Example questions and queries:
-Q: "How many papers were accepted to ICLR 2025?"
-A: {{"cypher": "MATCH (p:Paper) WHERE p.conference = 'ICLR' AND p.status IN ['poster', 'spotlight', 'oral'] RETURN count(p) as accepted_count", "parameters": {{}}, "explanation": "Counting papers with accepted status"}}
 
-Q: "Which keywords are most common in ICML accepted papers?"
-A: {{"cypher": "MATCH (p:Paper)-[:HAS_KEYWORD]->(k:Keyword) WHERE p.conference = 'ICML' AND p.status IN ['poster', 'spotlight', 'oral'] RETURN k.name as keyword, count(*) as count ORDER BY count DESC LIMIT 20", "parameters": {{}}, "explanation": "Aggregating keywords for accepted ICML papers"}}
+Q: "ICLR 2025有多少篇论文被接收？" / "How many papers were accepted to ICLR 2025?"
+A: {{"cypher": "MATCH (p:Paper) WHERE p.conference = 'ICLR' AND p.status IN ['poster', 'spotlight', 'oral'] RETURN count(p) as accepted_count", "parameters": {{}}, "explanation": "Counting papers with accepted status in ICLR"}}
 
-Q: "Who are the most prolific authors?"
-A: {{"cypher": "MATCH (a:Author)-[:AUTHORED]->(p:Paper) WITH a, count(p) as paper_count ORDER BY paper_count DESC RETURN a.name as author, paper_count LIMIT 20", "parameters": {{}}, "explanation": "Finding authors with most papers"}}
+Q: "三大会议的接收率分别是多少？"
+A: {{"cypher": "MATCH (p:Paper) WITH p.conference as conf, p.status as status, count(*) as cnt WITH conf, sum(cnt) as total, sum(CASE WHEN status IN ['poster', 'spotlight', 'oral'] THEN cnt ELSE 0 END) as accepted RETURN conf as conference, total, accepted, round(100.0 * accepted / total, 2) as acceptance_rate ORDER BY conf", "parameters": {{}}, "explanation": "Computing acceptance rate for each conference"}}
 
-Q: "What is the average rating for accepted ICLR papers?"
-A: {{"cypher": "MATCH (p:Paper)-[:HAS_REVIEW]->(r:Review) WHERE p.conference = 'ICLR' AND p.status IN ['poster', 'spotlight', 'oral'] AND r.rating IS NOT NULL RETURN avg(r.rating) as avg_rating", "parameters": {{}}, "explanation": "Computing average rating for accepted ICLR papers"}}
+Q: "平均分超过8分的ICLR论文有哪些？"
+A: {{"cypher": "MATCH (p:Paper) WHERE p.conference = 'ICLR' AND p.avg_rating > 8 RETURN p.title as title, p.avg_rating as avg_rating, p.status as status ORDER BY p.avg_rating DESC LIMIT 50", "parameters": {{}}, "explanation": "Finding ICLR papers with avg rating > 8 using Paper's avg_rating property"}}
+
+Q: "哪个关键词在被接收的论文中出现最多？"
+A: {{"cypher": "MATCH (p:Paper)-[:HAS_KEYWORD]->(k:Keyword) WHERE p.status IN ['poster', 'spotlight', 'oral'] RETURN k.name as keyword, count(*) as count ORDER BY count DESC LIMIT 20", "parameters": {{}}, "explanation": "Finding most common keywords in accepted papers"}}
+
+Q: "发表论文最多的作者是谁？"
+A: {{"cypher": "MATCH (a:Author)-[:AUTHORED]->(p:Paper) WITH a, count(p) as paper_count ORDER BY paper_count DESC RETURN a.name as author, a.authorid as authorid, paper_count LIMIT 20", "parameters": {{}}, "explanation": "Finding most prolific authors"}}
+
+Q: "哪些作者在三个会议都有论文？"
+A: {{"cypher": "MATCH (a:Author)-[:AUTHORED]->(p:Paper) WITH a, collect(DISTINCT p.conference) as conferences WHERE size(conferences) = 3 MATCH (a)-[:AUTHORED]->(p2:Paper) WITH a, count(p2) as total_papers RETURN a.name as author, total_papers ORDER BY total_papers DESC LIMIT 20", "parameters": {{}}, "explanation": "Finding authors who published in all three conferences"}}
+
+Q: "关于transformer的论文有哪些？"
+A: {{"cypher": "MATCH (p:Paper) WHERE toLower(p.title) CONTAINS 'transformer' OR EXISTS {{ MATCH (p)-[:HAS_KEYWORD]->(k:Keyword) WHERE k.name CONTAINS 'transformer' }} RETURN p.title as title, p.conference as conference, p.status as status, p.avg_rating as avg_rating ORDER BY p.avg_rating DESC LIMIT 30", "parameters": {{}}, "explanation": "Finding papers related to transformer by title or keyword"}}
+
+Q: "ICML的spotlight论文平均分是多少？"
+A: {{"cypher": "MATCH (p:Paper) WHERE p.conference = 'ICML' AND p.status = 'spotlight' AND p.avg_rating IS NOT NULL RETURN avg(p.avg_rating) as avg_rating, count(p) as paper_count", "parameters": {{}}, "explanation": "Computing average rating for ICML spotlight papers"}}
+
+Q: "评分最高的10篇论文是哪些？"
+A: {{"cypher": "MATCH (p:Paper) WHERE p.avg_rating IS NOT NULL RETURN p.title as title, p.conference as conference, p.avg_rating as avg_rating, p.status as status ORDER BY p.avg_rating DESC LIMIT 10", "parameters": {{}}, "explanation": "Finding top 10 papers by average rating"}}
+
+Q: "NeurIPS接收论文中评分分布如何？"
+A: {{"cypher": "MATCH (p:Paper) WHERE p.conference = 'NeurIPS' AND p.status IN ['poster', 'spotlight', 'oral'] AND p.avg_rating IS NOT NULL WITH round(p.avg_rating) as rating_bucket, count(*) as count RETURN rating_bucket, count ORDER BY rating_bucket", "parameters": {{}}, "explanation": "Getting rating distribution for accepted NeurIPS papers"}}
 """
 
 NL2CYPHER_USER_PROMPT = "Convert this question to Cypher: {question}"
@@ -107,9 +128,9 @@ Please answer the question based on the above information."""
 
 GRAPH_SCHEMA = """
 Nodes:
-- Paper: id, title, abstract, status (rejected/poster/spotlight/oral/withdrawn), conference (ICLR/ICML/NeurIPS), keywords, creation_date, forum_link, pdf_link
+- Paper: id, title, abstract, status (rejected/poster/spotlight/oral/withdrawn), conference (ICLR/ICML/NeurIPS), keywords, creation_date, forum_link, pdf_link, ratings (list of numbers), avg_rating (float), min_rating, max_rating, rating_count
 - Author: authorid (unique identifier), name
-- Review: id, review_type (official_review/rebuttal/decision/comment), rating, confidence, summary, strengths, weaknesses, questions, cdate
+- Review: id, review_type (official_review/rebuttal/decision/comment/meta_review), rating, confidence, summary, strengths, weaknesses, questions, cdate
 - Keyword: name
 - Conference: name, year, max_rating
 
@@ -122,8 +143,9 @@ Relationships:
 
 Important Notes:
 - Accepted papers have status IN ['poster', 'spotlight', 'oral']
-- Rating scales: ICLR (1-10), ICML (1-5, field: overall_recommendation), NeurIPS (1-6)
-- Use avg() for computing average ratings
+- Rating scales differ by conference: ICLR (1-10), ICML (1-5), NeurIPS (1-6)
+- Paper nodes have pre-computed ratings: p.ratings (array), p.avg_rating, p.min_rating, p.max_rating, p.rating_count
+- Use p.avg_rating directly for rating queries instead of aggregating from Review nodes
 - Keywords are stored in lowercase
 - authorid is the unique identifier for authors (names may have duplicates)
 """
@@ -155,4 +177,3 @@ def get_qa_prompt(question: str, context: str, query_results: str) -> tuple[str,
         query_results=query_results
     )
     return system, user
-

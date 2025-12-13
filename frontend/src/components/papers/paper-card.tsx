@@ -11,7 +11,23 @@ interface PaperCardProps {
   paper: Paper
 }
 
+// 获取会议的满分
+function getMaxRating(conference: string): number {
+  switch (conference?.toUpperCase()) {
+    case "ICLR":
+      return 10
+    case "ICML":
+      return 5
+    case "NEURIPS":
+      return 6
+    default:
+      return 10
+  }
+}
+
 export function PaperCard({ paper }: PaperCardProps) {
+  const maxRating = getMaxRating(paper.conference)
+  
   return (
     <Link href={`/papers/${paper.id}`}>
       <Card className="group hover:border-white/20 hover:bg-white/[0.07] transition-all duration-300 cursor-pointer h-full">
@@ -29,7 +45,10 @@ export function PaperCard({ paper }: PaperCardProps) {
             {paper.avg_rating && (
               <div className="flex items-center gap-1 text-amber-400">
                 <Star className="w-3.5 h-3.5 fill-current" />
-                <span className="text-sm font-medium">{paper.avg_rating.toFixed(1)}</span>
+                <span className="text-sm font-medium">
+                  {paper.avg_rating.toFixed(1)}
+                  <span className="text-white/40 font-normal">/{maxRating}</span>
+                </span>
               </div>
             )}
           </div>

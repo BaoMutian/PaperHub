@@ -44,25 +44,43 @@ async def list_papers(
 @router.get("/search")
 async def search_papers(
     q: str = Query(..., min_length=1, description="Search query"),
-    semantic: bool = Query(True, description="Use semantic search"),
+    mode: str = Query(
+        "hybrid", description="Search mode: hybrid, semantic, keyword"),
     limit: int = Query(20, ge=1, le=100),
     neo4j: Neo4jService = Depends(get_neo4j_service),
     embedding_service: EmbeddingService = Depends(get_embedding_service)
 ):
-    """Search papers by text or semantic similarity"""
-    if semantic:
-        # Generate embedding for query (使用 query prompt 提升检索效果)
-        query_embedding = embedding_service.embed_query(q)
+    """Search papers using hybrid (keyword + semantic), semantic only, or keyword only"""
+    query_embedding = None
+
+    # Generate embedding for semantic/hybrid modes
+    if mode in ["hybrid", "semantic"]:
+        try:
+            query_embedding = embedding_service.embed_query(q)
+        except Exception as e:
+            logger.warning(f"Failed to generate embedding: {e}")
+            if mode == "semantic":
+                # Fall back to keyword search if semantic fails
+                mode = "keyword"
+
+    if mode == "hybrid":
+        results = await neo4j.search_papers_hybrid(
+            query_text=q,
+            embedding=query_embedding,
+            limit=limit
+        )
+    elif mode == "semantic" and query_embedding:
         results = await neo4j.search_papers_semantic(
             embedding=query_embedding,
             limit=limit
         )
     else:
-        results = await neo4j.search_papers_text(q, limit=limit)
+        # Keyword mode or fallback
+        results = await neo4j.search_papers_keyword(q, limit=limit)
 
     return {
         "query": q,
-        "semantic": semantic,
+        "mode": mode,
         "results": results,
         "count": len(results)
     }

@@ -1,346 +1,568 @@
 {
-    "id": "zydNWJzoVd",
-    "title": "Continuous Bayesian Model Selection for Multivariate Causal Discovery",
+    "id": "00SnKBGTsz",
+    "title": "DataEnvGym: Data Generation Agents in Teacher Environments with Student Feedback",
     "authors": [
-        "Anish Dhir",
-        "Ruby Sedgwick",
-        "Avinash Kori",
-        "Ben Glocker",
-        "Mark van der Wilk"
+        "Zaid Khan",
+        "Elias Stengel-Eskin",
+        "Jaemin Cho",
+        "Mohit Bansal"
     ],
     "authorids": [
-        "~Anish_Dhir1",
-        "~Ruby_Sedgwick1",
-        "~Avinash_Kori1",
-        "~Ben_Glocker1",
-        "~Mark_van_der_Wilk1"
+        "~Zaid_Khan1",
+        "~Elias_Stengel-Eskin1",
+        "~Jaemin_Cho1",
+        "~Mohit_Bansal2"
     ],
-    "abstract": "Current causal discovery approaches require restrictive model assumptions in the absence of interventional data to ensure structure identifiability. These assumptions often do not hold in real-world applications leading to a loss of guarantees and poor performance in practice. Recent work has shown that, in the bivariate case, Bayesian model selection can greatly improve performance by exchanging restrictive modelling for more flexible assumptions, at the cost of a small probability of making an error. Our work shows that this approach is useful in the important multivariate case as well. We propose a scalable algorithm leveraging a continuous relaxation of the discrete model selection problem. Specifically, we employ the Causal Gaussian Process Conditional Density Estimator (CGP-CDE) as a Bayesian non-parametric model, using its hyperparameters to construct an adjacency matrix. This matrix is then optimised using the marginal likelihood and an acyclicity regulariser, giving the maximum a posteriori causal graph. We demonstrate the competitiveness of our approach, showing it is advantageous to perform multivariate causal discovery without infeasible assumptions using Bayesian model selection.",
+    "abstract": "The process of creating training data to teach models is currently driven by humans, who manually analyze model weaknesses and plan how to create data that improves a student model. Recent approaches using large language models (LLMs) as annotators reduce human annotation effort, but still require humans to interpret feedback from evaluations and control the LLM to produce data the student needs. Automating this labor-intensive process by creating autonomous data generation agents – or teachers – is desirable, but requires environments that can simulate the feedback-driven, iterative, closed loop of data creation. To enable rapid and scalable testing for such agents and their modules, we introduce DataEnvGym, a testbed of teacher environments for data generation agents. DataEnvGym frames data generation as a sequential decision-making task, involving an agent consisting of a data generation policy (which generates a plan for creating training data) and a data generation engine (which transforms the plan into data), inside an environment that provides feedback from a student. The agent’s end goal is to improve student model performance. Students are iteratively trained and evaluated on generated data, with their feedback (in the form of errors or weak skills) being reported to the agent after each iteration. As a general-purpose testbed, DataEnvGym includes multiple instantiations of teacher environments across three levels of structure in the state representation and action space, with varying levels of scaffolding support. More structured environments are based on automatically-inferred skills and offer a higher degree of interpretability and control over the curriculum. We support developing and testing data generation agents in four diverse tasks covering text, images, and actions (mathematics, programming, visual question answering, and tool-use) and test multiple student and teacher models. We find that example agents in our teaching environments can iteratively improve students across diverse tasks and settings. Moreover, we show that environments can teach different skill levels and can be used to test variants of key modules, pointing to directions of future work in improving data generation agents, engines, and feedback mechanisms. Project page: https://DataEnvGym.github.io.",
     "keywords": [
-        "bayesian model selection",
-        "gaussian process",
-        "causal discovery"
+        "iterative data generation",
+        "llm agent",
+        "lifelong learning"
     ],
-    "primary_area": "general_machine_learning->causality",
-    "TLDR": "Bayesian model selection for multivariate causal discovery allows for using more flexible models which leads to better performance.",
-    "creation_date": "2025-01-21",
-    "modification_date": "2025-07-24",
-    "forum_link": "https://openreview.net/forum?id=zydNWJzoVd",
-    "pdf_link": "https://openreview.net/pdf?id=zydNWJzoVd",
-    "venue": "ICML 2025 poster",
-    "venueid": "ICML.cc/2025/Conference",
+    "primary_area": "foundation or frontier models, including LLMs",
+    "TLDR": "",
+    "creation_date": "2024-09-28",
+    "modification_date": "2025-03-02",
+    "forum_link": "https://openreview.net/forum?id=00SnKBGTsz",
+    "pdf_link": "https://openreview.net/pdf?id=00SnKBGTsz",
+    "venue": "ICLR 2025 Spotlight",
+    "venueid": "ICLR.cc/2025/Conference",
     "review_details": [
         {
-            "id": "r5LTHlf0qS",
-            "replyto": "zydNWJzoVd",
+            "id": "kokKFEn2fw",
+            "replyto": "00SnKBGTsz",
             "number": 1,
-            "cdate": "2025-05-01",
-            "mdate": "2025-06-18",
+            "cdate": "2025-01-22",
+            "mdate": "2025-02-11",
             "content": {
                 "title": {
                     "value": "Paper Decision"
                 },
                 "decision": {
-                    "value": "Accept (poster)"
+                    "value": "Accept (Spotlight)"
                 },
                 "comment": {
-                    "value": "This paper primarily extends Dhir et al. (2024) from the bivariate to the multivariate setting, using the old idea (as one reviewer points out, this dates back at least to Cooper & Herskovitz, 1992) of letting priors select causal between models that would otherwise be equivalent. The key contribution is to propose a new differentiable NOTEARS-style model under a nonlinear Gaussian process model for the conditional densities (CGP-CDE) that is more flexible. The authors show that their method outperforms recent methods based on differentiable causal discovery.\n\nAn important part of this line of work is to make the methods and evaluation open-source. During the discussion, the authors clarified that they \"plan to make the Github repo containing the code public upon publication\", which I expect the authors will do, with prominent links to the repo in the camera ready."
+                    "value": ""
                 }
             },
             "invitations": [
-                "ICML.cc/2025/Conference/Submission4001/-/Decision",
-                "ICML.cc/2025/Conference/-/Edit"
+                "ICLR.cc/2025/Conference/Submission11063/-/Decision",
+                "ICLR.cc/2025/Conference/-/Edit"
             ]
         },
         {
-            "id": "QMYTyfTFsl",
-            "replyto": "kAbGxzAgM3",
+            "id": "zpboemkkjR",
+            "replyto": "00SnKBGTsz",
             "number": 1,
-            "cdate": "2025-04-04",
-            "mdate": "2025-06-18",
+            "cdate": "2024-12-20",
+            "mdate": "2025-02-05",
+            "content": {
+                "metareview": {
+                    "value": "The paper frames the problem of automatic data generation (to improve a ML model) as a sequential decision making task, and provides Gym environments as well as LLM-based agents that are effective for them. The resulting datasets are shown to be effective for ML models in math reasoning, coding, and visual question answering domains.\n\nAll of the reviewers agreed that the paper is a solid contribution for ICLR. Reviewers praised the novelty and significance of the DataEnvGym, and anticipated follow-up works on data-generation agents.\nThe authors addressed the weaknesses identified by the reviewers very skillfully during the rebuttal."
+                },
+                "additional_comments_on_reviewer_discussion": {
+                    "value": "Reviewers highlighted that there are missing experiment details (e.g. costs for running experiments) that the authors supplied during the rebuttal.\nThe authors also compared against active learning and random baselines for data generation/selection, and the proposed agents were substantially better across multiple domains.\nReviewers requested a more careful analysis of where the improvements were coming from (from the additional data, or from additional training) and the authors ran a thoughtful experiment to check.\nAll of these findings during the rebuttal period substantially strengthened the paper."
+                }
+            },
+            "invitations": [
+                "ICLR.cc/2025/Conference/Submission11063/-/Meta_Review",
+                "ICLR.cc/2025/Conference/-/Edit"
+            ]
+        },
+        {
+            "id": "wnsiUkDh00",
+            "replyto": "NEsxOTkkIV",
+            "number": 19,
+            "cdate": "2024-11-28",
+            "mdate": "2024-11-28",
             "content": {
                 "comment": {
-                    "value": "I thanks the authors for their response, which has assured some of my concerns. I keep the score unchanged to reflect my lack of familiarity."
+                    "value": "Thank you Reviewer c5nB! We're glad that you felt our additional experiments were well-designed + sound. We truly appreciate your effort in reviewing the paper and are grateful for your thoughtfulness in increasing your score."
                 }
             },
             "invitations": [
-                "ICML.cc/2025/Conference/Submission4001/Official_Review1/Rebuttal1/-/Rebuttal_Comment",
-                "ICML.cc/2025/Conference/-/Edit"
+                "ICLR.cc/2025/Conference/Submission11063/-/Official_Comment"
             ]
         },
         {
-            "id": "0WtBt24tk9",
-            "replyto": "sVJbK84tCA",
-            "number": 1,
-            "cdate": "2025-04-01",
-            "mdate": "2025-06-18",
+            "id": "13mj0Rtn5W",
+            "replyto": "hWat8aFBRw",
+            "number": 18,
+            "cdate": "2024-11-28",
+            "mdate": "2024-11-28",
             "content": {
-                "rebuttal": {
-                    "value": "Thank you for your positive and encouraging feedback. We are glad you found the paper **\"clear and well written\"**, and appreciate your comment that our method is a **\"significant and promising contribution\"**.\n\n> The paper initially suggests that it will solve the problem of restrictive / unrealistic model assumptions encountered when tackling real world data\n\nPrevious methods regularly make restrictive functional assumptions that may not hold in practice. In this paper, **we address relaxing these restrictive functional modelling assumptions** (L12 RHS, L172 LHS). \nWe wholeheartedly agree causal sufficiency and acyclicity can be unrealistic assumptions and are worth relaxing. These are very common in causal discovery algorithms, and the baselines we compare against also make these assumptions. We hope we didn't overclaim on this point and will make clear that this paper is only a step towards more realistic causal discovery (L70 LHS). \n\n> Yes it ensures identifiability, but you are essentially finding back what you put in and assume/hope that it matches reality.\n> ...using an in practice hard to justify/assess prior\n\nOur work shows that a relatively simple assumption - independent causal mechanisms (see L148 LHS) - can allow for distinguishing causal structure within a Markov equivalence class (L129 RHS, Theorem B.6). This assumption can be encoded in the prior by ensuring the priors factorise appropriately (L153 LHS).\n\nThe specific priors over functional mechanisms are also important.\nOur approach for this was to ensure, as much as possible, that the prior does not put zero probability on any dataset (see for example [1, Section 1.2]). The model/prior that we chose is not arbitrary, but close to known identifiable models (non-linear additive noise models), as shown by the good performance on additive noise datasets (Appendix I.1). The difference to previous methods is that we do not make hard restrictions - our model allows us to approximate more than just additive noise datasets (L232 LHS).\n\nWe note that assumptions made in previous methods that a-priori restrict functional form are also unverifiable. Any unverifiable assumption requires empirical verification. This is exactly what we do in sections 6.2 and 6.3. Here, the data is generated from mechanisms that are different to all the models. We vary other factors as well (graph types and density). Our method outperforms previous methods (full results in Appendix I). We believe this shows the usefulness of the Bayesian approach.\n\n[1] Hjort et al., eds. Bayesian nonparametrics. Vol. 28. Cambridge University Press, 2010.\n\n> One of the most striking findings is that the discrete version (DGP-CDE) is vastly superior (FIg.1), but that the authors still choose to focus on the (currently in vogue) continuous approximation, even though it suffers from the exact same problems w.r.t. finding the global optimum in anything with higher dimensions.\n\nThis is indeed very interesting. The cost of the discrete version, which requires enumerating over all possible graphs, is too high for more than a few variables. We included this result because the difference in performance between the CGP-CDE and the DGP-CDE clearly shows that, although our principle is correct, there is room for improvement in the continuous relaxation. However, CGP-CDE allows us to scale to a larger numbers of variables.\n\n> Cooper & Herskovitz (1992): this old but seminal work already contains a Bayesian score-based method that relies on the prior to select an optimal posterior causal DAG...\n\nThe papers you mention are important but only consider simple linear models.\nHowever, it has been known that with more complicated models, Bayesian models tend to have an opinion within an MEC [1,2,3]. The main reason (as shown in Appendix B) is because to create equivalent models, the ICM assumption has to hold in multiple factorisations (L129 RHS, Theorem B.6). While it is relatively simple to construct models that do this with linear models [1, Appendix D.1, D.2], it is not clear whether this is possible with more complex models [1, Appendix D.3].\n\n[1] Dhir et al., \"Bivariate Causal Discovery using Bayesian Model Selection.\" ICML, 2024.\n\n[2] Friedman et al., \"Gaussian process networks.\" Proceedings of the Sixteenth conference on Uncertainty in artificial intelligence. 2000.\n\n[3] Stegle et al. \"Probabilistic latent variable models for distinguishing between cause and effect.\" Advances in neural information processing systems 23 (2010).\n\n> I would have preferred a modest but more robust aim for e.g. the MEC.\n\nThis would obscure the fact that the model (due to the ICM assumption in the prior) **has a preference** for certain causal structures within an MEC over others (Line 138 RHS and line 720). **This preference within an MEC can only be removed by breaking the ICM assumption** (Theorem B.6). We thus make use of this preference."
+                "comment": {
+                    "value": "Thank you Reviewer wuGW for your feedback/engagement and positive appraisal of our work! We're glad our rebuttal was able to address your questions."
                 }
             },
             "invitations": [
-                "ICML.cc/2025/Conference/Submission4001/Official_Review4/-/Rebuttal",
-                "ICML.cc/2025/Conference/-/Edit"
+                "ICLR.cc/2025/Conference/Submission11063/-/Official_Comment"
             ]
         },
         {
-            "id": "5BWkXc6812",
-            "replyto": "ffpBXrY6Ob",
-            "number": 1,
-            "cdate": "2025-04-01",
-            "mdate": "2025-06-18",
+            "id": "hWat8aFBRw",
+            "replyto": "66buacQmRe",
+            "number": 17,
+            "cdate": "2024-11-27",
+            "mdate": "2024-11-27",
             "content": {
-                "rebuttal": {
-                    "value": "Thank you for your detailed feedback. We appreciate your acknowledgement of the **novelty of our approach in applying Bayesian model selection for multivariate structure learning** and your recognition of the **thorough discussion of our contributions relative to prior work**. We are also pleased you found the **experimental design sensible and extensive**. Additionally, we are glad you highlighted the importance of our method’s ability to distinguish between distribution-equivalent graphs, which is a key strength of our approach. We address your specific comments in the following.\n\n> do we need to know the correct prior in advance?\n\nIt is not necessary to know the correct prior in advance. **A key reason that allows for distinguishing causal graphs is the ICM assumption that is encoded in the prior** (L153 LHS, \"separable compatible\" in Theorem B.6). The prior over functional mechanisms is also important. Our approach for this was to try and choose a model/prior that ensures as much as possible we do not put zero probability on any dataset (see for example [1, Section 1.2]).\n\n[1] Hjort et al., eds. Bayesian nonparametrics. Vol. 28. Cambridge University Press, 2010.\n\n> what will happen under misspecification of prior?\n\nWe discuss this in L183 RHS. The prior defines what datasets are likely under our model (data distribution). This data distribution can be used to define a probability of error, which is a measure of how distinguishable causal graphs under our model are (eq 7). Given datasets from a *separate* distribution (data generating process), the accuracy of the estimated probability of error depends on how far the model's data distribution is from the data generating process. Small differences in the model and the data generating process do not result in complete invalidity of the estimated probability of error. As with any method, large variations will mean the estimated probability of error differs from the true probability of error (of the data generating process). For more discussion on this see [1, Section 4.4]. \n\nWe note that the a-priori functional restrictions imposed by previous methods are also unverifiable assumptions. As with any unverifiable assumption, it is necessary to empirically validate how well it works in practice. We test exactly this in our experiments (Section 6.2, 6.3), **where the data generating processes don't match our model prior and our model outperforms the baseline methods**. \n\n[1] Dhir et al., \"Bivariate Causal Discovery using Bayesian Model Selection.\" ICML, 2024.\n\n> I am not very familiar with bayesian model selection so I am not sure about the significance of extending from bivariate (Dhiretal.,2024) to the multivariate scenario. I will defer to other reviewers regarding this point.\n\nDhir et al.,2024 consider the bivariate case, but we answer the question: does the theory hold in the multivariate case, and how does the performance scale with number of variables?\nWe theoretically show Bayesian model selection works for multivariate datasets and propose a method to effectively scale to large numbers of variables, overcoming the costs which would be super-exponential with number of variables.\nWe then show that this approach outperforms competing methods in the multivariate case."
+                "comment": {
+                    "value": "Thank you so much for looking into my feedback and working on it. I am in the process of reviewing the updated manuscript and will let you know but so far you have pretty much addressed my concerns. Cheers!"
                 }
             },
             "invitations": [
-                "ICML.cc/2025/Conference/Submission4001/Official_Review3/-/Rebuttal",
-                "ICML.cc/2025/Conference/-/Edit"
+                "ICLR.cc/2025/Conference/Submission11063/-/Official_Comment"
             ]
         },
         {
-            "id": "jOFxuHgEO6",
-            "replyto": "kGYmeQsJqZ",
-            "number": 1,
-            "cdate": "2025-04-01",
-            "mdate": "2025-06-18",
+            "id": "NEsxOTkkIV",
+            "replyto": "Aq2tBtB0lt",
+            "number": 16,
+            "cdate": "2024-11-27",
+            "mdate": "2024-11-27",
             "content": {
-                "rebuttal": {
-                    "value": "Thank you for your insightful review. We appreciate your recognition of our contribution to the field of causal discovery. We are glad you think the **\"theory was well covered and convincing\"**, the paper is **\"well written and well motivated\"** and our **\"extensive experiments significantly outperform the evaluated competitors\"**. \n\n> whether the found model respects the Markov condition \n\n**Our model itself satisfies the causal Markov condition at the end of training by construction**. This happens in the acyclicity thresholding phase of the training (L935). The causal Markov assumption follows trivially from the assumption of no hidden confounders (L82 LHS) and that the noise terms are independent (eq 8). \n\nWe are aware of the larger discussion of whether the causal Markov condition implies conditional independences in all generality [1]. However, the same work states that the added assumption of \"Modularity\" (Property 7.3 in [1]) provides a \"fully quantitative solution to the problem of inferring causality from observational data\". The ICM assumption we make (L145 LHS) implies a form of modularity [2]. We note that works like NOTEARS do not make this assumption, and the only similarity to our work is that we also use a continuous optimisation scheme.\n\n[1] Dawid et al., \"Beware of the DAG!.\" Causality: objectives and assessment. PMLR, 2010.\n\n[2] Janzing et al., \"Causal inference using the algorithmic Markov condition.\" IEEE Transactions on Information Theory (2010).\n\n> It is unclear whether the continuous optimization method finds well-chosen priors\n\nOur continuous optimization does not find the prior, but the *posterior* given a prior (L255 RHS). \n\n> literature on the information-theoretic view of causality (Janzing, Schölkopf, 2010) \n\nThe basic principle that allows for distinguishing causal structure is very related to the work you have mentioned [1, Appendix B.2]. We will include a discussion on this.\n\n[1] Dhir et al., \"Bivariate Causal Discovery using Bayesian Model Selection.\" ICML, 2024.\n\n> There is no comparison with other score-based approaches\n\nWe have run GES and GLOBE for all experiments, results can be viewed here: https://anonymous.4open.science/r/Additional-Results/. GES performs poorly compared to CGP-CDE and the other baselines, except for competitve performance on the 50 var ER1 dataset. This is because GES performs well on sparse graphs, but struggles with denser graphs as it gets stuck in local optima. GLOBE didn't perform well on most of the datasets, except getting the best SHD (but poor SID and F1) for Syntren. \n\n> The causal model is not strictly identifiable.\n\nThis is true, but we show that **for our model the probability of error is small**. Our motivation is that restrictions made to gain strict identifiability can be unrealistic. When the data is generated from a different model, identifiability does not hold anyway. We argue that tolerating a small probability of error for gaining more flexibility can be beneficial in these cases. We show exactly this in our experiments.\n\n> How do you interpret the poor performance of CGP-CDE in the 3-variable experiment?\n\nWe discuss this in Line 368 RHS, although we note the wrong figure was referenced, which we will fix. The good performance of the discrete case **shows that our objective empirically identifies the correct causal graph in the multivariate case**. The continuous approximation uses (noisy) gradients to find the most likely causal structure, which introduces errors.\nThe comparison to the continuous case thus quantifies the error introduced by the continuous approximation. We believe this shows that the continuous approximation scheme can be improved on. Nevertheless, we emphasise that we clearly outperform baselines in datasets with more variables (Appendix I).\n\n> Could another initialization reduce the number of iterations needed?\n\nWe were overly conservative with the number of iterations for the warm up and cool down phases. You are correct, better initialisation will reduce the number of iterations required. This can be monitored simply by looking at the training curve.\n\n> In the 3-variable experiment... How do you explain this?\n\nThe point of this experiment was to **show the price we pay for scalability**. The difference in performance is due to the continuous optimisation, which introduces errors (see above). These results show that while our Bayesian principle is correct, large improvements can be made in the continuous approximation scheme. As we experiment on **all possible** 3 variable graphs, this experiment also contains a more dense graphs (relative to the number of variables), which may be harder to find.\n\nNote we also provide other experiments with more variables where the data isn't generated from our model and the ANM experiments where the baseline models' assumptions aren't violated. In both cases, we outperform the baselines.\n\nThe reviewer refers to questions 4 and 5 but the questions only go up to 3."
+                "comment": {
+                    "value": "Dear authors,\n\nThank you for conducting the additional experiments and incorporating the results and findings. This addresses three of my major concerns:\n\nW1: Figure 12 demonstrates that students' performance improves when evaluated on test sets which incorporates the newly generated data points. Although the evaluation was only conducted on the multimodal and MATH environments, and not on the coding environment due to technical difficulties, I believe this set of experiments is well-designed and sound.\n\nQ1: Appendix E (Table 6) proves that the student performance is increased due to the added data rather than insufficient training initially. The result is valid and sound.\n\nQ2: The added figures (Figure 10), combined with the existing ones, provide a good coverage of both qualitative and quantitative results for skill discovery.\n\nTaking these into account, I have raised the score to 8."
                 }
             },
             "invitations": [
-                "ICML.cc/2025/Conference/Submission4001/Official_Review2/-/Rebuttal",
-                "ICML.cc/2025/Conference/-/Edit"
+                "ICLR.cc/2025/Conference/Submission11063/-/Official_Comment"
             ]
         },
         {
-            "id": "kAbGxzAgM3",
-            "replyto": "bQ7CD34PdV",
-            "number": 1,
-            "cdate": "2025-04-01",
-            "mdate": "2025-06-18",
+            "id": "wqTNtVDwef",
+            "replyto": "9OQJoesINr",
+            "number": 15,
+            "cdate": "2024-11-26",
+            "mdate": "2024-11-26",
             "content": {
-                "rebuttal": {
-                    "value": "Thank you for your positive and encouraging feedback on our work. We appreciate your acknowledgement that the proposed method **\"allows for learning nonparametric DAGs in a scalable manner\"** and that our **\"experiments show competitive performance with the benchmarks\"**. We address your comments in the following. \n\n>However, the proof of this theorem only says it follows directly from [Dhir et al., 2024] without any details.\n\nOur construction and proofs earlier in the sections lead us to write the first part of our theorem exactly as Prop. 4.7 in Dhir et al., 2024. Hence, we can directly refer to the proof. We will make this clearer by rewriting the theorem from Dhir et al., (2024) and explicitly stating where we invoke the result.\n\n> Many mathemetical details are hidden in the appendix. Especially for Section 3 on the theoretical extension, there is no one theoretical statement in this section while everything is burried in the appendix.\n\nWe would love to put more details in the main paper. Our theory requires us to define several concepts not relevant to the rest of the paper, but that allow us to state accurate and precise theorems. As this takes up a lot of space, we thought it best to do this in the Appendix. **We do provide a general intuition for our theoretical results in the main paper** (L174 LHS). We hope you agree with this approach.\n\n> I wonder for two models that are not Bayesian equivalent, why can they have positive probrobability of error\n\nThe posteriors may overlap even in the infinite data setting. We can show this with a very simple example. Normalised linear Gaussian models are not identifiable (in the population setting) [1, Appendix D.2]. If a chosen model can approximate a normalised linear Gaussian model, and we sample from the model, there is a non-zero probability that we sample a normalised linear Gaussian dataset. Thus the **chosen model must have non-zero probability of error**.\nHence, while non-linear additive noise models are identifiable in general, additive noise models (also containing linear functions) will have a positive probability of error (but not completely unidentifiable).\n\n[1] Dhir et al., \"Bivariate Causal Discovery using Bayesian Model Selection.\" ICML, 2024.\n\n[2] Hoyer et al. \"Nonlinear causal discovery with additive noise models.\" Advances in neural information processing systems 21 (2008).\n\n> Should it be consistent to use the model evidence to find the true DAG? I guess the question is does the sample size in the definition of Bayesian equivalence goes to infinity?\n\nThe definition of Bayesian distribution-equivalence holds for any sample size. However, our theorems (B.3 and B.6) hold in the population setting. We do state that in B.3, but we will state that in theorem B.6. Thank you for pointing this out.\n\n>Or why do we have identifiability and distinguishabllity and what are their differences?\n\nIdentifiability is where the probability of error is zero, whereas distinguishability is where the probability of error is less than random uniform. We will make it clear that these are in the population setting where we define these concepts in L200 LHS."
+                "comment": {
+                    "value": "Thank you, reviewer VQ9Y! We truly appreciate your kind words and your effort in reviewing our work."
                 }
             },
             "invitations": [
-                "ICML.cc/2025/Conference/Submission4001/Official_Review1/-/Rebuttal",
-                "ICML.cc/2025/Conference/-/Edit"
+                "ICLR.cc/2025/Conference/Submission11063/-/Official_Comment"
             ]
         },
         {
-            "id": "sVJbK84tCA",
-            "replyto": "zydNWJzoVd",
+            "id": "9OQJoesINr",
+            "replyto": "pOR42YNLtU",
+            "number": 14,
+            "cdate": "2024-11-26",
+            "mdate": "2024-11-26",
+            "content": {
+                "title": {
+                    "value": "Thank you"
+                },
+                "comment": {
+                    "value": "Thanks for the tremedous effort put into the response. It addressed most of my concerns so I raise the score to 8."
+                }
+            },
+            "invitations": [
+                "ICLR.cc/2025/Conference/Submission11063/-/Official_Comment"
+            ]
+        },
+        {
+            "id": "ZqwAYtcmhv",
+            "replyto": "DjVKsUoFN2",
+            "number": 13,
+            "cdate": "2024-11-26",
+            "mdate": "2024-11-26",
+            "content": {
+                "comment": {
+                    "value": "Thank you, reviewer rVo8! We sincerely appreciate your thoughtfulness and engagement."
+                }
+            },
+            "invitations": [
+                "ICLR.cc/2025/Conference/Submission11063/-/Official_Comment"
+            ]
+        },
+        {
+            "id": "C3MhCuKhTf",
+            "replyto": "Aq2tBtB0lt",
+            "number": 12,
+            "cdate": "2024-11-26",
+            "mdate": "2024-11-26",
+            "content": {
+                "title": {
+                    "value": "Follow up to reviewer c5nB"
+                },
+                "comment": {
+                    "value": "Given that there is only one day remaining in the rebuttal period, **we wanted to gently check in whether our rebuttal addressed all your questions or we are happy to address any remaining questions.** We’ve added experiments to address your questions about (a) test sets that incorporate generated data (b) whether added data or training is responsible for performance increases and we also add more qualitative results on skill discovery. We hope that these additional results and answers will allow you to revisit your score — otherwise, we are happy to engage further!"
+                }
+            },
+            "invitations": [
+                "ICLR.cc/2025/Conference/Submission11063/-/Official_Comment"
+            ]
+        },
+        {
+            "id": "DjVKsUoFN2",
+            "replyto": "la5jPwJU4g",
+            "number": 11,
+            "cdate": "2024-11-25",
+            "mdate": "2024-11-25",
+            "content": {
+                "comment": {
+                    "value": "Thank you for the additional experiments and explanation. I have updated my score accordingly."
+                }
+            },
+            "invitations": [
+                "ICLR.cc/2025/Conference/Submission11063/-/Official_Comment"
+            ]
+        },
+        {
+            "id": "la5jPwJU4g",
+            "replyto": "H2h2K6a8x5",
+            "number": 10,
+            "cdate": "2024-11-25",
+            "mdate": "2024-11-25",
+            "content": {
+                "title": {
+                    "value": "Followup to Reviewer rVo8"
+                },
+                "comment": {
+                    "value": "Thanks for the great suggestions and continued engagement\\!\n\nWe've redone Fig. 5 on training dynamics in the style you've suggested: \n\n1. We've run extended experiments instead of truncating them.  \n2. We now show entire training curves to illustrate what the longer training progression would look like and add visual elements to show where the truncation occurred.  \n3. We've added error bands based on our re-runs to characterize variance.   \n4. We’ve rephrased Lines 460 \\- 465 as per your suggestions."
+                }
+            },
+            "invitations": [
+                "ICLR.cc/2025/Conference/Submission11063/-/Official_Comment"
+            ]
+        },
+        {
+            "id": "H2h2K6a8x5",
+            "replyto": "i3QgWgrJff",
+            "number": 9,
+            "cdate": "2024-11-23",
+            "mdate": "2024-11-23",
+            "content": {
+                "comment": {
+                    "value": "I thank the authors for the new experiments and clarifications.\n\n> This is not a typo — we truncate when performance begins to saturate. This is a choice we made to speed up experiments, but it is certainly possible to run environments for longer.\n\nThat does not mean that the performance decreases. Decreases mean that the accuracy is dropping. Also, it is not clear in Figure 5 if the performance increase saturated.\n\n> We repeated the open-ended experiments 3x for each domain. The open-ended environment is the least constrained so we expect the highest variance here. The overall improvement is higher than the variance in each case.\n\nWhy not include it in Figure 5?\n\n> It differs by environment. In the MATH and LiveCodeBench environments, the performance saturates with increased training. In the GQA environment, the performance seems to continue increasing up to 56%, but becomes more unstable (fluctuations up and down).\n\nGiven this, why not include the full training progression in Figure 5 instead of truncating it? Providing more clarification on the decision to truncate would be helpful. Alternatively, adding an indicator on the figure to show where the truncation occurred and illustrating what the longer training progression would look like could address this."
+                }
+            },
+            "invitations": [
+                "ICLR.cc/2025/Conference/Submission11063/-/Official_Comment"
+            ]
+        },
+        {
+            "id": "Bgr7Ol90m7",
+            "replyto": "i3QgWgrJff",
+            "number": 8,
+            "cdate": "2024-11-23",
+            "mdate": "2024-11-23",
+            "content": {
+                "comment": {
+                    "value": "Thank you once again for your valuable feedback! We hope our response has addressed all of your questions and will allow you to revisit your score. We would be happy to engage further and address any further questions you might have in the remaining few days of the discussion period."
+                }
+            },
+            "invitations": [
+                "ICLR.cc/2025/Conference/Submission11063/-/Official_Comment"
+            ]
+        },
+        {
+            "id": "66buacQmRe",
+            "replyto": "7XT4kLWV2f",
+            "number": 7,
+            "cdate": "2024-11-21",
+            "mdate": "2024-11-21",
+            "content": {
+                "title": {
+                    "value": "Response to Reviewer wuGW"
+                },
+                "comment": {
+                    "value": "Thank you for recognizing the value of DataEnvGym and pointing out the “_novel problem_” we address as well as our “_well-defined framework_” and “_promising results_”.\n\n**W1/Q1: We include multiple agent architectures and experiment with two additional teacher LLMs**.  \nEach environment requires a different agent architecture, so we have 3 in total. We also try with different teacher LLMs: GPT-4o (Table 2, L378-393) and GPT-4o-mini (Table 5, L972-986 in the revised PDF). \n\n**W2: Data is generated by several components working together.**   \nIn addition to generating data via LLM, we experiment with multimodal grounding datasets.  \nIn these cases, the data is generated by a text-to-image model. In all cases, the LLM is only a component of a pipeline that involves many modules, such as skill discovery and a data generation engine. For example, in the SKILL-TREE environment, the policy making decisions about what skills to generate data for are not LLMs and can be classical controllers.\n\n**W3/Q2: We have added additional analysis of the learned skills.**  \nFollowing your suggestion, we have added an additional figure showing a full list (Figure 10, L1115-1132 in the revised PDF) of discovered skills for MATH, GQA, and LiveCodeBench in the SKILL-LIST environments in Appendix C. We have also added another figure showing qualitative examples of skill-errors that were fixed by training on synthetic data in Appendix C, highlighting the utility of skills in our framework. In summary, we now have 5 figures showing qualitative examples of skill discovery and one quantitative analysis of skill discovery in Appendix C.\n\n**W4/Q3: We compare with active learning.**  \nWe implement data selection using prototypicality scores \\[A\\] which are standard for active learning. Similar to the random selection baseline, it is hard to improve a well-post-trained LLM like Llama3 or Gemma2 by using readily available data pools — it is much easier to improve them using generated data. Even using the full training dataset cannot improve the student. This motivates our choice to tackle data generation rather than data selection. The training of open-source frontier models (Llama3, for example) includes significant post-training that subsumes publicly available data sources \\[B, $\\\\S$4.2, C$\\\\S$4\\], making it hard to improve them with any amount of already existing data. \n\n|  | Before Training | Data Selection (Prototypicality) | Full Training Dataset | Data Generation (Open-Ended) |  \n|---|---|-----|---|----|  \n| MATH Accuracy | 15.78  | 16.01  | 15.18  | **23.44**  |\n\n**W5/Q4: DataEnvGym has been designed for scalability.**  \nOn a single A6000, the total training time for our most computationally expensive setting (multimodal) is 6h, or about 1.5h/iteration. Most other settings are much faster. Environments are fully parallelizable using Ray and can be scaled up to multiple GPUs and even multiple nodes. We’ve added a full accounting of token and GPU costs in Table 4, L918-931 of the revised PDF.\n\n\\[A\\] Sorscher et al., Beyond neural scaling laws: beating power law scaling via data pruning, NeurIPS 2022 Outstanding Paper Award  \n\\[B\\] Llama Team, AI @ Meta, The Llama 3 Herd of Models, arXiv 2024  \n\\[C\\] Gemma Team, Google Deepmind, Gemma 2: Improving Open Language Models at a Practical Size, arXiv 2024"
+                }
+            },
+            "invitations": [
+                "ICLR.cc/2025/Conference/Submission11063/-/Official_Comment"
+            ]
+        },
+        {
+            "id": "m1iUqPHpwk",
+            "replyto": "i3QgWgrJff",
+            "number": 6,
+            "cdate": "2024-11-21",
+            "mdate": "2024-11-21",
+            "content": {
+                "title": {
+                    "value": "Response to Reviewer rVo8"
+                },
+                "comment": {
+                    "value": "Thank you for stating that we make a good contribution to automated data generation and quality feedback\\!\n\n**W1: We clarify that our focus is on synthetic data generation for training purposes**.  \nWe have added and highlighted text to the introduction in L050-051 in the revised PDF that clarifies our focus is on data generation for training purposes.\n\n**W2: Related works.**  \nThanks for providing the additional related works that fit into our section focused on simulations/games with a fixed set of actions and skills. We have cited them and discussed them in Section 4 under the paragraph “Training Environment Generation” (L503-506 in the revised PDF).\n\n**W3: We truncate experiments when performance decreases**.  \nThis is not a typo — we truncate when performance begins to saturate. This is a choice we made to speed up experiments, but it is certainly possible to run environments for longer.\n\n**W4: We add repeated runs of experiments to characterize variance**.  \nWe repeated the open-ended experiments 3x for each domain. The open-ended environment is the least constrained so we expect the highest variance here. The overall improvement is higher than the variance in each case. \n\n|  | Multimodal (GQA) | MATH  | LiveCodeBench  |  \n|---|---|---|---|  \n| Before Teaching  | 44.18  | 15.78  | 16.50  |  \n| Open-Ended (3 runs) | 53.25 $\\\\pm$ 1.97 | 21.55 $\\\\pm$ 1.42 | 18.55 $\\\\pm$ 0.27 |\n\n**Q1: How does the performance of the data generation agents change over longer interactions?**  \nIt differs by environment. In the MATH and LiveCodeBench environments, the performance saturates with increased training. In the GQA environment, the performance seems to continue increasing up to 56%, but becomes more unstable (fluctuations up and down). \n\n**Q2: Is the total training data fixed in each allocation, or does it vary dynamically?**  \nWe set a maximum budget for an experiment and terminate the experiment when the budget is exhausted or the student saturates, whichever happens earlier. It is up to the policy to decide how it wants to allocate the budget across skills and iterations. In the baseline policies, we leave this decision up to the LLM except for the skill-tree environment, where we allocate data uniformly across skills and subskills because it is a reasonable baseline."
+                }
+            },
+            "invitations": [
+                "ICLR.cc/2025/Conference/Submission11063/-/Official_Comment"
+            ]
+        },
+        {
+            "id": "Aq2tBtB0lt",
+            "replyto": "GMsjHLXdOx",
+            "number": 5,
+            "cdate": "2024-11-21",
+            "mdate": "2024-11-21",
+            "content": {
+                "title": {
+                    "value": "Response to Reviewer c5nB"
+                },
+                "comment": {
+                    "value": "We’re glad you find DataEnvGym novel and insightful\\! \n\n**W1: The student improves on generated test sets over successive iterations.**  \nFollowing your suggestion, we conducted experiments with generated test sets. We summarize the results/findings below and have added them to Appendix D (L1173-1182) and Figure 12 (L1188,1199) in our revised PDF.  \nFor each setting, we show the performance of the student on test sets that incorporate newly generated data points over successive iterations.  \nConcretely, we evaluate the performance of a student from iteration n on a test set created from data generated in iteration n+1 (unseen training data).  \nThis is only easily possible in the multimodal and MATH environments — the coding environment accuracy is determined by unit tests, which we do not currently generate.   \nIn all cases, the student improves on the generated test sets over successive iterations, and accuracy on the generated test set is higher in the last iteration than in the first.\n\n| Iteration | Accuracy (Generated Math Data) | Accuracy (Generated Multimodal Data) |  \n|---|----|-----|  \n| 0  | 29.25  | 45.52  |  \n| 1  | 21.18  | 54.71  |  \n| 2  | 29.41  | 53.85  |  \n| 3  | 41.56  | 60.09  |  \n| 4  | 41.03  | 57.66  |  \n| 5  | 57.53  | N/A  |  \n| 6  | 46.15  | N/A  |  \n| 7  | 50  | N/A  |  \n| 8  | 65.22  | N/A  |  \n| 9  | 67.06  | N/A  |\n\nNote that the multimodal environments were only run for half the iterations of the mathematics environments.\n\n**Q1: The students' performance increases due to added data points rather than insufficient training.**  \nTo substantiate the claim that student performance is increased due to added data points rather than insufficient training, we take a subset of the data and increase the number of epochs such that the student receives a fraction of the added data, but an equivalent number of epochs as training on the full data.   \nFor example, if a student is normally trained for 10 epochs with 1000 generated training data, we take the data from the first data generation iteration (let’s say it contains 200 training data) and train an alternative student for $\\\\frac{1000}{200}\\\\times10=50$ epochs to isolate the effect of the generated training data vs the added training epochs.  \nIn each case, training with less data but for more epochs produces significantly smaller improvements than training with more data for fewer epochs, showing that *data* is responsible for increased performance rather than more training.  \nIn fact, extending training without additional data typically hurts performance — fresh data is essential. This highlights the importance of studying data generation as we do in our paper, as data generation is one of the few ways to get fresh data.  \nWe have added these results in Appendix E (Table 6\\) in L1184-1223 in the revised PDF.\n\n|  | Data | Epochs | Accuracy (GQA) |  \n|----|---|---|---|  \n| Before Teaching  | \\-  | \\-  | 44.18  |  \n| Less Data / Longer Training  | 20%  | 15  | 42.79  |  \n| More Data / Standard Training | 100% | 3  | **47.9**  |\n\n|  | Data | Epochs | Accuracy (MATH) |  \n|----|---|---|---|  \n| Before Teaching  | \\-  | \\-  | 15.78  |  \n| Less Data / Longer Training  | 10%  | 30  | 13.98  |  \n| More Data / Standard Training | 100% | 3  | **23.44**  |\n\n|  | Data | Epochs | Accuracy (LiveCodeBench) |  \n|----|---|---|---|  \n| Before Teaching  | \\-  | \\-  | 16.5  |  \n| Less Data / Longer Training  | 20%  | 15  | 15  |  \n| More Data / Standard Training | 100% | 3  | **18.91**  |\n\n**Q2: We add more qualitative results for skill discovery.**  \nFollowing your suggestion, we have added an additional figure showing a full list (Figure 10, L1115-1132 in the revised PDF)  of discovered skills for MATH, GQA, and LiveCodeBench in the SKILL-LIST environments in Appendix C. We have also added another figure showing qualitative examples of skill-errors that were fixed by training on synthetic data in Appendix C, highlighting the utility of skills in our framework. In summary, we now have 5  figures showing qualitative examples of skill discovery and one quantitative analysis of skill discovery in Appendix C."
+                }
+            },
+            "invitations": [
+                "ICLR.cc/2025/Conference/Submission11063/-/Official_Comment"
+            ]
+        },
+        {
+            "id": "pOR42YNLtU",
+            "replyto": "h1qvpjhRP3",
             "number": 4,
-            "cdate": "2025-03-14",
-            "mdate": "2025-06-18",
+            "cdate": "2024-11-21",
+            "mdate": "2024-11-21",
             "content": {
-                "summary": {
-                    "value": "The paper proposes a new method called CGP-CDE for (Bayesian) causal model discovery that allows for less restrictive model assumptions and can be applied to higher dimensional systems as well. It is based on a GP approach to obtain a nonparametric conditional density estimator for each node given its parents in the causal DAG, ultimately capturing the likelihood of a graph. The search for the best fitting model is turned into a continuous optimization problem by adding a familiar acyclicity constraint with penalty on the weight matrix representing the graph. The method is evaluated on synthetic/realistic data and found to compare equal or favourably to other alternatives.\n\n## update after rebuttal\nI thank the authors for their reply, and, having read the other reviews & rebuttals as well, I am happy to leave my score at '4: accept'.\n\nOne final remark: I understand the temptation to go for maximal informativeness, but the authors will know that typically the score differences within a MEC are much smaller than between MECs, and therefore the extra information from orienting the full graph tends to be much less reliable, in turn making the entire output less trustworthy = less useful in practice. Given that any directed graph has a unique mapping to a MEC one does not need to 'remove' the preference within a MEC. Instead, we can easily show both outputs, but with a much higher reliability for anything implied by the MEC representation, giving practitioners an intuitive way to distinguish between more and less reliable conclusions in the output."
+                "title": {
+                    "value": "Response to Reviewer VQ9Y (Part 2/2)"
                 },
-                "claims_and_evidence": {
-                    "value": "The paper initially suggests that it will solve the problem of restrictive / unrealistic model assumptions encountered when tackling real world data, but this is of course nonsense. It still starts from the causal sufficiency and acyclicity assumptions (which is not how the world works), and relies on a rather arbitrary prior to go from Markov equivalence class (MEC) to unique model. Yes it ensures identifiability, but you are essentially finding back what you put in and assume/hope that it matches reality.\nHowever, I do really like the GP approach to modelling the likelihood, which indeed does provide a significant improvement over existing parametric approaches to Bayesian/likelihood based inference."
-                },
-                "methods_and_evaluation_criteria": {
-                    "value": "Experimental evaluation is limited but ok, and demonstrates the potential of the core contribution."
-                },
-                "theoretical_claims": {
-                    "value": "No explicit theoretical claims in the main paper, but overall approach is sound."
-                },
-                "experimental_designs_or_analyses": {
-                    "value": "As mentioned, experimental evaluation is limited but ok. One of the most striking findings is that the discrete version (DGP-CDE) is vastly superior (FIg.1), but that the authors still choose to focus on the (currently in vogue) continuous approximation, even though it suffers from the exact same problems w.r.t. finding the global optimum in anything with higher dimensions. But I will not hold that against the authors :)"
-                },
-                "supplementary_material": {
-                    "value": "No."
-                },
-                "relation_to_broader_scientific_literature": {
-                    "value": "Relevant (recent) work is discussed."
-                },
-                "essential_references_not_discussed": {
-                    "value": "Cooper & Herskovitz (1992): this old but seminal work already contains a Bayesian score-based method that relies on the prior to select an optimal posterior causal DAG. The subsequent work by Heckerman showed how to combat this (rather undesirable) behaviour by introducing a score that ensures MEC-equivalence, but the current paper now seems to suggest that they came up with the idea of selecting models *within* a MEC by using a non-equivalent score …"
-                },
-                "other_strengths_and_weaknesses": {
-                    "value": "As stated: paper suggests more than it does, and some aspects (like aiming for unique identifiability from using an in practice hard to justify/assess prior) actually weakens the output, and I would have preferred§ a modest but more robust aim for e.g. the MEC.\nAlso starting from the causal sufficiency assumption (and to some degree also the acyclicity assumption) is `unforgivable’ when the aim is to make a causal discovery method more suitable to real-world applications. Yes it makes everything easier, but that is not a good enough reason to do / keep doing it.\n\nOn the plus side: paper is clear and well written, and the GP approach at the heart of the method is a significant and promising contribution, and for that reason I will recommend accept."
-                },
-                "other_comments_or_suggestions": {
-                    "value": "No"
-                },
-                "questions_for_authors": {
-                    "value": "No"
-                },
-                "code_of_conduct": {
-                    "value": "Affirmed."
-                },
-                "overall_recommendation": {
-                    "value": 4
+                "comment": {
+                    "value": "**Q1: We implement a random data selection baseline.**\n\nData selection is not possible in general as many domains lack a data source from which to easily sample data (e.g., LiveCodeBench). Therefore, we implement it for MATH, as a standard training set is available. The random selection baseline cannot improve a student when sampling an equivalent amount of data as the data generation baseline. The results are shown below.\n\nWe hypothesize that the random natural data selection baseline cannot improve a student like Gemma2-2B because easily accessible data pools (e.g., the training set for MATH) have already been exhausted by extensive LLM post-training \\[C$\\\\S$4.2,D$\\\\S$4\\] and so do not add new information.\n\n|  | Before Training | Random Data Selection | Data Generation (Without State) | Data Generation (With State) |  \n|---|---|---|----|----|  \n| MATH Accuracy | 15.78  | 15.26  | 19.78  | **23.44**  |\n\n**Q2: We implement a data selection agent.**\n\nWe implement data selection using prototypicality scores \\[A\\] which are standard for active learning. Similar to the random selection baseline, it is hard to improve a well-post-trained LLM like Llama3 or Gemma2 by using readily available data pools — it is much easier to improve them using generated data. Even using the full training dataset cannot improve the student. This motivates our choice to tackle data generation rather than data selection. The training of open-source frontier models (Llama3, for example) includes significant post-training that subsumes publicly available data sources \\[B$\\\\S$4.2, C$\\\\S$4\\], making it hard to improve them with any amount of already existing data. \n\n| | Before Training | Data Selection (Prototypicality) | Full Training Dataset | Data Generation (Open-Ended) |  \n|---|---|-----|---|----|  \n| MATH Accuracy  | 15.78  | 16.01  | 15.18  | **23.44**  |\n\n\\[A\\] Sorscher et al., Beyond neural scaling laws: beating power law scaling via data pruning, NeurIPS 2022 Outstanding Paper Award  \n\\[B\\] Llama Team, AI @ Meta, The Llama 3 Herd of Models, arXiv 2024  \n\\[C\\] Gemma Team, Google Deepmind, Gemma 2: Improving Open Language Models at a Practical Size, arXiv 2024"
                 }
             },
             "invitations": [
-                "ICML.cc/2025/Conference/Submission4001/-/Official_Review",
-                "ICML.cc/2025/Conference/-/Edit"
+                "ICLR.cc/2025/Conference/Submission11063/-/Official_Comment"
             ]
         },
         {
-            "id": "ffpBXrY6Ob",
-            "replyto": "zydNWJzoVd",
+            "id": "h1qvpjhRP3",
+            "replyto": "r8ZflFk3T7",
             "number": 3,
-            "cdate": "2025-03-14",
-            "mdate": "2025-06-18",
+            "cdate": "2024-11-21",
+            "mdate": "2024-11-21",
             "content": {
-                "summary": {
-                    "value": "Recent work shows that in the bivariate case Bayesian model selection can be used for structure identification under more flexible assumptions at the cost of a small probability of error. This paper extends the previous result to the multivariate case. The authors empirically validate the method by comparing to multiple baselines under extensive experimental settings.\n\n## update after rebuttal\n\nThank you for the author's response. After reading all the review comments I decide to keep my rating unchanged."
+                "title": {
+                    "value": "Response to Reviewer VQ9Y (Part 1/2)"
                 },
-                "claims_and_evidence": {
-                    "value": "Yes."
-                },
-                "methods_and_evaluation_criteria": {
-                    "value": "It makes sense to me that for two distribution equivalent graphs we can rely on independent priors to distinguish them. Yet, it is unclear to me that do we need to know the correct prior in advance? If yes, what will happen under misspecification of prior?"
-                },
-                "theoretical_claims": {
-                    "value": "No."
-                },
-                "experimental_designs_or_analyses": {
-                    "value": "Yes. The experimental designs look sensible to me. The setting is extensive including both synthetic setting with multiple variables and real-life experiments."
-                },
-                "supplementary_material": {
-                    "value": "Yes I briefly went through Appendix E,F,G,I."
-                },
-                "relation_to_broader_scientific_literature": {
-                    "value": "Key contributions of the paper compared to prior work are properly discussed."
-                },
-                "essential_references_not_discussed": {
-                    "value": "Related works are properly discussed."
-                },
-                "other_strengths_and_weaknesses": {
-                    "value": "Strengths \n\n1. The proposed method and theory of using bayesian model selection for multivariate structure learning look novel to me.\n\n2. The experimental setting is extensive including both synthetic and real-life data.\n\n3. It is interesting to see methods that can distinguish between graphs that are distribution-equivalent.\n\nWeaknesses\n\n1.  I am not very familiar with bayesian model selection so I am not sure about the significance of extending from bivariate (Dhiretal.,2024) to the multivariate scenario. I will defer to other reviewers regarding this point."
-                },
-                "other_comments_or_suggestions": {
-                    "value": "N.A."
-                },
-                "questions_for_authors": {
-                    "value": "Please refer to my question in Methods And Evaluation Criteria part."
-                },
-                "code_of_conduct": {
-                    "value": "Affirmed."
-                },
-                "overall_recommendation": {
-                    "value": 3
+                "comment": {
+                    "value": "Thank you for the quality feedback and for noticing our contributions to open-source infrastructure\\!\n\n**W1: We have added a new Figure 6 in Appendix B (L864-884), guiding the reader through a concrete task example.**  \nThe figure walks a reader through a round of data generation for the multimodal task using GQA as an example.\n\n**W2-1: The data generation engine is swappable and not required for all domains**.  \nThe data generation engine is only fixed for the multimodal setting, where it relies on an off-the-shelf T2I model to generate images. For the code generation and math settings, the data generation policy directly produces the data in an end-to-end manner. \n\n**W2-2: What strategies exist for modifying the data generation engine?**  \nOur framework easily allows updating the data generation agent (policy \\+ engine) when using an open source LLM. For example, we could update the parameters of the data generation policy and data generation engine using experiences from multiple rounds of data generation through reinforcement learning. \n\n**W3: How can the teacher take into account the weaknesses of the data generation engine or itself?**  \nWe have designed DataEnvGym as an RL-style setting so the policy can learn over subsequent iterations what the data generation engine’s capabilities are. Our position is that the capabilities of the data generation engine should be discovered by the policy through a process of experimentation. The Skill-Tree environment explicitly provides a mechanism for this. Our framework supports policy learning of what the teaching capabilities of the agent are. For example, after allocating data for a skill and observing a lack of improvement, the policy can infer that the data generation engine has trouble with generating data for the skill and avoid data generation for that skill in subsequent iterations.\n\n**W4: Experiments can be run for fewer than \\<$1 and under 10h on a single GPU.**  \nOn a single A6000, the total training time for our most computationally expensive setting (multimodal) is 6h, or about 1.5h/iteration. Most other settings are much faster. Environments are fully parallelizable using Ray and can be scaled up to multiple GPUs and even multiple nodes. \n\nWe’ve added a table showing the token and time costs (Appendix B.4, Table 4, L918-931), which we summarize below. Additionally, we conduct experiments with a cheaper teacher, GPT-4o-mini, showing that it can be used as a cheaper alternative for GPT-4o. We’ve added these results in Appendix B.4 (Table 5, L972-986) of the revised PDF.\n\n| Domain  | Environment | Num Tokens | \\$ Cost (GPT-4o-mini) | \\$ Cost (GPT-4o) | GPU Minutes / Iteration |  \n|---|---|---|---|---|---|  \n| Math  | Open-Ended  | 173234  | 0.10  | 1.73  | 24  |  \n| Math  | Skill-List  | 318528  | 0.19  | 3.19  | 24  |  \n| Math  | Skill-Tree  | 355033  | 0.21  | 3.55  | 16  |  \n| Coding  | Open-Ended  | 279304  | 0.17  | 2.79  | 16  |  \n| Coding  | Skill-List  | 497787  | 0.30  | 4.98  | 16  |  \n| Coding  | Skill-Tree  | 967610  | 0.58  | 9.68  | 16  |  \n| Multimodal | Open-Ended  | 25073  | 0.02  | 0.25  | 37  |  \n| Multimodal | Skill-List  | 82419  | 0.05  | 0.82  | 134  |  \n| Multimodal | Skill-Tree  | 33991  | 0.02  | 0.34  | 78  |"
                 }
             },
             "invitations": [
-                "ICML.cc/2025/Conference/Submission4001/-/Official_Review",
-                "ICML.cc/2025/Conference/-/Edit"
+                "ICLR.cc/2025/Conference/Submission11063/-/Official_Comment"
             ]
         },
         {
-            "id": "kGYmeQsJqZ",
-            "replyto": "zydNWJzoVd",
+            "id": "4CnQpVCYkF",
+            "replyto": "00SnKBGTsz",
             "number": 2,
-            "cdate": "2025-03-10",
-            "mdate": "2025-06-18",
+            "cdate": "2024-11-21",
+            "mdate": "2024-11-21",
             "content": {
-                "summary": {
-                    "value": "This paper presents a multivariate causal discovery approach based on Bayesian model selection. It builds on the work of Dhir et al. (2024), who proposed to use Bayesian model selection to identify causal direction in the bivariate case. The Bayesian model selection framework allows for a trade-off between a model's goodness of fit and complexity. The original work showed that Bayesian Model Selection can discriminate causal directions even when Maximum Likelihood (ML) methods fail due to distribution equivalence, thanks to the marginal likelihood, which, unlike the likelihood, is not symmetric (they consider the whole function space instead of the best-fitting function).\nThey use the Causal Gaussian Process Conditional Density Estimator (CGP-CDE) to impose no restrictions on the model (e.g. linear model, additive noise...), which is a significant contribution of this work. This makes it possible to relax the assumptions, one of the most critical challenges in causal discovery. On the other hand, their method does not come with a strict identifiability guarantee due to potential overlaps in the posterior of different causal models. They propose a way to estimate the error probability using a sampling strategy.\nThe causal identifiability proof is based on the Independent Causal Mechanism (ICM) assumption, which the authors use to claim that well-chosen Bayesian priors for the distribution of a cause and the distribution of an effect given the cause should be independent.\nIn practice, to avoid comparing all possible DAGs and their posteriors, the model is identified by continuously optimizing the hyperparameters of the Gaussian process priors using a variational autoencoder (VAE) with a Bayesian model selection-based loss and acyclicity penalty. They also define priors on the resulting directed acyclic graphs (DAGs) to favor sparse models. As with most existing methods, their approach only works if all confounders are observed (causal sufficiency assumption)."
+                "title": {
+                    "value": "General Response"
                 },
-                "claims_and_evidence": {
-                    "value": "Not all claims are theoretically substantiated. The authors claim to find a causal model. Their continuous optimization method yields a direct acyclic graph, but it is not made clear whether the found model respects the Markov condition (each node is conditionally independent of its non-descendants, given its parents), which is required for a DAG to be causal. It is unclear whether the continuous optimization method finds well-chosen priors, which is required for identifiability."
-                },
-                "methods_and_evaluation_criteria": {
-                    "value": "The synthetic data experiment is performed with different generation settings (neural network as function, noise additive or not...). Syntren is a simulated data set. There is no experiment on real data. SHD and SID are commonly used metrics for causal discovery."
-                },
-                "theoretical_claims": {
-                    "value": "I read the proofs in the appendix and found no errors."
-                },
-                "experimental_designs_or_analyses": {
-                    "value": "The experimental design includes several settings. Results on synthetic data generated with a neural network show that the proposed method largely outperforms competitors, which was expected since their assumptions (e.g. additive noise) are violated. However, the author(s) also provide results for data generated with additive noise and their performance is still competitive with other methods, showing that the relaxation of the assumptions does not come at the expense of overall performance."
-                },
-                "supplementary_material": {
-                    "value": "I read the appendix of the paper carefully, but did not look at the rest of the supplementary material."
-                },
-                "relation_to_broader_scientific_literature": {
-                    "value": "This paper contributes to the field of causal discovery and, more specifically, to the score-based and continuous optimisation-based lines of research. It extends the work of Dhir et al. (2024), who proposed using Bayesian model selection for causal edge orientation. This paper's novelty is its adaptation and proof for the multivariate case, the use of CGP-CDE for flexible modeling, and the continuous optimization of model parameters to find a DAG."
-                },
-                "essential_references_not_discussed": {
-                    "value": "The authors do not discuss the literature on the information-theoretic view of causality (Janzing, Schölkopf, 2010) in the related works although it is conceptually very close -- instantiating Occam's razor to distinguish between models. There is no comparison with other score-based approaches that also aim to balance complexity and goodness of fit, such as GES (Chickering, Maxwell, 2002), which uses the Bayesian Information Criterion (BIC), and GLOBE (Mian, 2021), which uses a two-part Minimum Description Length (MDL) score.\n\nReferences:\n- Chickering, David Maxwell. \"Optimal structure identification with greedy search.\" Journal of machine learning research 3.Nov (2002): 507-554.\n- Mian, Osman A., Alexander Marx, and Jilles Vreeken. \"Discovering fully oriented causal networks.\" Proceedings of the AAAI Conference on Artificial Intelligence. Vol. 35. No. 10. 2021.\n- Janzing, Dominik, and Bernhard Schölkopf. \"Causal inference using the algorithmic Markov condition.\" IEEE Transactions on Information Theory 56.10 (2010): 5168-5194."
-                },
-                "other_strengths_and_weaknesses": {
-                    "value": "Strengths:\n- The paper is well written and well motivated.\n- The use of a flexible model and VAE allows for fewer assumptions than usual and therefore makes the model applicable to a wider range of applications.\n- The theory is well covered and convincing.\n- The extensive experiments show that the proposed methods significantly outperform the evaluated competitors.\n\nWeaknesses:\n- The causal model is not strictly identifiable.\n- Continuous optimisation may not be efficient (see questions 1, 2 and 3).\n- It is unclear whether the continuous optimisation approach maintains the theoretical guarantees (see questions 4 and 5)."
-                },
-                "other_comments_or_suggestions": {
-                    "value": "NOTEARS is a structure learning approach, not a causal discovery algorithm. That is, it finds a DAG, but there are no guarantees this a causal one. This should be mentioned. I have the same concern about the proposed method.\n\n\n### update after rebuttal ###\n\nI thank the authors for their answers, but I'm afraid they did not take away my concerns regarding the identifiability of the approach and therewith whether this is a method that is guaranteed to return causal structures."
-                },
-                "questions_for_authors": {
-                    "value": "1) How do you interpret the poor performance of CGP-CDE in the 3-variable experiment?\n\n2) In the continuous optimization, the warm-up phase seems computationally expensive (about 25,000 iterations for 1,000 samples?). Is this a typical number of iterations for an initialization phase? Could another initialization reduce the number of iterations needed? What about the number of iterations for the cooling phase (also 25,000 iterations for 1,000 samples)?\n\n3) In the 3-variable experiment, where the data are generated using a Bayesian causal model, DGP-CDE acts as a sanity check, as it considers all models and thus includes the true one used to generate the data.  However, the poor performance of the continuous optimization is worrying given the small search space (25 graphs) and the fact that the data was generated using a Bayesian causal model (unlike the opponent whose assumptions were violated). How do you explain this?"
-                },
-                "code_of_conduct": {
-                    "value": "Affirmed."
-                },
-                "overall_recommendation": {
-                    "value": 2
+                "comment": {
+                    "value": "Reviewers believe we tackle “*a timely and interesting problem*” (VQ9Y) with a “*novel and insightful perspective on the autonomous data generation problem*” (c5nB), making a “*good contribution to automated data generation for model improvement*” (rVo8). \n\nThe potential impact of our work in making a challenging problem accessible is noted by several reviewers: “*necessary infrastructure for the community to study the problem*” (VQ9Y), that our “*structure makes the problem tractable*” (wuGW) and has “*potential for widespread applicability*” (c5nB).\n\nWe show that experiments can be run in half a day with limited compute resources (1x A6000) for under $1 of OpenAI API credits, making it an accessible testbed for developing data generation agents. \n\n**We thank all reviewers for their valuable feedback and suggestions**. We have provided responses to all of the reviewer questions in the rebuttals in the individual responses and the revised PDF (updated text is in blue)."
                 }
             },
             "invitations": [
-                "ICML.cc/2025/Conference/Submission4001/-/Official_Review",
-                "ICML.cc/2025/Conference/-/Edit"
+                "ICLR.cc/2025/Conference/Submission11063/-/Official_Comment"
             ]
         },
         {
-            "id": "bQ7CD34PdV",
-            "replyto": "zydNWJzoVd",
-            "number": 1,
-            "cdate": "2025-03-09",
-            "mdate": "2025-06-18",
+            "id": "r8ZflFk3T7",
+            "replyto": "00SnKBGTsz",
+            "number": 4,
+            "cdate": "2024-11-06",
+            "mdate": "2024-11-26",
             "content": {
                 "summary": {
-                    "value": "This paper studies structure learning for observational data using Bayeisan model selection. It falls into the category of score based learning and uses model evidence as score to select DAG. It shows the existing work on bivariate case [Dhir et al., 2024] can be extended to multivariate case, and applies a flexible model called Causal Gaussian Process Conditional Density Estimator (CGP-CDE) with continuous reparametrization and variational inference to learn the DAG. Experiments are conducted to show the effectiveness."
+                    "value": "This paper introduces Gym environments for data synthesis, framing the problem as sequential decision-making. In these environments, actions correspond to data-generation plans, and states represent the performance summary of a student model. The paper implements environments for three tasks: visual question answering (VQA), math, and code generation. Each environment offers three state representations: open-ended, skill-list, and skill-tree. Additionally, it proposes an LLM-based policy for data generation. Experimental results demonstrate that the LLM can make strategically effective choices based on environment-state information."
                 },
-                "claims_and_evidence": {
-                    "value": "The claims on improvement are supported via experiments."
+                "soundness": {
+                    "value": 4
                 },
-                "methods_and_evaluation_criteria": {
-                    "value": "The evaluation criteria via SHD, SID, F1 are a commonly used critera."
+                "presentation": {
+                    "value": 3
                 },
-                "theoretical_claims": {
-                    "value": "One of the proofs on the main results --  Theorem B.6 -- concerns me. One of the main contribution of this paper is to extend the existing identifiability result to multivariate case. However, the proof of this theorem only says it follows directly from [Dhir et al., 2024] without any details."
+                "contribution": {
+                    "value": 4
                 },
-                "experimental_designs_or_analyses": {
-                    "value": "The experimental design makes sense."
+                "strengths": {
+                    "value": "- Tackle a timely and interesting problem. \n- Provide the necessary infrastructure for the community to study the problem, opening up opportunities for future contributions. \n- Consider various data generation strategies,\n- Well-desgined experiments which demonstrate the effectiveness of the proposed approaches and conduct insightful analyses."
                 },
-                "supplementary_material": {
-                    "value": "I check the proof for Theorem B.6, which actually is not in the main paper."
+                "weaknesses": {
+                    "value": "* The paper is currently dense and difficult to follow. The introduction includes excessive implementation details, which detract from providing a simple, high-level intuition. Using a specific task example to guide readers through the core concepts would make the paper more accessible.\n\n* The paper focuses solely on the data generation plan rather than a full, end-to-end data generation process. It relies on a fixed, off-the-shelf data-generation engine that cannot be modified. The authors should admit this limitation and discuss potential strategies for overcoming it.\n\n* The quality of the data-generation engine can impact both student performance and the data-generation plan itself. Current approaches do not take into account the data-generation engine capabilities in the design of the policy or the evaluation of the student. For instance, poor student performance might result from the engine producing low-quality data on a specific skill, which could prompt the policy to avoid querying the engine for that skill.\n\n* The learning procedure can be resource-intensive. The authors should report the time, cost, and computing resources used for the experiments."
                 },
-                "relation_to_broader_scientific_literature": {
-                    "value": "Causal discovery is widely used in scientific research for exploratory analysis. Developing identifiability and scalable method is important for broader scientific literature."
+                "questions": {
+                    "value": "- Is it possible to implement a random-policy baseline where you randomly chose a set of (naturally collected) datapoints from a data pool? The no-state baseline has flavor of this baseline but LLM-informed decisions could be biased. \n- Is it possible to compare this approach with active learning, in which instead of doing data generation, you do data *selection* and ask models to generate only synthetic labels, but not synthetic inputs?"
                 },
-                "essential_references_not_discussed": {
-                    "value": "No"
+                "flag_for_ethics_review": {
+                    "value": [
+                        "No ethics review needed."
+                    ]
                 },
-                "other_strengths_and_weaknesses": {
-                    "value": "- The paper derives from the ICM assumption for identifiability and allows for much flexible class of identifiable Bayesian network\n- The proposed method leverages the powerful tools for modelling and learning nonparametric DAGs in a scalable manner.\n- The experiments show competitive performance with many benchmarks."
+                "rating": {
+                    "value": 8
                 },
-                "other_comments_or_suggestions": {
-                    "value": "- Many mathemetical details are hidden in the appendix. Especially for Section 3 on the theoretical extension, there is no one theoretical statement in this section while everything is burried in the appendix."
-                },
-                "questions_for_authors": {
-                    "value": "- The definition of Bayesian equivalence (identifiability and distinguishabllity) involves data $X$, also relates to the definition of probrobability of error. I wonder for two models that are not Bayesian equivalent, why can they have positive probrobability of error. Should it be consistent to use the model evidence to find the true DAG? I guess the question is does the sample size in the definition of Bayesian equivalence goes to infinity? Or why do we have identifiability and distinguishabllity and what are their differences?"
+                "confidence": {
+                    "value": 4
                 },
                 "code_of_conduct": {
-                    "value": "Affirmed."
-                },
-                "overall_recommendation": {
-                    "value": 3
+                    "value": "Yes"
                 }
             },
             "invitations": [
-                "ICML.cc/2025/Conference/Submission4001/-/Official_Review",
-                "ICML.cc/2025/Conference/-/Edit"
+                "ICLR.cc/2025/Conference/Submission11063/-/Official_Review",
+                "ICLR.cc/2025/Conference/-/Edit"
+            ]
+        },
+        {
+            "id": "GMsjHLXdOx",
+            "replyto": "00SnKBGTsz",
+            "number": 3,
+            "cdate": "2024-11-04",
+            "mdate": "2024-11-27",
+            "content": {
+                "summary": {
+                    "value": "This paper presents a modular system for automated data generation, designed to minimize the need for human annotations. The proposed approach employs a reinforcement learning-inspired methodology, decomposing the process into a sequence of action predictions (data generation policy) based on state information (feedback from model errors) in an iterative manner. The effectiveness of this approach is demonstrated through three diverse tasks, encompassing text, image, and code generation across different modalities."
+                },
+                "soundness": {
+                    "value": 4
+                },
+                "presentation": {
+                    "value": 3
+                },
+                "contribution": {
+                    "value": 3
+                },
+                "strengths": {
+                    "value": "This paper presents a novel and insightful perspective on the autonomous data generation problem, leveraging principles from reinforcement learning to conceptualize it as a sequential decision-making process. The authors provide a thorough explanation of this approach, the motivations behind and the underlying mechanics.\n\nThis paper proposed a modular framework/testbed that can be easily adapted to various tasks, showcasing its versatility and potential for widespread applicability. The authors demonstrate the effectiveness of their approach through experiments on 3 tasks of multiple modalities, including text, image, and code generation, yielding promising early results."
+                },
+                "weaknesses": {
+                    "value": "The experiment part should be conducted more thoroughly: specifically, creating a test set that incorporates newly generated data points from the data generation agent and reporting evaluation results for each retrained model over successive iterations would provide more comprehensive insights into the system's performance."
+                },
+                "questions": {
+                    "value": "In the Experiments section, the authors mention that the baseline student model should not have been heavily post-trained so that there are rooms for further improvements. However, it would be beneficial to provide additional evidence and details to support the claim that the student's performance is improved due to the added data points rather than insufficient training. For instance, the training protocol involved a fixed 10-epoch training period; it remains unclear whether the model had reached convergence within this timeframe or if the introduction of new data points accelerated convergence. Further clarification on this aspect would enhance the overall validity of the results.\n\nAlso the result would be more sound if more quantitative and qualitative results for skill discovery is reported in this paper."
+                },
+                "flag_for_ethics_review": {
+                    "value": [
+                        "No ethics review needed."
+                    ]
+                },
+                "details_of_ethics_concerns": {
+                    "value": "N/A"
+                },
+                "rating": {
+                    "value": 8
+                },
+                "confidence": {
+                    "value": 3
+                },
+                "code_of_conduct": {
+                    "value": "Yes"
+                }
+            },
+            "invitations": [
+                "ICLR.cc/2025/Conference/Submission11063/-/Official_Review",
+                "ICLR.cc/2025/Conference/-/Edit"
+            ]
+        },
+        {
+            "id": "i3QgWgrJff",
+            "replyto": "00SnKBGTsz",
+            "number": 2,
+            "cdate": "2024-11-04",
+            "mdate": "2024-11-25",
+            "content": {
+                "summary": {
+                    "value": "The paper presents DataEnvGym, a framework designed to simulate environments for data generation agents. These agents iteratively generate synthetic data to address weaknesses in student models, aiming to improve model performance across tasks like mathematics, programming, and visual question answering. DataEnvGym provides various structured environments (Open-Ended, Skill-List, and Skill-Tree) where data generation agents create targeted training examples based on feedback from the student model, offering a dynamic approach to automated model improvement."
+                },
+                "soundness": {
+                    "value": 2
+                },
+                "presentation": {
+                    "value": 3
+                },
+                "contribution": {
+                    "value": 3
+                },
+                "strengths": {
+                    "value": "- Good contribution to automated data generation for model improvement.\n- Clearly written with structured sections explaining each environment type and experimental results."
+                },
+                "weaknesses": {
+                    "value": "- The paper should clarify early on that the focus is on synthetic data generation for training purposes, as this underpins the motivation for the approach.\n- Important related works on algorithms using feedback from training to generate the next training environments are missing [1, 2, 3, 4].\n- Lines 460 - 465, I believe there is a typo whereby it says that “each experiment is truncated once the performance consistently decreases for multiple iterations”. Should it be “increases”?\n- Repeated runs of experiments without confidence intervals will be valuable, especially since the variance of performance seems to be very high.\n\n[1] Sudhakaran, S., González-Duque, M., Freiberger, M., Glanois, C., Najarro, E., & Risi, S. (2024). Mariogpt: Open-ended text2level generation through large language models. Advances in Neural Information Processing Systems, 36.\n[2] Todd, G., Earle, S., Nasir, M. U., Green, M. C., & Togelius, J. (2023, April). Level generation through large language models. In Proceedings of the 18th International Conference on the Foundations of Digital Games (pp. 1-8).\n[3] Zhang, J., Lehman, J., Stanley, K., & Clune, J. (2023). Omni: Open-endedness via models of human notions of interestingness. arXiv preprint arXiv:2306.01711.\n[4] Faldor, M., Zhang, J., Cully, A., & Clune, J. (2024). OMNI-EPIC: Open-endedness via Models of human Notions of Interestingness with Environments Programmed in Code. arXiv preprint arXiv:2405.15568."
+                },
+                "questions": {
+                    "value": "- How does the performance of the data generation agents change over longer iterations? The paper truncates experiments when performance increases, but it would be insightful to explore whether performance plateaus or continuously increase over extended training.\n- Is the total training data allocation fixed in each environment, or does it vary dynamically? The methodology mentions rebalancing but lacks clarity on how these allocations adjust adaptively based on feedback."
+                },
+                "flag_for_ethics_review": {
+                    "value": [
+                        "No ethics review needed."
+                    ]
+                },
+                "rating": {
+                    "value": 6
+                },
+                "confidence": {
+                    "value": 4
+                },
+                "code_of_conduct": {
+                    "value": "Yes"
+                }
+            },
+            "invitations": [
+                "ICLR.cc/2025/Conference/Submission11063/-/Official_Review",
+                "ICLR.cc/2025/Conference/-/Edit"
+            ]
+        },
+        {
+            "id": "7XT4kLWV2f",
+            "replyto": "00SnKBGTsz",
+            "number": 1,
+            "cdate": "2024-11-01",
+            "mdate": "2024-11-13",
+            "content": {
+                "summary": {
+                    "value": "This paper introduces DataEnvGym, a novel testbed of teacher environments for developing data generation agents that iteratively improve student models by generating targeted training data. DataEnvGym frames data generation as a sequential decision-making task where an agent, comprising a data generation policy and engine, interacts with an environment that provides feedback from a student model. The agent's goal is to improve student model performance by generating training data based on student feedback (errors or weak skills). DataEnvGym offers multiple instantiations of teacher environments across three levels of structure: open-ended, skill-list, and skill-tree, each with varying levels of scaffolding support. Experiments across text and image-based tasks (mathematics, programming, and visual question answering) demonstrate that example agents within DataEnvGym can iteratively improve student model performance. Furthermore, the authors analyze the impact of state information, environment structure, and skill discovery quality on agent performance and student learning. The paper concludes that DataEnvGym, with its modular design and support for diverse tasks and student models, provides a valuable platform for developing and evaluating data generation agents, engines, and feedback mechanisms for automated model improvement. The code and leaderboard will be publicly released."
+                },
+                "soundness": {
+                    "value": 3
+                },
+                "presentation": {
+                    "value": 2
+                },
+                "contribution": {
+                    "value": 3
+                },
+                "strengths": {
+                    "value": "Novel Problem: Automating data generation to improve models is a significant challenge with practical applications. This work directly addresses this problem with a novel approach.\n\nWell-Defined Framework: DataEnvGym is presented as a well-defined framework with clear components (trainer, evaluator, data generation policy, data generation engine) and different levels of structure (open-ended, skill-list, skill-tree). This structure makes the problem tractable and facilitates modular development and testing.\n\nMultiple Tasks and Domains: The inclusion of experiments across diverse tasks (mathematics, programming, visual question answering) and with different student models demonstrates the generalizability of the framework.\n\nPromising Results: The initial results showing improved student model performance across tasks and environments are encouraging and suggest the potential of this approach. The analysis of difficulty/rarity and training dynamics adds value.\n\nOpen-Source Release: The commitment to publicly releasing the code and leaderboard promotes reproducibility and encourages further research in this area."
+                },
+                "weaknesses": {
+                    "value": "Limited Evaluation of Agent Architectures: The focus is primarily on the environment itself, with less emphasis on the architecture and training of the data generation agents. While baseline agents are provided, more sophisticated agent designs (e.g., reinforcement learning agents, agents leveraging larger language models) and their systematic evaluation would significantly strengthen the paper. How do different agent architectures compare in terms of effectiveness and efficiency? Are there specific architectural choices that are particularly well-suited for this task?\n\nOver-Reliance on LLMs for Data Generation: While using LLMs for data generation is a reasonable starting point, it raises concerns about the quality and diversity of the generated data. Exploring alternative data generation methods (e.g., data augmentation techniques, programmatic data generation) and comparing their effectiveness with LLM-based generation would be valuable. How robust is the framework to the quality of the generated data?\n\nLimited Analysis of Skill Discovery Quality: While the paper briefly touches upon the impact of skill discovery quality, a more thorough investigation is needed. How does the quality of the discovered skills affect the performance of the data generation agents and the student models? What are the limitations of the current skill discovery method, and how can it be improved? Quantitative analysis of skill quality (e.g., measuring coherence, coverage, and relevance) would strengthen the paper.\n\nLack of Comparison with Existing Methods: While related work on knowledge distillation and model weakness discovery is discussed, there's no direct comparison with existing methods for model improvement. How does DataEnvGym compare to techniques like curriculum learning or active learning in terms of effectiveness and efficiency? Including such comparisons would better contextualize the contributions and highlight the advantages of the proposed approach.\n\nLimited Discussion of Scalability: The experiments are conducted with relatively small datasets and models. How does DataEnvGym scale to larger datasets and more complex models? What are the computational challenges associated with training data generation agents in more realistic settings? Addressing these scalability concerns is crucial for practical applications."
+                },
+                "questions": {
+                    "value": "Limited Evaluation of Agent Architectures: The paper primarily focuses on introducing the DataEnvGym environment, but the evaluation of data generation agents is limited to relatively simple baseline policies. Exploring more sophisticated agent architectures, such as reinforcement learning agents (e.g., using policy gradient methods, Q-learning) or agents incorporating larger language models for planning and decision-making (similar to the approaches used in Shimabucoro et al. (2024), would substantially strengthen the paper. A systematic comparison of different agent architectures in terms of their effectiveness in improving student models, their sample efficiency, and their computational cost would provide valuable insights and contribute to a better understanding of the challenges and opportunities in automated data generation.\n\nLimited Analysis of Skill Discovery Quality: The paper briefly discusses the impact of oracle skills on student performance but doesn't delve deeply into the quality of the skills discovered by the proposed LLM-based method. A more thorough analysis is needed to understand the strengths and limitations of the skill discovery module. This could involve quantitative measures of skill quality, such as measuring their coherence, coverage, and relevance to the target task, or qualitative analysis by human experts. Investigating how the quality of the discovered skills affects the performance of the data generation agents and the resulting student models would strengthen the paper's contribution. Exploring alternative skill discovery methods (e.g., clustering-based approaches, topic modeling) and comparing their effectiveness with the proposed method would further enhance the analysis.\n\nLack of Comparison with Existing Methods: The paper positions DataEnvGym as a novel approach for model improvement, but it lacks a direct comparison with existing methods like curriculum learning (Bengio et al., 2009) or active learning (Settles, 2009). Evaluating how DataEnvGym compares to these established techniques in terms of student model performance, data efficiency, and computational cost would provide valuable context and highlight the advantages of the proposed framework. This would also clarify the specific niche and contribution of DataEnvGym within the broader landscape of model improvement techniques.\n\nLimited Discussion of Scalability: The experiments in the paper are conducted with relatively small datasets and models. It's essential to address the scalability of DataEnvGym to more realistic scenarios involving larger datasets, more complex models, and a broader range of skills. Discussing the computational challenges and potential optimizations for scaling the framework to more demanding settings would strengthen the paper's practical relevance. For instance, how can the computational cost of LLM-based data generation be reduced while maintaining data quality? How can the skill discovery and agent training processes be optimized for larger datasets? Addressing these questions would provide valuable insights for future research and practical applications."
+                },
+                "flag_for_ethics_review": {
+                    "value": [
+                        "Yes, Discrimination / bias / fairness concerns",
+                        "Yes, Potentially harmful insights, methodologies and applications"
+                    ]
+                },
+                "rating": {
+                    "value": 8
+                },
+                "confidence": {
+                    "value": 4
+                },
+                "code_of_conduct": {
+                    "value": "Yes"
+                }
+            },
+            "invitations": [
+                "ICLR.cc/2025/Conference/Submission11063/-/Official_Review",
+                "ICLR.cc/2025/Conference/-/Edit"
             ]
         }
     ],
-    "status": "poster",
-    "conference": "ICML"
+    "status": "spotlight",
+    "conference": "ICLR"
 }

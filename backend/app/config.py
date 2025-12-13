@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     # OpenRouter API Configuration
     openrouter_api_key: str = "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"
     openrouter_base_url: str = "https://openrouter.ai/api/v1"
-    llm_model: str = "google/gemini-2.5-flash-lite"
+    llm_model: str = "google/gemini-2.5-flash"
 
     # Embedding Configuration
     # 使用 Qwen3-Embedding 获得更好的中英文语义理解

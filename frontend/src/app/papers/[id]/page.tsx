@@ -247,6 +247,146 @@ function getReviewTypeInfo(type: string) {
   }
 }
 
+// 字段类型分类配置
+const FIELD_CONFIG: Record<string, { label: string; color: string; bgColor: string; priority: number }> = {
+  // 高优先级 - 核心评审内容
+  decision: { label: "Decision", color: "text-amber-400", bgColor: "bg-amber-500/10 border-amber-500/20", priority: 1 },
+  metareview: { label: "Meta Review", color: "text-blue-400", bgColor: "bg-blue-500/10 border-blue-500/20", priority: 2 },
+  summary: { label: "Summary", color: "text-white/70", bgColor: "bg-black/20", priority: 3 },
+  
+  // 优点类
+  strengths: { label: "Strengths", color: "text-emerald-400", bgColor: "bg-emerald-500/5 border-emerald-500/10", priority: 10 },
+  strengths_and_weaknesses: { label: "Strengths & Weaknesses", color: "text-cyan-400", bgColor: "bg-cyan-500/5 border-cyan-500/10", priority: 11 },
+  contribution: { label: "Contribution", color: "text-emerald-400", bgColor: "bg-emerald-500/5 border-emerald-500/10", priority: 12 },
+  originality: { label: "Originality", color: "text-emerald-400", bgColor: "bg-emerald-500/5 border-emerald-500/10", priority: 13 },
+  significance: { label: "Significance", color: "text-emerald-400", bgColor: "bg-emerald-500/5 border-emerald-500/10", priority: 14 },
+  
+  // 缺点类
+  weaknesses: { label: "Weaknesses", color: "text-rose-400", bgColor: "bg-rose-500/5 border-rose-500/10", priority: 20 },
+  limitations: { label: "Limitations", color: "text-rose-400", bgColor: "bg-rose-500/5 border-rose-500/10", priority: 21 },
+  
+  // 问题类
+  questions: { label: "Questions", color: "text-amber-400", bgColor: "bg-amber-500/5 border-amber-500/10", priority: 30 },
+  questions_for_authors: { label: "Questions for Authors", color: "text-amber-400", bgColor: "bg-amber-500/5 border-amber-500/10", priority: 31 },
+  
+  // 评分类
+  rating: { label: "Rating", color: "text-violet-400", bgColor: "bg-violet-500/10 border-violet-500/20", priority: 40 },
+  overall_recommendation: { label: "Overall Recommendation", color: "text-violet-400", bgColor: "bg-violet-500/10 border-violet-500/20", priority: 41 },
+  confidence: { label: "Confidence", color: "text-white/60", bgColor: "bg-white/5 border-white/10", priority: 42 },
+  soundness: { label: "Soundness", color: "text-white/60", bgColor: "bg-white/5 border-white/10", priority: 43 },
+  presentation: { label: "Presentation", color: "text-white/60", bgColor: "bg-white/5 border-white/10", priority: 44 },
+  clarity: { label: "Clarity", color: "text-white/60", bgColor: "bg-white/5 border-white/10", priority: 45 },
+  quality: { label: "Quality", color: "text-white/60", bgColor: "bg-white/5 border-white/10", priority: 46 },
+  
+  // 评论类
+  comment: { label: "Comment", color: "text-white/70", bgColor: "bg-black/20", priority: 50 },
+  rebuttal: { label: "Rebuttal", color: "text-emerald-400", bgColor: "bg-emerald-500/5 border-emerald-500/10", priority: 51 },
+  author_final_remarks: { label: "Author Final Remarks", color: "text-emerald-400", bgColor: "bg-emerald-500/5 border-emerald-500/10", priority: 52 },
+  final_justification: { label: "Final Justification", color: "text-blue-400", bgColor: "bg-blue-500/5 border-blue-500/10", priority: 53 },
+  additional_comments_on_reviewer_discussion: { label: "Additional Comments", color: "text-white/60", bgColor: "bg-white/5 border-white/10", priority: 54 },
+  other_comments_or_suggestions: { label: "Other Comments", color: "text-white/60", bgColor: "bg-white/5 border-white/10", priority: 55 },
+  
+  // 技术细节
+  claims_and_evidence: { label: "Claims & Evidence", color: "text-white/60", bgColor: "bg-white/5 border-white/10", priority: 60 },
+  theoretical_claims: { label: "Theoretical Claims", color: "text-white/60", bgColor: "bg-white/5 border-white/10", priority: 61 },
+  experimental_designs_or_analyses: { label: "Experimental Designs", color: "text-white/60", bgColor: "bg-white/5 border-white/10", priority: 62 },
+  methods_and_evaluation_criteria: { label: "Methods & Evaluation", color: "text-white/60", bgColor: "bg-white/5 border-white/10", priority: 63 },
+  relation_to_broader_scientific_literature: { label: "Relation to Literature", color: "text-white/60", bgColor: "bg-white/5 border-white/10", priority: 64 },
+  essential_references_not_discussed: { label: "Missing References", color: "text-orange-400", bgColor: "bg-orange-500/5 border-orange-500/10", priority: 65 },
+  supplementary_material: { label: "Supplementary Material", color: "text-white/60", bgColor: "bg-white/5 border-white/10", priority: 66 },
+  other_strengths_and_weaknesses: { label: "Other Points", color: "text-white/60", bgColor: "bg-white/5 border-white/10", priority: 67 },
+  
+  // 伦理相关
+  ethical_concerns: { label: "Ethical Concerns", color: "text-orange-400", bgColor: "bg-orange-500/10 border-orange-500/20", priority: 70 },
+  ethical_review_concerns: { label: "Ethics Review Concerns", color: "text-orange-400", bgColor: "bg-orange-500/10 border-orange-500/20", priority: 71 },
+  details_of_ethics_concerns: { label: "Ethics Concerns Details", color: "text-orange-400", bgColor: "bg-orange-500/10 border-orange-500/20", priority: 72 },
+  flag_for_ethics_review: { label: "Ethics Review Flag", color: "text-orange-400", bgColor: "bg-orange-500/10 border-orange-500/20", priority: 73 },
+  ethical_review_flag: { label: "Ethical Review Flag", color: "text-orange-400", bgColor: "bg-orange-500/10 border-orange-500/20", priority: 74 },
+  paper_formatting_concerns: { label: "Formatting Concerns", color: "text-orange-400", bgColor: "bg-orange-500/5 border-orange-500/10", priority: 75 },
+}
+
+// 需要跳过的字段
+const SKIP_FIELDS = new Set([
+  'title', 'code_of_conduct', 'code_of_conduct_acknowledgement', 
+  'mandatory_acknowledgement', 'responsible_reviewing_acknowledgement',
+  'withdrawal_confirmation', 'revert_withdrawal_confirmation',
+  'revert_desk_rejection_confirmation', 'desk_reject_comments',
+  'retraction_confirmation', 'retraction_approval', 'ethics_expertise_needed'
+])
+
+// 将字段名转换为显示标签
+function fieldToLabel(field: string): string {
+  return field
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
+}
+
+// 获取字段的显示值
+function getFieldValue(fieldData: { value: string | number | boolean } | undefined): string | null {
+  if (!fieldData || fieldData.value === undefined || fieldData.value === null) return null
+  const val = fieldData.value
+  if (typeof val === 'boolean') return val ? 'Yes' : 'No'
+  if (typeof val === 'number') return String(val)
+  if (typeof val === 'string' && val.trim() === '') return null
+  return String(val)
+}
+
+// 动态内容渲染组件
+function DynamicReviewContent({ content }: { content?: Record<string, { value: string | number | boolean } | undefined> }) {
+  if (!content || Object.keys(content).length === 0) {
+    return null
+  }
+
+  // 收集所有有效字段并排序
+  const fields = Object.entries(content)
+    .filter(([key]) => !SKIP_FIELDS.has(key))
+    .map(([key, data]) => {
+      const value = getFieldValue(data)
+      if (!value) return null
+      const config = FIELD_CONFIG[key] || { 
+        label: fieldToLabel(key), 
+        color: "text-white/60", 
+        bgColor: "bg-white/5 border-white/10",
+        priority: 100 
+      }
+      return { key, value, ...config }
+    })
+    .filter((f): f is NonNullable<typeof f> => f !== null)
+    .sort((a, b) => a.priority - b.priority)
+
+  if (fields.length === 0) return null
+
+  return (
+    <div className="space-y-4">
+      {fields.map(({ key, value, label, color, bgColor }) => {
+        // 对于短值（评分等），使用紧凑显示
+        const isShortValue = value.length < 50 && !value.includes('\n')
+        
+        if (isShortValue) {
+          return (
+            <div key={key} className={cn("rounded-lg p-3 border", bgColor)}>
+              <span className={cn("text-sm font-medium", color)}>{label}: </span>
+              <span className="text-white/80">{value}</span>
+            </div>
+          )
+        }
+
+        return (
+          <div key={key}>
+            <div className={cn("text-sm font-medium mb-2", color)}>
+              {label}
+            </div>
+            <div className={cn("rounded-lg p-3 border", bgColor)}>
+              <Markdown content={value} />
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 // 单个评论/回复组件
 function ReviewItem({ 
   review, 
@@ -261,6 +401,13 @@ function ReviewItem({
   const TypeIcon = typeInfo.icon
   const indentClass = review.depth > 0 ? `ml-${Math.min(review.depth * 4, 16)}` : ""
   
+  // 检查是否有动态content
+  const hasDynamicContent = review.content && Object.keys(review.content).length > 0
+  
+  // 判断是否有任何内容可显示（用于显示空状态）
+  const hasAnyContent = hasDynamicContent || review.decision || review.summary || 
+    review.strengths || review.weaknesses || review.questions || review.comment
+
   return (
     <div className={cn("border-l-2 border-white/10 pl-4", indentClass)}>
       <div className="p-4 rounded-lg bg-white/5 hover:bg-white/[0.07] transition-colors">
@@ -309,79 +456,91 @@ function ReviewItem({
         
         {/* Content */}
         {isExpanded && (
-          <div className="mt-4 space-y-4">
-            {/* Decision */}
-            {review.decision && (
-              <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                <CheckCircle className="w-5 h-5 text-amber-400" />
-                <span className="font-medium text-amber-300">{review.decision}</span>
+          <div className="mt-4">
+            {hasDynamicContent ? (
+              // 优先使用动态content渲染
+              <DynamicReviewContent content={review.content} />
+            ) : hasAnyContent ? (
+              // 回退到旧的固定字段渲染
+              <div className="space-y-4">
+                {/* Decision */}
+                {review.decision && (
+                  <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                    <CheckCircle className="w-5 h-5 text-amber-400" />
+                    <span className="font-medium text-amber-300">{review.decision}</span>
+                  </div>
+                )}
+                
+                {/* Summary */}
+                {review.summary && (
+                  <div>
+                    <div className="text-sm font-medium text-white/70 mb-2 flex items-center gap-2">
+                      <MessageSquare className="w-4 h-4" />
+                      Summary
+                    </div>
+                    <div className="bg-black/20 rounded-lg p-3">
+                      <Markdown content={review.summary} />
+                    </div>
+                  </div>
+                )}
+                
+                {/* Strengths */}
+                {review.strengths && (
+                  <div>
+                    <div className="text-sm font-medium text-emerald-400 mb-2 flex items-center gap-2">
+                      <ThumbsUp className="w-4 h-4" />
+                      Strengths
+                    </div>
+                    <div className="bg-emerald-500/5 rounded-lg p-3 border border-emerald-500/10">
+                      <Markdown content={review.strengths} />
+                    </div>
+                  </div>
+                )}
+                
+                {/* Weaknesses */}
+                {review.weaknesses && (
+                  <div>
+                    <div className="text-sm font-medium text-rose-400 mb-2 flex items-center gap-2">
+                      <ThumbsDown className="w-4 h-4" />
+                      Weaknesses
+                    </div>
+                    <div className="bg-rose-500/5 rounded-lg p-3 border border-rose-500/10">
+                      <Markdown content={review.weaknesses} />
+                    </div>
+                  </div>
+                )}
+                
+                {/* Questions */}
+                {review.questions && (
+                  <div>
+                    <div className="text-sm font-medium text-amber-400 mb-2 flex items-center gap-2">
+                      <HelpCircle className="w-4 h-4" />
+                      Questions
+                    </div>
+                    <div className="bg-amber-500/5 rounded-lg p-3 border border-amber-500/10">
+                      <Markdown content={review.questions} />
+                    </div>
+                  </div>
+                )}
+                
+                {/* Comment / Content */}
+                {review.comment && (
+                  <div className="bg-black/20 rounded-lg p-3">
+                    <Markdown content={review.comment} />
+                  </div>
+                )}
+                
+                {/* Flag if needed */}
+                {review.flag_for_ethics_review && (
+                  <div className="flex items-center gap-2 text-amber-400 text-sm">
+                    <AlertCircle className="w-4 h-4" />
+                    Flagged for ethics review
+                  </div>
+                )}
               </div>
-            )}
-            
-            {/* Summary */}
-            {review.summary && (
-              <div>
-                <div className="text-sm font-medium text-white/70 mb-2 flex items-center gap-2">
-                  <MessageSquare className="w-4 h-4" />
-                  Summary
-                </div>
-                <div className="bg-black/20 rounded-lg p-3">
-                  <Markdown content={review.summary} />
-                </div>
-              </div>
-            )}
-            
-            {/* Strengths */}
-            {review.strengths && (
-              <div>
-                <div className="text-sm font-medium text-emerald-400 mb-2 flex items-center gap-2">
-                  <ThumbsUp className="w-4 h-4" />
-                  Strengths
-                </div>
-                <div className="bg-emerald-500/5 rounded-lg p-3 border border-emerald-500/10">
-                  <Markdown content={review.strengths} />
-                </div>
-              </div>
-            )}
-            
-            {/* Weaknesses */}
-            {review.weaknesses && (
-              <div>
-                <div className="text-sm font-medium text-rose-400 mb-2 flex items-center gap-2">
-                  <ThumbsDown className="w-4 h-4" />
-                  Weaknesses
-                </div>
-                <div className="bg-rose-500/5 rounded-lg p-3 border border-rose-500/10">
-                  <Markdown content={review.weaknesses} />
-                </div>
-              </div>
-            )}
-            
-            {/* Questions */}
-            {review.questions && (
-              <div>
-                <div className="text-sm font-medium text-amber-400 mb-2 flex items-center gap-2">
-                  <HelpCircle className="w-4 h-4" />
-                  Questions
-                </div>
-                <div className="bg-amber-500/5 rounded-lg p-3 border border-amber-500/10">
-                  <Markdown content={review.questions} />
-                </div>
-              </div>
-            )}
-            
-            {/* Comment / Content */}
-            {review.comment && (
-              <div className="bg-black/20 rounded-lg p-3">
-                <Markdown content={review.comment} />
-              </div>
-            )}
-            
-            {/* Flag if needed */}
-            {review.flag_for_ethics_review && (
-              <div className="flex items-center gap-2 text-amber-400 text-sm">
-                <AlertCircle className="w-4 h-4" />
-                Flagged for ethics review
+            ) : (
+              <div className="text-sm text-white/40 italic">
+                无内容
               </div>
             )}
           </div>

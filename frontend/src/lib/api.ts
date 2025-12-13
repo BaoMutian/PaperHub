@@ -41,6 +41,8 @@ export interface Review {
   comment?: string
   reviewer?: string
   flag_for_ethics_review?: boolean
+  // Dynamic content from different conferences
+  content?: Record<string, { value: string | number | boolean } | undefined>
 }
 
 export interface Author {
