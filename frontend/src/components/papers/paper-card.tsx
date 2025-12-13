@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { StatusBadge, isAcceptedStatus } from "@/components/ui/status-badge"
 import { cn, truncate, getStatusColor, getConferenceColor, formatDate } from "@/lib/utils"
 import type { Paper } from "@/lib/api"
 import { Star, Calendar, ExternalLink } from "lucide-react"
@@ -55,9 +56,13 @@ export function PaperCard({ paper }: PaperCardProps) {
               <Badge className={cn("border bg-white/5 hover:bg-white/10", getConferenceColor(paper.conference))}>
                 {paper.conference}
               </Badge>
-              <Badge className={cn("border bg-white/5 hover:bg-white/10", getStatusColor(paper.status))}>
-                {paper.status}
-              </Badge>
+              {isAcceptedStatus(paper.status) ? (
+                <StatusBadge status={paper.status} size="sm" showSubtitle={false} />
+              ) : (
+                <Badge className={cn("border bg-white/5 hover:bg-white/10", getStatusColor(paper.status))}>
+                  {paper.status}
+                </Badge>
+              )}
             </div>
             {paper.avg_rating && (
               <div className={cn(

@@ -5,9 +5,9 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { getPaperStats, searchPapers, type Paper } from "@/lib/api"
+import { getPaperStats, searchPapers, getTrendingPapers, getTopRatedPapers, type Paper } from "@/lib/api"
 import { PaperCard } from "@/components/papers/paper-card"
-import { Search, ArrowRight, Sparkles, Network, BarChart3, BookOpen, TrendingUp, Loader2, ChevronDown, User, FileText, MessageSquare } from "lucide-react"
+import { Search, ArrowRight, Sparkles, Network, BarChart3, TrendingUp, Loader2, ChevronDown, User, FileText, MessageSquare, Flame, Star, Swords } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export default function HomePage() {
@@ -21,11 +21,27 @@ export default function HomePage() {
   const [displayCount, setDisplayCount] = useState(6)
   const [totalResults, setTotalResults] = useState(0)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const [trendingPapers, setTrendingPapers] = useState<Paper[]>([])
+  const [topRatedPapers, setTopRatedPapers] = useState<Paper[]>([])
+  const [isLoadingTrending, setIsLoadingTrending] = useState(true)
+  const [isLoadingTopRated, setIsLoadingTopRated] = useState(true)
   
   useEffect(() => {
     getPaperStats()
       .then(setStats)
       .catch(console.error)
+    
+    // Fetch trending papers
+    getTrendingPapers(6)
+      .then(result => setTrendingPapers(result.papers))
+      .catch(console.error)
+      .finally(() => setIsLoadingTrending(false))
+    
+    // Fetch top-rated papers
+    getTopRatedPapers(6)
+      .then(result => setTopRatedPapers(result.papers))
+      .catch(console.error)
+      .finally(() => setIsLoadingTopRated(false))
   }, [])
   
   const handleSearch = async (e: React.FormEvent) => {
@@ -187,6 +203,142 @@ export default function HomePage() {
                     </>
                   )}
                 </Button>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+      
+      {/* Trending Grid - 讨论最激烈的论文 */}
+      {searchResults.length === 0 && (
+        <section className="py-16 px-4 border-t border-white/5 bg-gradient-to-b from-orange-500/[0.02] to-transparent">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-center justify-between mb-10">
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-xl bg-gradient-to-br from-orange-500/20 to-red-500/20 border border-orange-500/20">
+                  <Flame className="w-6 h-6 text-orange-400" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold flex items-center gap-2">
+                    讨论最激烈
+                    <span className="text-xs font-normal px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/20">
+                      HOT
+                    </span>
+                  </h2>
+                  <p className="text-sm text-white/40 mt-1">
+                    Rebuttal 激烈交锋，作者与审稿人的学术battle
+                  </p>
+                </div>
+              </div>
+              <Link href="/papers?sort_by=reviews_desc">
+                <Button variant="ghost" size="sm" className="text-white/40 hover:text-white">
+                  查看更多 <ArrowRight className="w-4 h-4 ml-1" />
+                </Button>
+              </Link>
+            </div>
+            
+            {isLoadingTrending ? (
+              <div className="flex items-center justify-center py-16">
+                <Loader2 className="w-8 h-8 animate-spin text-orange-400" />
+              </div>
+            ) : trendingPapers.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {trendingPapers.map((paper) => (
+                  <div key={paper.id} className="relative group">
+                    {/* Battle intensity indicator */}
+                    {paper.battle_intensity && paper.battle_intensity > 0.3 && (
+                      <div className="absolute -top-2 -right-2 z-10">
+                        <div className={cn(
+                          "flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold border shadow-lg",
+                          paper.battle_intensity > 0.7 
+                            ? "bg-red-500/90 border-red-400 text-white" 
+                            : paper.battle_intensity > 0.5 
+                              ? "bg-orange-500/90 border-orange-400 text-white"
+                              : "bg-amber-500/90 border-amber-400 text-black"
+                        )}>
+                          <Swords className="w-3 h-3" />
+                          {Math.round(paper.battle_intensity * 100)}%
+                        </div>
+                      </div>
+                    )}
+                    <PaperCard paper={paper} />
+                    {/* Interaction rounds badge */}
+                    {paper.interaction_rounds && paper.interaction_rounds > 1 && (
+                      <div className="absolute bottom-4 right-4 flex items-center gap-1 px-2 py-1 rounded-md bg-black/60 backdrop-blur-sm border border-white/10 text-[10px] text-white/70">
+                        <MessageSquare className="w-3 h-3" />
+                        {paper.interaction_rounds} 轮讨论
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-16 text-white/40">
+                暂无讨论激烈的论文数据
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+      
+      {/* Top Rated - 高分论文 */}
+      {searchResults.length === 0 && (
+        <section className="py-16 px-4 border-t border-white/5 bg-gradient-to-b from-emerald-500/[0.02] to-transparent">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-center justify-between mb-10">
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-500/20">
+                  <Star className="w-6 h-6 text-emerald-400" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold flex items-center gap-2">
+                    高分佳作
+                    <span className="text-xs font-normal px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/20">
+                      TOP
+                    </span>
+                  </h2>
+                  <p className="text-sm text-white/40 mt-1">
+                    审稿人一致好评，公认的优秀论文
+                  </p>
+                </div>
+              </div>
+              <Link href="/papers?sort_by=rating_desc">
+                <Button variant="ghost" size="sm" className="text-white/40 hover:text-white">
+                  查看更多 <ArrowRight className="w-4 h-4 ml-1" />
+                </Button>
+              </Link>
+            </div>
+            
+            {isLoadingTopRated ? (
+              <div className="flex items-center justify-center py-16">
+                <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />
+              </div>
+            ) : topRatedPapers.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {topRatedPapers.map((paper, index) => (
+                  <div key={paper.id} className="relative">
+                    {/* Top 3 ranking badge */}
+                    {index < 3 && (
+                      <div className="absolute -top-2 -left-2 z-10">
+                        <div className={cn(
+                          "w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 shadow-lg",
+                          index === 0 
+                            ? "bg-gradient-to-br from-amber-400 to-yellow-500 border-amber-300 text-amber-900" 
+                            : index === 1 
+                              ? "bg-gradient-to-br from-gray-300 to-gray-400 border-gray-200 text-gray-700"
+                              : "bg-gradient-to-br from-orange-400 to-orange-500 border-orange-300 text-orange-900"
+                        )}>
+                          {index + 1}
+                        </div>
+                      </div>
+                    )}
+                    <PaperCard paper={paper} />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-16 text-white/40">
+                暂无高分论文数据
               </div>
             )}
           </div>

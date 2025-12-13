@@ -1,28 +1,31 @@
 # PaperHub 项目规范文档
 
-> AI Conference Papers Knowledge Graph - 基于知识图谱和LLM的AI顶会论文QA系统
+> AI Conference Papers Knowledge Graph - 基于知识图谱和 LLM 的 AI 顶会论文 QA 系统
 
 ## 1. 项目概述
 
 ### 1.1 项目定位
+
 PaperHub 是一个基于 Neo4j 知识图谱和 LLM 的 AI 顶会论文智能检索与问答系统，支持 ICLR、ICML、NeurIPS 2025 论文的智能检索、分析和可视化。
 
 ### 1.2 核心功能
+
 - **智能搜索**: 混合检索（关键词 + 语义）
 - **知识图谱**: Neo4j 存储论文、作者、评审等实体及关系
-- **自然语言QA**: NL2Cypher 自动转换并查询
+- **自然语言 QA**: NL2Cypher 自动转换并查询
 - **评审总结**: LLM 分析评审意见生成总结
 - **协作网络**: 2D/3D 作者协作关系可视化
 - **数据统计**: 会议接收率、热门关键词等
 
 ### 1.3 技术栈
-| 层级 | 技术 |
-|------|------|
-| 前端 | Next.js 15, React, TailwindCSS, react-force-graph |
-| 后端 | FastAPI, Python 3.11+ |
-| 数据库 | Neo4j 5.x (含向量索引) |
-| LLM | OpenRouter API (Gemini 2.5 Flash) |
-| Embedding | sentence-transformers (Qwen3-Embedding-0.6B) |
+
+| 层级      | 技术                                              |
+| --------- | ------------------------------------------------- |
+| 前端      | Next.js 15, React, TailwindCSS, react-force-graph |
+| 后端      | FastAPI, Python 3.11+                             |
+| 数据库    | Neo4j 5.x (含向量索引)                            |
+| LLM       | OpenRouter API (Gemini 2.5 Flash)                 |
+| Embedding | sentence-transformers (Qwen3-Embedding-0.6B)      |
 
 ---
 
@@ -91,7 +94,7 @@ PaperHub/
 │   │   └── scripts/                  # 数据处理脚本
 │   │       ├── ingest.py             # 数据导入 Neo4j
 │   │       ├── create_embeddings.py  # 创建向量索引
-│   │       └── add_paper_ratings.py  # 计算 Paper 评分属性
+│   │       └── calculate_interactions.py  # 计算互动统计
 │   │
 │   └── requirements.txt
 │
@@ -117,7 +120,8 @@ PaperHub/
 │   │   │   │   ├── card.tsx
 │   │   │   │   ├── badge.tsx
 │   │   │   │   ├── input.tsx
-│   │   │   │   └── markdown.tsx
+│   │   │   │   ├── markdown.tsx
+│   │   │   │   └── status-badge.tsx  # 豆瓣风格状态徽章
 │   │   │   ├── layout/
 │   │   │   │   └── navbar.tsx
 │   │   │   └── papers/
@@ -142,25 +146,42 @@ PaperHub/
 
 ### 4.1 节点类型
 
-| 节点 | 属性 | 说明 |
-|------|------|------|
-| **Paper** | id, title, abstract, status, conference, keywords, creation_date, modification_date, forum_link, pdf_link, venue, primary_area, tldr, ratings (list), avg_rating, min_rating, max_rating, rating_count | 论文节点 |
-| **Author** | authorid (唯一标识), name | 作者节点 |
-| **Review** | id, replyto, number, cdate, mdate, review_type, rating, confidence, summary, strengths, weaknesses, questions, decision, comment, content_json | 评审节点 |
-| **Keyword** | name (小写归一化) | 关键词节点 |
-| **Conference** | name, year, max_rating | 会议节点 |
+| 节点           | 属性                                                                                                                                                                                                                                                                                                 | 说明       |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| **Paper**      | id, title, abstract, status, conference, keywords, creation_date, modification_date, forum_link, pdf_link, venue, primary_area, tldr, ratings (list), avg_rating, min_rating, max_rating, rating_count, **author_word_count**, **reviewer_word_count**, **interaction_rounds**, **battle_intensity** | 论文节点   |
+| **Author**     | authorid (唯一标识), name                                                                                                                                                                                                                                                                            | 作者节点   |
+| **Review**     | id, replyto, number, cdate, mdate, review_type, rating, confidence, summary, strengths, weaknesses, questions, decision, comment, content_json                                                                                                                                                       | 评审节点   |
+| **Keyword**    | name (小写归一化)                                                                                                                                                                                                                                                                                    | 关键词节点 |
+| **Conference** | name, year, max_rating                                                                                                                                                                                                                                                                               | 会议节点   |
+
+### 4.6 Interaction 统计属性 (Paper 节点)
+
+| 属性                | 类型            | 说明                         |
+| ------------------- | --------------- | ---------------------------- |
+| author_word_count   | Integer         | 作者在 Rebuttal 阶段的总字数 |
+| reviewer_word_count | Integer         | 所有审稿人回复的总字数       |
+| interaction_rounds  | Integer         | 最大对话回复层级深度         |
+| battle_intensity    | Float (0.0-1.0) | 归一化的讨论激烈程度指数     |
+
+**battle_intensity 计算因子:**
+
+- 总字数 (word_factor): 35%
+- 对话深度 (depth_factor): 30%
+- 评审数量 (review_factor): 20%
+- 双方平衡度 (balance_factor): 15%
 
 ### 4.2 关系类型
 
-| 关系 | 方向 | 属性 | 说明 |
-|------|------|------|------|
-| AUTHORED | Author → Paper | order (int) | 作者发表论文，order 表示作者顺序 |
-| HAS_REVIEW | Paper → Review | - | 论文包含评审 |
-| REPLIES_TO | Review → Review | - | 评审回复（rebuttal等） |
-| HAS_KEYWORD | Paper → Keyword | - | 论文关键词 |
-| SUBMITTED_TO | Paper → Conference | - | 论文投稿会议 |
+| 关系         | 方向               | 属性        | 说明                             |
+| ------------ | ------------------ | ----------- | -------------------------------- |
+| AUTHORED     | Author → Paper     | order (int) | 作者发表论文，order 表示作者顺序 |
+| HAS_REVIEW   | Paper → Review     | -           | 论文包含评审                     |
+| REPLIES_TO   | Review → Review    | -           | 评审回复（rebuttal 等）          |
+| HAS_KEYWORD  | Paper → Keyword    | -           | 论文关键词                       |
+| SUBMITTED_TO | Paper → Conference | -           | 论文投稿会议                     |
 
 ### 4.3 Review 类型 (review_type)
+
 - `official_review`: 官方评审
 - `rebuttal`: 作者回复
 - `meta_review`: AC/Meta Review
@@ -169,13 +190,15 @@ PaperHub/
 - `other`: 其他
 
 ### 4.4 评分说明
-| 会议 | 满分 | 评分字段 |
-|------|------|----------|
-| ICLR | 10 | rating.value |
-| ICML | 5 | overall_recommendation.value |
-| NeurIPS | 6 | rating.value |
+
+| 会议    | 满分 | 评分字段                     |
+| ------- | ---- | ---------------------------- |
+| ICLR    | 10   | rating.value                 |
+| ICML    | 5    | overall_recommendation.value |
+| NeurIPS | 6    | rating.value                 |
 
 ### 4.5 论文状态 (status)
+
 - `poster`: 接收 (Poster)
 - `spotlight`: 接收 (Spotlight)
 - `oral`: 接收 (Oral)
@@ -189,59 +212,64 @@ PaperHub/
 
 ### 5.1 论文 API
 
-| 端点 | 方法 | 说明 |
-|------|------|------|
-| `/papers` | GET | 论文列表 (分页、筛选) |
-| `/papers/search` | GET | 搜索论文 (支持 mode: hybrid/semantic/keyword) |
-| `/papers/stats` | GET | 统计数据 |
-| `/papers/{id}` | GET | 论文详情 (含评审) |
-| `/papers/{id}/review-summary` | GET | AI 评审总结 |
+| 端点                          | 方法 | 说明                                          |
+| ----------------------------- | ---- | --------------------------------------------- |
+| `/papers`                     | GET  | 论文列表 (分页、筛选)                         |
+| `/papers/search`              | GET  | 搜索论文 (支持 mode: hybrid/semantic/keyword) |
+| `/papers/trending`            | GET  | 讨论最激烈的论文 (按 interaction_rounds 排序) |
+| `/papers/top-rated`           | GET  | 高分论文 (按 avg_rating 排序)                 |
+| `/papers/stats`               | GET  | 统计数据                                      |
+| `/papers/{id}`                | GET  | 论文详情 (含评审、interaction 统计)           |
+| `/papers/{id}/review-summary` | GET  | AI 评审总结                                   |
 
 **搜索参数:**
+
 - `q`: 搜索关键词
 - `mode`: 搜索模式 (hybrid/semantic/keyword)，默认 hybrid
 - `limit`: 返回数量
 
 ### 5.2 作者 API
 
-| 端点 | 方法 | 说明 |
-|------|------|------|
-| `/authors/search` | GET | 作者搜索 |
-| `/authors/top` | GET | 高产作者排行 |
-| `/authors/{authorid}` | GET | 作者详情 |
+| 端点                  | 方法 | 说明         |
+| --------------------- | ---- | ------------ |
+| `/authors/search`     | GET  | 作者搜索     |
+| `/authors/top`        | GET  | 高产作者排行 |
+| `/authors/{authorid}` | GET  | 作者详情     |
 
 ### 5.3 图可视化 API
 
-| 端点 | 方法 | 说明 |
-|------|------|------|
-| `/graph/collaboration-network` | GET | 协作网络 |
-| `/graph/author-ego-network/{authorid}` | GET | 作者自我网络 |
+| 端点                                   | 方法 | 说明         |
+| -------------------------------------- | ---- | ------------ |
+| `/graph/collaboration-network`         | GET  | 协作网络     |
+| `/graph/author-ego-network/{authorid}` | GET  | 作者自我网络 |
 
 ### 5.4 智能问答 API
 
-| 端点 | 方法 | 说明 |
-|------|------|------|
-| `/qa/ask` | POST | 自然语言问答 |
-| `/qa/semantic-search` | POST | 语义搜索 |
-| `/qa/examples` | GET | 示例问题 |
+| 端点                  | 方法 | 说明         |
+| --------------------- | ---- | ------------ |
+| `/qa/ask`             | POST | 自然语言问答 |
+| `/qa/semantic-search` | POST | 语义搜索     |
+| `/qa/examples`        | GET  | 示例问题     |
 
 **QA 请求体:**
+
 ```json
 {
-  "question": "string",
-  "include_sources": true
+	"question": "string",
+	"include_sources": true
 }
 ```
 
 **QA 响应体:**
+
 ```json
 {
-  "answer": "string",
-  "cypher_query": "string | null",
-  "raw_results": "array | null",
-  "sources": [],
-  "confidence": 0.8,
-  "query_type": "stats | search | comparison | summary"
+	"answer": "string",
+	"cypher_query": "string | null",
+	"raw_results": "array | null",
+	"sources": [],
+	"confidence": 0.8,
+	"query_type": "stats | search | comparison | summary"
 }
 ```
 
@@ -254,6 +282,7 @@ PaperHub/
 `DynamicReviewContent` 组件根据 `review.content` 动态渲染所有字段：
 
 **字段优先级排序:**
+
 1. decision (决定)
 2. metareview (Meta Review)
 3. summary (摘要)
@@ -266,6 +295,7 @@ PaperHub/
 10. 伦理相关
 
 **跳过的字段:**
+
 - title, code_of_conduct, mandatory_acknowledgement 等确认性字段
 
 ### 6.2 评分显示
@@ -273,6 +303,7 @@ PaperHub/
 论文卡片和详情页的评分显示格式: `{avg_rating}/{max_rating}`
 
 根据会议自动匹配满分:
+
 - ICLR: /10
 - ICML: /5
 - NeurIPS: /6
@@ -280,8 +311,41 @@ PaperHub/
 ### 6.3 QA 调试面板
 
 问答页面支持:
+
 - 查看 Cypher 查询语句
 - 查看数据库返回的原始结果 (JSON)
+
+### 6.4 Battle Bar (Rebuttal 对抗条)
+
+论文详情页展示作者与审稿人的"对战"统计，格斗游戏血条风格：
+
+- 左侧绿色: Author Defense (作者字数)
+- 右侧红色: Reviewer Pushback (审稿人字数)
+- 中间 VS 分隔符
+- 状态文案: 根据字数比例动态显示
+  - 作者字数 > 审稿人 2 倍: "作者强势回应"
+  - 审稿人字数 > 作者 2 倍: "审稿人穷追猛打"
+  - 差距在 20% 以内: "激烈交锋"
+  - 总字数较少: "平稳讨论"
+
+### 6.5 豆瓣风格状态徽章 (StatusBadge)
+
+为接受论文提供醒目的视觉标识：
+
+| Status      | 样式         | 图标          |
+| ----------- | ------------ | ------------- |
+| `oral`      | 金色渐变背景 | Trophy (奖杯) |
+| `spotlight` | 紫色渐变背景 | Zap (闪电)    |
+| `poster`    | 蓝色渐变背景 | Pin (图钉)    |
+
+组件位置: `frontend/src/components/ui/status-badge.tsx`
+
+### 6.6 首页推荐区块
+
+首页默认展示两个推荐区块：
+
+- **讨论最激烈 (Trending)**: 按 interaction_rounds 排序，显示 battle_intensity 百分比
+- **高分佳作 (Top Rated)**: 按 avg_rating 排序，显示金银铜排名徽章
 
 ---
 
@@ -295,6 +359,7 @@ python -m app.scripts.ingest
 ```
 
 功能:
+
 - 解析 JSONL 文件
 - 创建 Paper/Author/Review/Keyword/Conference 节点
 - 创建所有关系
@@ -307,6 +372,7 @@ python -m app.scripts.create_embeddings
 ```
 
 功能:
+
 - 为 Paper.abstract 创建向量嵌入
 - 创建 Neo4j 向量索引
 
@@ -317,9 +383,25 @@ python -m app.scripts.add_paper_ratings
 ```
 
 功能:
+
 - 聚合每篇论文的 official_review 评分
 - 更新 Paper 节点: ratings, avg_rating, min_rating, max_rating, rating_count
 - 创建 paper_avg_rating 索引
+
+### 7.4 互动统计计算 (calculate_interactions.py)
+
+```bash
+python -m app.scripts.calculate_interactions
+```
+
+功能:
+
+- 分析每篇论文的评审对话
+- 计算 author_word_count (作者 rebuttal 字数)
+- 计算 reviewer_word_count (审稿人回复字数)
+- 计算 interaction_rounds (最大对话深度)
+- 计算 battle_intensity (归一化激烈程度)
+- 创建 paper_interaction_rounds 和 paper_battle_intensity 索引
 
 ---
 
@@ -397,6 +479,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 - [ ] 数据已导入 (`python -m app.scripts.ingest`)
 - [ ] 向量索引已创建 (`python -m app.scripts.create_embeddings`)
 - [ ] Paper 评分已更新 (`python -m app.scripts.add_paper_ratings`)
+- [ ] 互动统计已计算 (`python -m app.scripts.calculate_interactions`)
 - [ ] 后端启动 (`uvicorn app.main:app --reload`)
 - [ ] 前端启动 (`npm run dev`)
 - [ ] 环境变量配置正确
@@ -405,12 +488,12 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 
 ## 12. 版本历史
 
-| 版本 | 日期 | 更新内容 |
-|------|------|----------|
-| 1.0.0 | 2024-12 | 初始版本：基础论文浏览、作者网络、QA |
-| 1.1.0 | 2024-12 | Review动态渲染、混合检索、Paper评分属性、QA调试面板 |
+| 版本  | 日期    | 更新内容                                                            |
+| ----- | ------- | ------------------------------------------------------------------- |
+| 1.0.0 | 2024-12 | 初始版本：基础论文浏览、作者网络、QA                                |
+| 1.1.0 | 2024-12 | Review 动态渲染、混合检索、Paper 评分属性、QA 调试面板              |
+| 1.2.0 | 2024-12 | Rebuttal 互动统计、Battle Bar、豆瓣风格徽章、首页 Trending/TopRated |
 
 ---
 
-*本规范文档应随项目更新同步维护*
-
+_本规范文档应随项目更新同步维护_

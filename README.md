@@ -92,6 +92,9 @@ python -m app.scripts.ingest
 
 ```bash
 python -m app.scripts.create_embeddings
+
+# 计算论文互动信息
+python -m app.scripts.calculate_interactions
 ```
 
 ### 5. 启动后端

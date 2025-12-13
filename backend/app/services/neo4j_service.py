@@ -156,7 +156,11 @@ class Neo4jService:
                p.status as status, p.conference as conference,
                p.forum_link as forum_link, p.pdf_link as pdf_link,
                p.creation_date as creation_date, p.keywords as keywords,
-               authors, p.avg_rating as avg_rating, p.rating_count as review_count
+               authors, p.avg_rating as avg_rating, p.rating_count as review_count,
+               p.author_word_count as author_word_count,
+               p.reviewer_word_count as reviewer_word_count,
+               p.interaction_rounds as interaction_rounds,
+               p.battle_intensity as battle_intensity
         ORDER BY {order_clause}
         SKIP $skip LIMIT $limit
         """
@@ -453,6 +457,50 @@ class Neo4jService:
         ORDER BY conference, status
         """
         return await self.execute_query(query)
+    
+    async def get_trending_papers(self, limit: int = 12) -> List[Dict]:
+        """Get papers with most intense discussions (by interaction_rounds)"""
+        query = """
+        MATCH (p:Paper)
+        WHERE p.interaction_rounds IS NOT NULL AND p.interaction_rounds > 1
+          AND p.status IN ['poster', 'spotlight', 'oral']
+        OPTIONAL MATCH (p)<-[:AUTHORED]-(a:Author)
+        WITH p, collect(a.name) as authors
+        RETURN p.id as id, p.title as title, p.abstract as abstract,
+               p.status as status, p.conference as conference,
+               p.forum_link as forum_link, p.pdf_link as pdf_link,
+               p.creation_date as creation_date, p.keywords as keywords,
+               authors, p.avg_rating as avg_rating,
+               p.author_word_count as author_word_count,
+               p.reviewer_word_count as reviewer_word_count,
+               p.interaction_rounds as interaction_rounds,
+               p.battle_intensity as battle_intensity
+        ORDER BY p.interaction_rounds DESC, p.battle_intensity DESC
+        LIMIT $limit
+        """
+        return await self.execute_query(query, {"limit": limit})
+    
+    async def get_top_rated_papers(self, limit: int = 12) -> List[Dict]:
+        """Get highest rated papers"""
+        query = """
+        MATCH (p:Paper)
+        WHERE p.avg_rating IS NOT NULL
+          AND p.status IN ['poster', 'spotlight', 'oral']
+        OPTIONAL MATCH (p)<-[:AUTHORED]-(a:Author)
+        WITH p, collect(a.name) as authors
+        RETURN p.id as id, p.title as title, p.abstract as abstract,
+               p.status as status, p.conference as conference,
+               p.forum_link as forum_link, p.pdf_link as pdf_link,
+               p.creation_date as creation_date, p.keywords as keywords,
+               authors, p.avg_rating as avg_rating,
+               p.author_word_count as author_word_count,
+               p.reviewer_word_count as reviewer_word_count,
+               p.interaction_rounds as interaction_rounds,
+               p.battle_intensity as battle_intensity
+        ORDER BY p.avg_rating DESC
+        LIMIT $limit
+        """
+        return await self.execute_query(query, {"limit": limit})
 
 
 # Singleton instance

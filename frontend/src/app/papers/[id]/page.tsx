@@ -12,7 +12,8 @@ import {
   ArrowLeft, ExternalLink, FileText, Calendar, Star, 
   Users, MessageSquare, ThumbsUp, ThumbsDown, HelpCircle,
   Sparkles, Loader2, ChevronDown, ChevronUp, Reply, User,
-  MessageCircle, CheckCircle
+  MessageCircle, CheckCircle, Swords, Shield, Target,
+  Award, Zap, Pin, Trophy
 } from "lucide-react"
 
 // 构建评论树结构
@@ -224,6 +225,187 @@ function RatingCard({
         </div>
       )}
     </Card>
+  )
+}
+
+// Battle Bar - 格斗游戏血条风格的作者vs审稿人字数对比
+function BattleBar({
+  authorWordCount,
+  reviewerWordCount,
+  interactionRounds,
+  battleIntensity
+}: {
+  authorWordCount?: number
+  reviewerWordCount?: number
+  interactionRounds?: number
+  battleIntensity?: number
+}) {
+  const authorWords = authorWordCount || 0
+  const reviewerWords = reviewerWordCount || 0
+  const totalWords = authorWords + reviewerWords
+  
+  if (totalWords === 0) return null
+  
+  const authorPercent = (authorWords / totalWords) * 100
+  const reviewerPercent = (reviewerWords / totalWords) * 100
+  
+  // 生成状态文案
+  const getStatusText = () => {
+    const ratio = authorWords / Math.max(reviewerWords, 1)
+    if (totalWords < 500) return { text: "平稳讨论", color: "text-white/50" }
+    if (ratio > 2) return { text: "作者强势回应", color: "text-emerald-400" }
+    if (ratio < 0.5) return { text: "审稿人穷追猛打", color: "text-rose-400" }
+    if (ratio >= 0.8 && ratio <= 1.2) return { text: "激烈交锋", color: "text-orange-400" }
+    if (ratio > 1) return { text: "作者主导讨论", color: "text-emerald-300" }
+    return { text: "审稿人主导讨论", color: "text-rose-300" }
+  }
+  
+  const status = getStatusText()
+  
+  return (
+    <Card className="mb-6 overflow-hidden border-white/10 bg-gradient-to-r from-emerald-500/[0.03] via-transparent to-rose-500/[0.03]">
+      <CardContent className="p-6">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Swords className="w-5 h-5 text-orange-400" />
+            <span className="font-bold text-white/90">Rebuttal Battle</span>
+            {battleIntensity && battleIntensity > 0.3 && (
+              <span className={cn(
+                "text-xs px-2 py-0.5 rounded-full border",
+                battleIntensity > 0.7 
+                  ? "bg-red-500/20 border-red-500/30 text-red-300"
+                  : battleIntensity > 0.5
+                    ? "bg-orange-500/20 border-orange-500/30 text-orange-300"
+                    : "bg-amber-500/20 border-amber-500/30 text-amber-300"
+              )}>
+                {battleIntensity > 0.7 ? "激烈" : battleIntensity > 0.5 ? "热烈" : "活跃"}
+              </span>
+            )}
+          </div>
+          {interactionRounds && interactionRounds > 1 && (
+            <div className="flex items-center gap-1 text-xs text-white/40">
+              <MessageSquare className="w-3 h-3" />
+              {interactionRounds} 轮对话
+            </div>
+          )}
+        </div>
+        
+        {/* Battle Bar - 格斗游戏血条风格 */}
+        <div className="relative mb-4">
+          {/* 背景框 */}
+          <div className="h-10 rounded-lg bg-black/40 border border-white/10 overflow-hidden flex">
+            {/* Author (绿色/左侧) */}
+            <div 
+              className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 relative transition-all duration-500 flex items-center justify-start"
+              style={{ width: `${authorPercent}%` }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent" />
+              {authorPercent > 15 && (
+                <div className="relative z-10 flex items-center gap-1.5 pl-3 text-white font-bold text-sm">
+                  <Shield className="w-4 h-4" />
+                  <span className="drop-shadow-lg">{authorWords.toLocaleString()}</span>
+                </div>
+              )}
+            </div>
+            
+            {/* 中间分隔 - VS标志 */}
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
+              <div className="w-10 h-10 rounded-full bg-black border-2 border-white/20 flex items-center justify-center shadow-lg">
+                <span className="text-xs font-black text-white/80">VS</span>
+              </div>
+            </div>
+            
+            {/* Reviewer (红色/右侧) */}
+            <div 
+              className="h-full bg-gradient-to-l from-rose-500 to-rose-400 relative transition-all duration-500 flex items-center justify-end"
+              style={{ width: `${reviewerPercent}%` }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent" />
+              {reviewerPercent > 15 && (
+                <div className="relative z-10 flex items-center gap-1.5 pr-3 text-white font-bold text-sm">
+                  <span className="drop-shadow-lg">{reviewerWords.toLocaleString()}</span>
+                  <Target className="w-4 h-4" />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+        
+        {/* Labels */}
+        <div className="flex items-center justify-between text-xs">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-sm bg-emerald-500" />
+            <span className="text-emerald-300 font-medium">Author Defense</span>
+            <span className="text-white/30">({authorPercent.toFixed(0)}%)</span>
+          </div>
+          <div className={cn("font-medium", status.color)}>
+            {status.text}
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-white/30">({reviewerPercent.toFixed(0)}%)</span>
+            <span className="text-rose-300 font-medium">Reviewer Pushback</span>
+            <div className="w-3 h-3 rounded-sm bg-rose-500" />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+// 豆瓣风格状态徽章
+function StatusBadge({ status }: { status: string }) {
+  const config = {
+    oral: {
+      icon: Trophy,
+      label: "Oral",
+      subtitle: "口头报告",
+      gradient: "from-amber-400 via-yellow-400 to-amber-500",
+      border: "border-amber-400/50",
+      bg: "bg-gradient-to-br from-amber-500/20 to-yellow-500/20",
+      textColor: "text-amber-300",
+      iconColor: "text-amber-400"
+    },
+    spotlight: {
+      icon: Zap,
+      label: "Spotlight",
+      subtitle: "聚光灯",
+      gradient: "from-violet-400 via-purple-400 to-fuchsia-500",
+      border: "border-violet-400/50",
+      bg: "bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20",
+      textColor: "text-violet-300",
+      iconColor: "text-violet-400"
+    },
+    poster: {
+      icon: Pin,
+      label: "Poster",
+      subtitle: "海报展示",
+      gradient: "from-blue-400 via-cyan-400 to-teal-500",
+      border: "border-blue-400/50",
+      bg: "bg-gradient-to-br from-blue-500/20 to-teal-500/20",
+      textColor: "text-blue-300",
+      iconColor: "text-blue-400"
+    }
+  }
+  
+  const cfg = config[status as keyof typeof config]
+  if (!cfg) return null
+  
+  const Icon = cfg.icon
+  
+  return (
+    <div className={cn(
+      "inline-flex items-center gap-3 px-4 py-2 rounded-xl border backdrop-blur-sm",
+      cfg.border, cfg.bg
+    )}>
+      <div className={cn("p-1.5 rounded-lg bg-gradient-to-br", cfg.gradient)}>
+        <Icon className="w-4 h-4 text-white drop-shadow-sm" />
+      </div>
+      <div className="flex flex-col">
+        <span className={cn("text-sm font-bold", cfg.textColor)}>{cfg.label}</span>
+        <span className="text-[10px] text-white/40 -mt-0.5">{cfg.subtitle}</span>
+      </div>
+    </div>
   )
 }
 
@@ -606,13 +788,18 @@ export default function PaperDetailPage({ params }: { params: Promise<{ id: stri
           {/* Left: Paper Info */}
           <div className="lg:col-span-2">
             {/* Badges */}
-            <div className="flex flex-wrap items-center gap-2 mb-4">
+            <div className="flex flex-wrap items-center gap-3 mb-4">
               <Badge className={cn("border", getConferenceColor(paper.conference))}>
                 {paper.conference} 2025
               </Badge>
-              <Badge className={cn("border", getStatusColor(paper.status))}>
-                {paper.status}
-              </Badge>
+              {/* 豆瓣风格徽章 - 仅展示 oral/spotlight/poster */}
+              {['oral', 'spotlight', 'poster'].includes(paper.status) ? (
+                <StatusBadge status={paper.status} />
+              ) : (
+                <Badge className={cn("border", getStatusColor(paper.status))}>
+                  {paper.status}
+                </Badge>
+              )}
               {paper.primary_area && (
                 <Badge variant="outline">{paper.primary_area}</Badge>
               )}
@@ -689,6 +876,14 @@ export default function PaperDetailPage({ params }: { params: Promise<{ id: stri
             />
           </div>
         </div>
+        
+        {/* Battle Bar - Rebuttal 对抗统计 */}
+        <BattleBar
+          authorWordCount={paper.author_word_count}
+          reviewerWordCount={paper.reviewer_word_count}
+          interactionRounds={paper.interaction_rounds}
+          battleIntensity={paper.battle_intensity}
+        />
         
         {/* TLDR */}
         {paper.tldr && (

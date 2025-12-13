@@ -13,6 +13,11 @@ export interface Paper {
   pdf_link?: string
   creation_date?: string
   avg_rating?: number
+  // Interaction statistics
+  author_word_count?: number
+  reviewer_word_count?: number
+  interaction_rounds?: number
+  battle_intensity?: number
 }
 
 export interface PaperDetail extends Paper {
@@ -156,6 +161,18 @@ export async function getPaperStats() {
 
 export async function getReviewSummary(paperId: string) {
   return fetchAPI<ReviewSummary>(`/papers/${paperId}/review-summary`)
+}
+
+export async function getTrendingPapers(limit = 12) {
+  return fetchAPI<{ papers: Paper[]; count: number }>(
+    `/papers/trending?limit=${limit}`
+  )
+}
+
+export async function getTopRatedPapers(limit = 12) {
+  return fetchAPI<{ papers: Paper[]; count: number }>(
+    `/papers/top-rated?limit=${limit}`
+  )
 }
 
 // Author APIs

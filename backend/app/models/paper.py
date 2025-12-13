@@ -31,6 +31,11 @@ class Paper(PaperBase):
     pdf_link: Optional[str] = None
     creation_date: Optional[str] = None
     avg_rating: Optional[float] = None
+    # Interaction statistics
+    author_word_count: Optional[int] = None
+    reviewer_word_count: Optional[int] = None
+    interaction_rounds: Optional[int] = None
+    battle_intensity: Optional[float] = None
     
     class Config:
         from_attributes = True
@@ -51,6 +56,8 @@ class PaperDetail(Paper):
     modification_date: Optional[str] = None
     review_count: int = 0
     reviews: List["Review"] = []
+    # Inherited from Paper: author_word_count, reviewer_word_count, 
+    # interaction_rounds, battle_intensity
 
 
 # Forward reference for Review

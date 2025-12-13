@@ -89,6 +89,32 @@ async def search_papers(
     }
 
 
+@router.get("/trending")
+async def get_trending_papers(
+    limit: int = Query(12, ge=1, le=50),
+    neo4j: Neo4jService = Depends(get_neo4j_service)
+):
+    """Get papers with most intense discussions"""
+    papers = await neo4j.get_trending_papers(limit=limit)
+    return {
+        "papers": [Paper(**p) for p in papers],
+        "count": len(papers)
+    }
+
+
+@router.get("/top-rated")
+async def get_top_rated_papers(
+    limit: int = Query(12, ge=1, le=50),
+    neo4j: Neo4jService = Depends(get_neo4j_service)
+):
+    """Get highest rated papers"""
+    papers = await neo4j.get_top_rated_papers(limit=limit)
+    return {
+        "papers": [Paper(**p) for p in papers],
+        "count": len(papers)
+    }
+
+
 @router.get("/stats")
 async def get_statistics(
     neo4j: Neo4jService = Depends(get_neo4j_service)
@@ -159,7 +185,12 @@ async def get_paper(
         tldr=paper.get("tldr"),
         venue=paper.get("venue"),
         review_count=len(paper.get("reviews", [])),
-        reviews=paper.get("reviews", [])
+        reviews=paper.get("reviews", []),
+        # Interaction statistics
+        author_word_count=paper.get("author_word_count"),
+        reviewer_word_count=paper.get("reviewer_word_count"),
+        interaction_rounds=paper.get("interaction_rounds"),
+        battle_intensity=paper.get("battle_intensity")
     )
 
 
