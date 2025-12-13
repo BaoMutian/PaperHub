@@ -27,21 +27,10 @@ export interface PaperDetail extends Paper {
 export interface Review {
   id: string
   replyto?: string
-  number?: number
   cdate?: string
-  mdate?: string
   review_type: string
   rating?: number
-  confidence?: number
-  summary?: string
-  strengths?: string
-  weaknesses?: string
-  questions?: string
-  decision?: string
-  comment?: string
-  reviewer?: string
-  flag_for_ethics_review?: boolean
-  // Dynamic content from different conferences
+  // Dynamic content from content_json - contains all original fields
   content?: Record<string, { value: string | number | boolean } | undefined>
 }
 

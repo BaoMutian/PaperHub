@@ -2,9 +2,9 @@
 Data Ingestion Script for AI Conference Papers Knowledge Graph
 
 This script reads the JSONL files and populates the Neo4j database with:
-- Paper nodes
+- Paper nodes (with aggregated ratings)
 - Author nodes  
-- Review nodes
+- Review nodes (with content_json for dynamic rendering)
 - Keyword nodes
 - Conference nodes
 - All relationships between them
@@ -14,8 +14,7 @@ import asyncio
 import json
 import logging
 from pathlib import Path
-from typing import List, Dict, Any, Optional
-from datetime import datetime
+from typing import Dict, Any, Optional, List
 
 from neo4j import AsyncGraphDatabase
 
@@ -66,20 +65,8 @@ def extract_rating(content: Dict[str, Any], conference: str) -> Optional[float]:
     config = CONFERENCE_CONFIG.get(conference, {})
     rating_field = config.get("rating_field", "rating")
     
-    # Try the configured field first
-    if rating_field in content:
-        value = content[rating_field].get("value")
-        if isinstance(value, (int, float)):
-            return float(value)
-        elif isinstance(value, str):
-            # Try to extract number from string like "8: Strong Accept"
-            try:
-                return float(value.split(":")[0].strip())
-            except:
-                pass
-    
-    # Fallback to common fields
-    for field in ["rating", "overall_recommendation", "recommendation"]:
+    # Try the configured field first, then fallback fields
+    for field in [rating_field, "rating", "overall_recommendation", "recommendation"]:
         if field in content:
             value = content[field].get("value")
             if isinstance(value, (int, float)):
@@ -89,16 +76,6 @@ def extract_rating(content: Dict[str, Any], conference: str) -> Optional[float]:
                     return float(value.split(":")[0].strip())
                 except:
                     pass
-    
-    return None
-
-
-def extract_text_field(content: Dict[str, Any], field: str) -> Optional[str]:
-    """Extract text value from content field"""
-    if field in content:
-        value = content[field].get("value")
-        if isinstance(value, str):
-            return value
     return None
 
 
@@ -129,6 +106,7 @@ class DataIngester:
             # Indexes
             "CREATE INDEX paper_status IF NOT EXISTS FOR (p:Paper) ON (p.status)",
             "CREATE INDEX paper_conference IF NOT EXISTS FOR (p:Paper) ON (p.conference)",
+            "CREATE INDEX paper_avg_rating IF NOT EXISTS FOR (p:Paper) ON (p.avg_rating)",
             "CREATE INDEX review_type IF NOT EXISTS FOR (r:Review) ON (r.review_type)",
             "CREATE INDEX review_rating IF NOT EXISTS FOR (r:Review) ON (r.rating)",
             "CREATE INDEX author_name IF NOT EXISTS FOR (a:Author) ON (a.name)",
@@ -151,15 +129,16 @@ class DataIngester:
         async with self.driver.session() as session:
             await session.run(query, {"name": name, "year": year, "max_rating": max_rating})
     
-    async def ingest_paper(self, paper: Dict[str, Any]):
-        """Ingest a single paper with all its relationships"""
+    async def ingest_paper(self, paper: Dict[str, Any]) -> List[float]:
+        """Ingest a single paper with all its relationships. Returns list of ratings."""
         paper_id = paper.get("id")
         if not paper_id:
-            return
+            return []
         
         conference = paper.get("conference", "")
+        paper_ratings: List[float] = []
         
-        # Create paper node
+        # Create paper node (ratings will be updated later)
         paper_query = """
         MERGE (p:Paper {id: $id})
         SET p.title = $title,
@@ -243,7 +222,7 @@ class DataIngester:
                     self.stats["keywords"] += 1
                     self.stats["relationships"] += 1
             
-            # Create reviews
+            # Create reviews (simplified: only core fields + content_json)
             reviews = paper.get("review_details", [])
             for review in reviews:
                 review_id = review.get("id")
@@ -254,39 +233,26 @@ class DataIngester:
                 review_type = determine_review_type(review)
                 rating = extract_rating(content, conference)
                 
+                # Collect ratings for official reviews
+                if review_type == "official_review" and rating is not None:
+                    paper_ratings.append(rating)
+                
+                # Simplified Review node: only essential fields + content_json
                 review_query = """
                 MERGE (r:Review {id: $id})
                 SET r.replyto = $replyto,
-                    r.number = $number,
                     r.cdate = $cdate,
-                    r.mdate = $mdate,
                     r.review_type = $review_type,
                     r.rating = $rating,
-                    r.confidence = $confidence,
-                    r.summary = $summary,
-                    r.strengths = $strengths,
-                    r.weaknesses = $weaknesses,
-                    r.questions = $questions,
-                    r.decision = $decision,
-                    r.comment = $comment,
                     r.content_json = $content_json
                 """
                 
                 review_params = {
                     "id": review_id,
                     "replyto": review.get("replyto"),
-                    "number": review.get("number"),
                     "cdate": review.get("cdate"),
-                    "mdate": review.get("mdate"),
                     "review_type": review_type,
                     "rating": rating,
-                    "confidence": extract_rating(content, "confidence") if "confidence" in content else None,
-                    "summary": extract_text_field(content, "summary"),
-                    "strengths": extract_text_field(content, "strengths") or extract_text_field(content, "strengths_and_weaknesses"),
-                    "weaknesses": extract_text_field(content, "weaknesses"),
-                    "questions": extract_text_field(content, "questions") or extract_text_field(content, "questions_for_authors"),
-                    "decision": extract_text_field(content, "decision"),
-                    "comment": extract_text_field(content, "comment"),
                     "content_json": json.dumps(content, ensure_ascii=False) if content else None
                 }
                 
@@ -315,6 +281,27 @@ class DataIngester:
                         self.stats["relationships"] += 1
                     except:
                         pass  # Target review might not exist yet
+            
+            # Update paper with aggregated ratings
+            if paper_ratings:
+                rating_query = """
+                MATCH (p:Paper {id: $paper_id})
+                SET p.ratings = $ratings,
+                    p.avg_rating = $avg_rating,
+                    p.min_rating = $min_rating,
+                    p.max_rating = $max_rating,
+                    p.rating_count = $rating_count
+                """
+                await session.run(rating_query, {
+                    "paper_id": paper_id,
+                    "ratings": paper_ratings,
+                    "avg_rating": sum(paper_ratings) / len(paper_ratings),
+                    "min_rating": min(paper_ratings),
+                    "max_rating": max(paper_ratings),
+                    "rating_count": len(paper_ratings)
+                })
+        
+        return paper_ratings
     
     async def ingest_file(self, filepath: Path, conference: str):
         """Ingest all papers from a JSONL file"""
@@ -388,4 +375,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-

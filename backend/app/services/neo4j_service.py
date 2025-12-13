@@ -125,20 +125,17 @@ class Neo4jService:
         
         where_clause = f"WHERE {' AND '.join(where_clauses)}" if where_clauses else ""
         
-        # Get papers with avg rating
+        # Get papers with pre-computed avg_rating (no need to join Review)
         query = f"""
         MATCH (p:Paper)
         {where_clause}
-        OPTIONAL MATCH (p)-[:HAS_REVIEW]->(r:Review)
-        WHERE r.rating IS NOT NULL
-        WITH p, avg(r.rating) as avg_rating
         OPTIONAL MATCH (p)<-[:AUTHORED]-(a:Author)
-        WITH p, avg_rating, collect(a.name) as authors
+        WITH p, collect(a.name) as authors
         RETURN p.id as id, p.title as title, p.abstract as abstract,
                p.status as status, p.conference as conference,
                p.forum_link as forum_link, p.pdf_link as pdf_link,
                p.creation_date as creation_date, p.keywords as keywords,
-               authors, avg_rating
+               authors, p.avg_rating as avg_rating
         ORDER BY p.creation_date DESC
         SKIP $skip LIMIT $limit
         """

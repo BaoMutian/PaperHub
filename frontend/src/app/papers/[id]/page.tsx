@@ -12,7 +12,7 @@ import {
   ArrowLeft, ExternalLink, FileText, Calendar, Star, 
   Users, MessageSquare, ThumbsUp, ThumbsDown, HelpCircle,
   Sparkles, Loader2, ChevronDown, ChevronUp, Reply, User,
-  MessageCircle, CheckCircle, AlertCircle, BarChart3
+  MessageCircle, CheckCircle, BarChart3
 } from "lucide-react"
 
 // 构建评论树结构
@@ -402,11 +402,7 @@ function ReviewItem({
   const indentClass = review.depth > 0 ? `ml-${Math.min(review.depth * 4, 16)}` : ""
   
   // 检查是否有动态content
-  const hasDynamicContent = review.content && Object.keys(review.content).length > 0
-  
-  // 判断是否有任何内容可显示（用于显示空状态）
-  const hasAnyContent = hasDynamicContent || review.decision || review.summary || 
-    review.strengths || review.weaknesses || review.questions || review.comment
+  const hasContent = review.content && Object.keys(review.content).length > 0
 
   return (
     <div className={cn("border-l-2 border-white/10 pl-4", indentClass)}>
@@ -421,24 +417,9 @@ function ReviewItem({
             <span className={cn("text-sm font-medium", typeInfo.color)}>
               {typeInfo.label}
             </span>
-            {review.reviewer && (
-              <span className="text-sm text-white/50">
-                by {review.reviewer}
-              </span>
-            )}
-            {review.number && (
-              <span className="text-sm text-white/50">
-                #{review.number}
-              </span>
-            )}
             {review.rating && (
               <Badge className="bg-violet-500/20 text-violet-300">
                 评分: {review.rating}
-              </Badge>
-            )}
-            {review.confidence && (
-              <Badge variant="outline" className="text-white/50">
-                置信度: {review.confidence}
               </Badge>
             )}
           </div>
@@ -454,90 +435,11 @@ function ReviewItem({
           </div>
         </div>
         
-        {/* Content */}
+        {/* Content - 使用动态content渲染所有字段 */}
         {isExpanded && (
           <div className="mt-4">
-            {hasDynamicContent ? (
-              // 优先使用动态content渲染
+            {hasContent ? (
               <DynamicReviewContent content={review.content} />
-            ) : hasAnyContent ? (
-              // 回退到旧的固定字段渲染
-              <div className="space-y-4">
-                {/* Decision */}
-                {review.decision && (
-                  <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                    <CheckCircle className="w-5 h-5 text-amber-400" />
-                    <span className="font-medium text-amber-300">{review.decision}</span>
-                  </div>
-                )}
-                
-                {/* Summary */}
-                {review.summary && (
-                  <div>
-                    <div className="text-sm font-medium text-white/70 mb-2 flex items-center gap-2">
-                      <MessageSquare className="w-4 h-4" />
-                      Summary
-                    </div>
-                    <div className="bg-black/20 rounded-lg p-3">
-                      <Markdown content={review.summary} />
-                    </div>
-                  </div>
-                )}
-                
-                {/* Strengths */}
-                {review.strengths && (
-                  <div>
-                    <div className="text-sm font-medium text-emerald-400 mb-2 flex items-center gap-2">
-                      <ThumbsUp className="w-4 h-4" />
-                      Strengths
-                    </div>
-                    <div className="bg-emerald-500/5 rounded-lg p-3 border border-emerald-500/10">
-                      <Markdown content={review.strengths} />
-                    </div>
-                  </div>
-                )}
-                
-                {/* Weaknesses */}
-                {review.weaknesses && (
-                  <div>
-                    <div className="text-sm font-medium text-rose-400 mb-2 flex items-center gap-2">
-                      <ThumbsDown className="w-4 h-4" />
-                      Weaknesses
-                    </div>
-                    <div className="bg-rose-500/5 rounded-lg p-3 border border-rose-500/10">
-                      <Markdown content={review.weaknesses} />
-                    </div>
-                  </div>
-                )}
-                
-                {/* Questions */}
-                {review.questions && (
-                  <div>
-                    <div className="text-sm font-medium text-amber-400 mb-2 flex items-center gap-2">
-                      <HelpCircle className="w-4 h-4" />
-                      Questions
-                    </div>
-                    <div className="bg-amber-500/5 rounded-lg p-3 border border-amber-500/10">
-                      <Markdown content={review.questions} />
-                    </div>
-                  </div>
-                )}
-                
-                {/* Comment / Content */}
-                {review.comment && (
-                  <div className="bg-black/20 rounded-lg p-3">
-                    <Markdown content={review.comment} />
-                  </div>
-                )}
-                
-                {/* Flag if needed */}
-                {review.flag_for_ethics_review && (
-                  <div className="flex items-center gap-2 text-amber-400 text-sm">
-                    <AlertCircle className="w-4 h-4" />
-                    Flagged for ethics review
-                  </div>
-                )}
-              </div>
             ) : (
               <div className="text-sm text-white/40 italic">
                 无内容

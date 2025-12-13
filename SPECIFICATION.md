@@ -144,9 +144,9 @@ PaperHub/
 
 | 节点 | 属性 | 说明 |
 |------|------|------|
-| **Paper** | id, title, abstract, status, conference, keywords, creation_date, modification_date, forum_link, pdf_link, venue, primary_area, tldr, **ratings** (list), **avg_rating**, **min_rating**, **max_rating**, **rating_count** | 论文节点 |
+| **Paper** | id, title, abstract, status, conference, keywords, creation_date, modification_date, forum_link, pdf_link, venue, primary_area, tldr, ratings (list), avg_rating, min_rating, max_rating, rating_count | 论文节点 |
 | **Author** | authorid (唯一标识), name | 作者节点 |
-| **Review** | id, replyto, number, cdate, mdate, review_type, rating, confidence, summary, strengths, weaknesses, questions, decision, comment, **content_json** | 评审节点 |
+| **Review** | id, replyto, number, cdate, mdate, review_type, rating, confidence, summary, strengths, weaknesses, questions, decision, comment, content_json | 评审节点 |
 | **Keyword** | name (小写归一化) | 关键词节点 |
 | **Conference** | name, year, max_rating | 会议节点 |
 

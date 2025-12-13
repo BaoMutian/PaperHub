@@ -3,24 +3,21 @@ from typing import Optional, List, Any, Dict
 
 
 class Review(BaseModel):
+    """Review model - simplified to avoid redundancy.
+    
+    Core fields stored in Neo4j:
+    - id, replyto, cdate, review_type, rating, content_json
+    
+    The 'content' field is parsed from content_json and contains
+    all original review fields for dynamic frontend rendering.
+    """
     id: str
     replyto: Optional[str] = None
-    number: Optional[int] = None
     cdate: Optional[str] = None
-    mdate: Optional[str] = None
-    review_type: str = "unknown"  # official_review/rebuttal/comment/decision
+    review_type: str = "unknown"  # official_review/rebuttal/comment/decision/meta_review
     rating: Optional[float] = None
-    confidence: Optional[float] = None
     
-    # Content fields (varies by conference)
-    summary: Optional[str] = None
-    strengths: Optional[str] = None
-    weaknesses: Optional[str] = None
-    questions: Optional[str] = None
-    decision: Optional[str] = None
-    comment: Optional[str] = None
-    
-    # Full content for reference
+    # Full content parsed from content_json - for dynamic rendering
     content: Dict[str, Any] = {}
     
     class Config:
@@ -36,4 +33,3 @@ class ReviewSummary(BaseModel):
     key_questions: List[str]
     recommendation: str
     summary_text: str
-

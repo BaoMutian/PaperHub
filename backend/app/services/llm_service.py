@@ -75,22 +75,44 @@ class LLMService:
                 "explanation": f"API error: {str(e)}"
             }
 
+    def _get_content_value(self, content: Dict, field: str) -> Optional[str]:
+        """Extract value from content field (handles {field: {value: ...}} structure)"""
+        if not content or field not in content:
+            return None
+        field_data = content.get(field)
+        if isinstance(field_data, dict):
+            return field_data.get("value")
+        return field_data
+
     async def summarize_reviews(self, paper_title: str, reviews: List[Dict[str, Any]]) -> Dict[str, Any]:
         """Summarize reviews for a paper"""
-        # Format reviews for the prompt
+        # Format reviews for the prompt - extract from content dict
         reviews_text = ""
         for i, review in enumerate(reviews, 1):
             reviews_text += f"\n--- Review {i} ---\n"
+            content = review.get("content", {})
+
             if review.get("rating"):
                 reviews_text += f"Rating: {review['rating']}\n"
-            if review.get("summary"):
-                reviews_text += f"Summary: {review['summary']}\n"
-            if review.get("strengths"):
-                reviews_text += f"Strengths: {review['strengths']}\n"
-            if review.get("weaknesses"):
-                reviews_text += f"Weaknesses: {review['weaknesses']}\n"
-            if review.get("questions"):
-                reviews_text += f"Questions: {review['questions']}\n"
+
+            # Try common field names from different conferences
+            summary = self._get_content_value(content, "summary")
+            if summary:
+                reviews_text += f"Summary: {summary}\n"
+
+            strengths = self._get_content_value(content, "strengths") or self._get_content_value(
+                content, "strengths_and_weaknesses")
+            if strengths:
+                reviews_text += f"Strengths: {strengths}\n"
+
+            weaknesses = self._get_content_value(content, "weaknesses")
+            if weaknesses:
+                reviews_text += f"Weaknesses: {weaknesses}\n"
+
+            questions = self._get_content_value(
+                content, "questions") or self._get_content_value(content, "questions_for_authors")
+            if questions:
+                reviews_text += f"Questions: {questions}\n"
 
         system_prompt, user_prompt = get_review_summary_prompt(
             paper_title, reviews_text)
