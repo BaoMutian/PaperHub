@@ -19,13 +19,15 @@ PaperHub 是一个基于 Neo4j 知识图谱和 LLM 的 AI 顶会论文智能检�
 
 ### 1.3 技术栈
 
-| 层级      | 技术                                              |
-| --------- | ------------------------------------------------- |
-| 前端      | Next.js 15, React, TailwindCSS, react-force-graph |
-| 后端      | FastAPI, Python 3.11+                             |
-| 数据库    | Neo4j 5.x (含向量索引)                            |
-| LLM       | OpenRouter API (Gemini 2.5 Flash)                 |
-| Embedding | sentence-transformers (Qwen3-Embedding-0.6B)      |
+| 层级      | 技术                                                   |
+| --------- | ------------------------------------------------------ |
+| 前端      | Next.js 16, React 19, TailwindCSS, Recharts, react-force-graph |
+| 后端      | FastAPI, Python 3.11+                                  |
+| 数据库    | Neo4j 5.x (含向量索引)                                 |
+| LLM       | OpenRouter API (Gemini 2.5 Flash)                      |
+| Embedding | sentence-transformers (all-MiniLM-L6-v2 / Qwen3)       |
+| 部署      | Docker, Docker Compose                                 |
+| 数据集    | Hugging Face (SkyyyyyMT/paperhub_data)                 |
 
 ---
 
@@ -33,7 +35,7 @@ PaperHub 是一个基于 Neo4j 知识图谱和 LLM 的 AI 顶会论文智能检�
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    Frontend (Next.js 15)                     │
+│                    Frontend (Next.js 16)                     │
 │  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────────────┐ │
 │  │论文浏览  │  │作者页面  │  │协作网络  │  │ 智能问答 (QA)  │ │
 │  └────┬────┘  └────┬────┘  └────┬────┘  └───────┬─────────┘ │
@@ -60,16 +62,15 @@ PaperHub 是一个基于 Neo4j 知识图谱和 LLM 的 AI 顶会论文智能检�
 
 ```
 PaperHub/
-├── papers/                           # 数据集 (JSONL格式)
+├── papers/                           # 数据集 (从 HuggingFace 下载)
 │   ├── iclr2025.jsonl
 │   ├── icml2025.jsonl
-│   ├── neurips2025.jsonl
-│   └── example.json                  # 示例数据结构
+│   └── neurips2025.jsonl
 │
 ├── backend/                          # FastAPI 后端
 │   ├── app/
 │   │   ├── __init__.py
-│   │   ├── main.py                   # FastAPI 入口
+│   │   ├── main.py                   # FastAPI 入口 (含模型预热)
 │   │   ├── config.py                 # 配置管理 (Pydantic Settings)
 │   │   ├── prompts.py                # LLM 提示词管理
 │   │   │
@@ -89,13 +90,13 @@ PaperHub/
 │   │   ├── services/                 # 业务服务层
 │   │   │   ├── neo4j_service.py      # Neo4j 数据库操作
 │   │   │   ├── llm_service.py        # OpenRouter LLM 调用
-│   │   │   └── embedding_service.py  # 向量嵌入生成
+│   │   │   └── embedding_service.py  # 向量嵌入生成 (单例+预热)
 │   │   │
 │   │   └── scripts/                  # 数据处理脚本
-│   │       ├── ingest.py             # 数据导入 Neo4j
-│   │       ├── create_embeddings.py  # 创建向量索引
-│   │       └── calculate_interactions.py  # 计算互动统计
+│   │       ├── ingest.py             # 数据导入 (含互动统计计算)
+│   │       └── create_embeddings.py  # 创建向量索引
 │   │
+│   ├── Dockerfile                    # 后端容器配置
 │   └── requirements.txt
 │
 ├── frontend/                         # Next.js 前端
@@ -106,36 +107,30 @@ PaperHub/
 │   │   │   ├── globals.css           # 全局样式
 │   │   │   ├── papers/
 │   │   │   │   ├── page.tsx          # 论文列表
-│   │   │   │   └── [id]/page.tsx     # 论文详情
+│   │   │   │   └── [id]/page.tsx     # 论文详情 (含 BattleBar)
 │   │   │   ├── authors/
 │   │   │   │   ├── page.tsx          # 作者列表
 │   │   │   │   └── [id]/page.tsx     # 作者详情
 │   │   │   ├── qa/page.tsx           # 智能问答
 │   │   │   ├── network/page.tsx      # 协作网络
-│   │   │   └── stats/page.tsx        # 数据统计
+│   │   │   └── stats/page.tsx        # 数据统计 (Recharts)
 │   │   │
 │   │   ├── components/               # UI 组件
 │   │   │   ├── ui/                   # 基础 UI 组件
-│   │   │   │   ├── button.tsx
-│   │   │   │   ├── card.tsx
-│   │   │   │   ├── badge.tsx
-│   │   │   │   ├── input.tsx
-│   │   │   │   ├── markdown.tsx
-│   │   │   │   └── status-badge.tsx  # 豆瓣风格状态徽章
-│   │   │   ├── layout/
-│   │   │   │   └── navbar.tsx
-│   │   │   └── papers/
-│   │   │       ├── paper-card.tsx
-│   │   │       └── paper-filters.tsx
+│   │   │   └── layout/
+│   │   │       └── navbar.tsx
 │   │   │
 │   │   └── lib/                      # 工具函数
 │   │       ├── api.ts                # API 调用封装
 │   │       └── utils.ts              # 通用工具
 │   │
+│   ├── Dockerfile                    # 前端容器配置
 │   ├── package.json
 │   └── tsconfig.json
 │
-├── docker-compose.yml                # Neo4j 容器配置
+├── docker-compose.yml                # 开发环境 (Neo4j)
+├── docker-compose.prod.yml           # 生产环境 (全栈)
+├── deploy.sh                         # 一键部署脚本
 ├── README.md                         # 用户文档
 └── SPECIFICATION.md                  # 本规范文档
 ```
@@ -364,6 +359,8 @@ python -m app.scripts.ingest
 - 创建 Paper/Author/Review/Keyword/Conference 节点
 - 创建所有关系
 - 保存 Review 的完整 content_json
+- 聚合评分属性 (avg_rating, min_rating, max_rating)
+- **自动计算互动统计** (author_word_count, reviewer_word_count, interaction_rounds, battle_intensity)
 
 ### 7.2 向量索引 (create_embeddings.py)
 
@@ -375,33 +372,7 @@ python -m app.scripts.create_embeddings
 
 - 为 Paper.abstract 创建向量嵌入
 - 创建 Neo4j 向量索引
-
-### 7.3 评分属性更新 (add_paper_ratings.py)
-
-```bash
-python -m app.scripts.add_paper_ratings
-```
-
-功能:
-
-- 聚合每篇论文的 official_review 评分
-- 更新 Paper 节点: ratings, avg_rating, min_rating, max_rating, rating_count
-- 创建 paper_avg_rating 索引
-
-### 7.4 互动统计计算 (calculate_interactions.py)
-
-```bash
-python -m app.scripts.calculate_interactions
-```
-
-功能:
-
-- 分析每篇论文的评审对话
-- 计算 author_word_count (作者 rebuttal 字数)
-- 计算 reviewer_word_count (审稿人回复字数)
-- 计算 interaction_rounds (最大对话深度)
-- 计算 battle_intensity (归一化激烈程度)
-- 创建 paper_interaction_rounds 和 paper_battle_intensity 索引
+- 支持增量更新（跳过已有嵌入的论文）
 
 ---
 
@@ -416,19 +387,32 @@ NEO4J_USER=neo4j
 NEO4J_PASSWORD=password123
 
 # OpenRouter LLM (API key 必须通过环境变量设置，不能硬编码)
-OPENROUTER_API_KEY=your-api-key  # Required
+OPENROUTER_API_KEY=your-api-key  # 可选，用于智能问答
 LLM_MODEL=google/gemini-2.5-flash
 
-# Embedding
-EMBEDDING_MODEL=Qwen/Qwen3-Embedding-0.6B
+# Embedding (根据服务器配置选择)
+EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2  # CPU 推荐
+# EMBEDDING_MODEL=Qwen/Qwen3-Embedding-0.6B             # GPU 推荐
+EMBEDDING_DIMENSION=384  # all-MiniLM: 384, Qwen3: 1024
 ```
 
-> **安全提示**: `OPENROUTER_API_KEY` 必须通过环境变量或 `.env` 文件配置，代码中不包含默认值。
+### 8.2 嵌入模型选择
 
-### 8.2 前端配置
+| 模型 | 维度 | 大小 | 速度 | 适用场景 |
+|------|------|------|------|----------|
+| `all-MiniLM-L6-v2` | 384 | ~23MB | 快 | CPU 服务器（默认） |
+| `Qwen/Qwen3-Embedding-0.6B` | 1024 | ~1.2GB | 慢 | GPU 服务器 |
+
+> **注意**: 模型在启动时预热，避免首次搜索延迟。
+
+### 8.3 前端配置
 
 ```bash
+# 本地开发
 NEXT_PUBLIC_API_URL=http://localhost:8000
+
+# 生产部署
+NEXT_PUBLIC_API_URL=http://你的服务器IP:8000
 ```
 
 ---
@@ -459,8 +443,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 
 1. 在 `backend/app/scripts/ingest.py` 的 `CONFERENCE_CONFIG` 添加配置
 2. 准备 JSONL 数据文件到 `papers/` 目录
-3. 运行 `python -m app.scripts.ingest`
-4. 运行 `python -m app.scripts.add_paper_ratings`
+3. 运行 `python -m app.scripts.ingest` (自动计算评分和互动统计)
 
 ### 10.2 添加新 Review 字段
 
@@ -473,18 +456,35 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
    - `GRAPH_SCHEMA`: 更新 Schema 描述
    - `NL2CYPHER_SYSTEM_PROMPT`: 更新规则和示例
 
+### 10.4 更换嵌入模型
+
+1. 修改 `backend/app/config.py` 中的 `embedding_model` 和 `embedding_dimension`
+2. 重新运行 `python -m app.scripts.create_embeddings`
+3. 注意：更换模型需要重建所有向量索引
+
 ---
 
 ## 11. 部署检查清单
 
+### 11.1 Docker 一键部署
+
+```bash
+export SERVER_IP=你的服务器IP
+export OPENROUTER_API_KEY=你的API密钥  # 可选
+./deploy.sh
+docker exec -it paperhub-backend python -m app.scripts.ingest
+docker exec -it paperhub-backend python -m app.scripts.create_embeddings  # 可选
+```
+
+### 11.2 本地开发环境
+
+- [ ] 数据集已下载 (从 HuggingFace: SkyyyyyMT/paperhub_data)
 - [ ] Neo4j 容器运行中 (`docker-compose up -d`)
-- [ ] 数据已导入 (`python -m app.scripts.ingest`)
-- [ ] 向量索引已创建 (`python -m app.scripts.create_embeddings`)
-- [ ] Paper 评分已更新 (`python -m app.scripts.add_paper_ratings`)
-- [ ] 互动统计已计算 (`python -m app.scripts.calculate_interactions`)
-- [ ] 后端启动 (`uvicorn app.main:app --reload`)
+- [ ] 数据已导入 (`python -m app.scripts.ingest`) - 自动计算互动统计
+- [ ] 向量索引已创建 (`python -m app.scripts.create_embeddings`) - 可选
+- [ ] 后端启动 (`uvicorn app.main:app --host 0.0.0.0 --port 8000`)
 - [ ] 前端启动 (`npm run dev`)
-- [ ] 环境变量配置正确
+- [ ] 环境变量配置正确 (`.env` 和 `.env.local`)
 
 ---
 
@@ -497,6 +497,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 | 1.2.0 | 2024-12 | Rebuttal 互动统计、Battle Bar、豆瓣风格徽章、首页 Trending/TopRated |
 | 1.3.0 | 2024-12 | 数据统计页面升级(recharts 图表)、热门关键词语义去重、高产作者排行   |
 | 1.3.1 | 2024-12 | UI 优化：页面标题图标、首页搜索框光效、QA 输入框布局修复            |
+| 1.4.0 | 2024-12 | Docker 生产部署、嵌入模型优化、数据集托管 HuggingFace、脚本整合     |
 
 ---
 
