@@ -87,11 +87,11 @@ class LLMService:
     def _parse_review_content(self, review: Dict[str, Any]) -> Dict[str, Any]:
         """Parse review content, handling both parsed dict and raw JSON string"""
         content = review.get("content")
-        
+
         # If content is already a dict, use it
         if isinstance(content, dict):
             return content
-        
+
         # If content_json exists and is a string, parse it
         content_json = review.get("content_json")
         if content_json and isinstance(content_json, str):
@@ -99,7 +99,7 @@ class LLMService:
                 return json.loads(content_json)
             except json.JSONDecodeError:
                 return {}
-        
+
         return {}
 
     async def summarize_reviews(self, paper_title: str, reviews: List[Dict[str, Any]]) -> Dict[str, Any]:

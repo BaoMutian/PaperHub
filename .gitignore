@@ -40,6 +40,7 @@ frontend/.vercel
 # IDE
 .vscode/
 .idea/
+.cursor/
 *.swp
 *.swo
 *~
