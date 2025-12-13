@@ -89,9 +89,28 @@ export default function NetworkPage() {
     { value: 10, label: "≥10次" }
   ]
   
-  // Hover state for tooltip
+  // Hover state for tooltip - use mouse position to avoid jitter
   const [hoveredNode, setHoveredNode] = useState<ForceGraphNode | null>(null)
-  const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 })
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
+  
+  // Track mouse position for stable tooltip positioning
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect()
+        setMousePos({
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top
+        })
+      }
+    }
+    
+    const container = containerRef.current
+    if (container) {
+      container.addEventListener("mousemove", handleMouseMove)
+      return () => container.removeEventListener("mousemove", handleMouseMove)
+    }
+  }, [])
   
   const graphData = network ? {
     nodes: network.nodes.map(n => ({
@@ -161,16 +180,9 @@ export default function NetworkPage() {
     }
   }, [])
   
-  // Handle node hover
-  const handleNodeHover = useCallback((node: ForceGraphNode | null, prevNode: ForceGraphNode | null) => {
+  // Handle node hover - simplified, position comes from mouse tracking
+  const handleNodeHover = useCallback((node: ForceGraphNode | null) => {
     setHoveredNode(node)
-    if (node && containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect()
-      setTooltipPos({
-        x: (node.x || 0) + rect.width / 2,
-        y: (node.y || 0) + rect.height / 2
-      })
-    }
   }, [])
   
   // Link styling based on weight
@@ -362,22 +374,25 @@ export default function NetworkPage() {
                   onNodeHover={handleNodeHover}
                   linkWidth={linkWidth}
                   linkColor={linkColor}
-                  linkDirectionalParticles={2}
-                  linkDirectionalParticleWidth={(link: { value?: number }) => Math.min((link.value || 1) * 0.5, 3)}
-                  linkDirectionalParticleSpeed={0.005}
+                  linkDirectionalParticles={1}
+                  linkDirectionalParticleWidth={(link: { value?: number }) => Math.min((link.value || 1) * 0.4, 2)}
+                  linkDirectionalParticleSpeed={0.003}
+                  linkDirectionalParticleColor={() => "rgba(139, 92, 246, 0.6)"}
                   backgroundColor="transparent"
+                  warmupTicks={50}
                   cooldownTicks={100}
-                  d3VelocityDecay={0.3}
+                  d3AlphaDecay={0.02}
+                  d3VelocityDecay={0.4}
                 />
               )}
               
-              {/* Tooltip for hovered node */}
+              {/* Tooltip for hovered node - positioned by mouse */}
               {hoveredNode && !is3D && (
                 <div 
-                  className="absolute z-20 pointer-events-none bg-black/90 backdrop-blur-sm border border-white/20 rounded-lg px-4 py-3 shadow-xl"
+                  className="absolute z-20 pointer-events-none bg-slate-900/95 backdrop-blur-md border border-white/20 rounded-xl px-4 py-3 shadow-2xl"
                   style={{
-                    left: Math.min(tooltipPos.x + 15, (containerRef.current?.clientWidth || 600) - 200),
-                    top: Math.min(tooltipPos.y - 60, (containerRef.current?.clientHeight || 400) - 120),
+                    left: Math.min(mousePos.x + 16, (containerRef.current?.clientWidth || 600) - 220),
+                    top: Math.max(mousePos.y - 100, 10),
                   }}
                 >
                   <div className="font-semibold text-white mb-2">{hoveredNode.name}</div>
