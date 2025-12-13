@@ -41,8 +41,10 @@ CONFERENCE_CONFIG = {
     "NeurIPS": {"year": 2025, "max_rating": 6, "rating_field": "rating"}
 }
 
-# Data paths
-DATA_DIR = Path(__file__).parent.parent.parent.parent / "papers"
+# Data paths - check /papers first (Docker), fallback to relative path (local dev)
+_docker_path = Path("/papers")
+_local_path = Path(__file__).parent.parent.parent.parent / "papers"
+DATA_DIR = _docker_path if _docker_path.exists() else _local_path
 
 
 # ============== Interaction Calculation Functions ==============

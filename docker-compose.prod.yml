@@ -44,6 +44,7 @@ services:
         condition: service_healthy
     volumes:
       - embedding_cache:/root/.cache/huggingface
+      - ./papers:/papers
 
   # Next.js 前端
   frontend:
