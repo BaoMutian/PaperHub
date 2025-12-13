@@ -4,6 +4,7 @@ import { useEffect, useState, use, useMemo } from "react"
 import Link from "next/link"
 import { getPaper, getReviewSummary, type PaperDetail, type ReviewSummary, type Review } from "@/lib/api"
 import { Badge } from "@/components/ui/badge"
+import { StatusBadge } from "@/components/ui/status-badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Markdown } from "@/components/ui/markdown"
@@ -42,7 +43,9 @@ function buildReviewTree(reviews: Review[]): ReviewThread[] {
   })
   
   const sortByDate = (a: ReviewThread, b: ReviewThread) => {
-    return (a.cdate || 0) - (b.cdate || 0)
+    const dateA = a.cdate ? new Date(a.cdate).getTime() : 0
+    const dateB = b.cdate ? new Date(b.cdate).getTime() : 0
+    return dateA - dateB
   }
   
   const sortReplies = (reviews: ReviewThread[]) => {
@@ -271,7 +274,7 @@ function BattleBar({
             <div className="p-1.5 rounded-lg bg-gradient-to-br from-orange-500/20 to-red-500/20 border border-orange-500/20">
               <Swords className="w-4 h-4 text-orange-400" />
             </div>
-            <span className="font-bold text-white/90">讨论对战</span>
+            <span className="font-bold text-white/90">Rebuttal Battle</span>
             {battleIntensity && battleIntensity > 0.3 && (
               <span className={cn(
                 "text-[10px] px-2 py-0.5 rounded-full border font-medium",
@@ -335,6 +338,7 @@ function BattleBar({
                 </div>
               )}
             </div>
+
           </div>
         </div>
         
@@ -356,56 +360,6 @@ function BattleBar({
         </div>
       </CardContent>
     </Card>
-  )
-}
-
-// 豆瓣风格状态徽章
-function StatusBadge({ status }: { status: string }) {
-  const config = {
-    oral: {
-      icon: Trophy,
-      label: "Oral",
-      gradient: "from-amber-400 via-yellow-400 to-amber-500",
-      border: "border-amber-400/60",
-      bg: "bg-gradient-to-r from-amber-500/25 to-yellow-500/25",
-      textColor: "text-amber-200",
-      glow: "shadow-amber-500/30"
-    },
-    spotlight: {
-      icon: Zap,
-      label: "Spotlight",
-      gradient: "from-violet-400 via-purple-400 to-fuchsia-500",
-      border: "border-violet-400/60",
-      bg: "bg-gradient-to-r from-violet-500/25 to-fuchsia-500/25",
-      textColor: "text-violet-200",
-      glow: "shadow-violet-500/30"
-    },
-    poster: {
-      icon: Pin,
-      label: "Poster",
-      gradient: "from-sky-400 via-cyan-400 to-teal-500",
-      border: "border-sky-400/60",
-      bg: "bg-gradient-to-r from-sky-500/25 to-teal-500/25",
-      textColor: "text-sky-200",
-      glow: "shadow-sky-500/30"
-    }
-  }
-  
-  const cfg = config[status as keyof typeof config]
-  if (!cfg) return null
-  
-  const Icon = cfg.icon
-  
-  return (
-    <div className={cn(
-      "inline-flex items-center gap-2 px-3 py-1.5 rounded-full border backdrop-blur-sm shadow-lg",
-      cfg.border, cfg.bg, cfg.glow
-    )}>
-      <div className={cn("p-1 rounded-full bg-gradient-to-br", cfg.gradient)}>
-        <Icon className="w-3.5 h-3.5 text-white drop-shadow-sm" />
-      </div>
-      <span className={cn("text-sm font-bold tracking-wide", cfg.textColor)}>{cfg.label}</span>
-    </div>
   )
 }
 
@@ -1066,3 +1020,4 @@ export default function PaperDetailPage({ params }: { params: Promise<{ id: stri
     </div>
   )
 }
+
