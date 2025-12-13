@@ -298,6 +298,7 @@ class Neo4jService:
         OPTIONAL MATCH (node)<-[:AUTHORED]-(a:Author)
         RETURN node.id as id, node.title as title, node.abstract as abstract,
                node.status as status, node.conference as conference,
+               node.creation_date as creation_date, node.avg_rating as avg_rating,
                collect(a.name) as authors, score
         ORDER BY score DESC
         """
@@ -352,6 +353,7 @@ class Neo4jService:
         
         RETURN p.id as id, p.title as title, p.abstract as abstract,
                p.status as status, p.conference as conference,
+               p.creation_date as creation_date, p.avg_rating as avg_rating,
                p.keywords as paper_keywords, authors, total_score as score
         ORDER BY total_score DESC
         LIMIT $limit

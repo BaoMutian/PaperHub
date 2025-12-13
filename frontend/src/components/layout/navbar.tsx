@@ -28,7 +28,7 @@ export function Navbar() {
             </div>
             <div className="hidden sm:block">
               <div className="font-bold text-white tracking-tight">PaperHub</div>
-              <div className="text-[10px] text-white/50 -mt-0.5">你的AI学术豆瓣</div>
+              <div className="text-[12px] text-white/50 -mt-0.5">你的AI学术豆瓣</div>
             </div>
           </Link>
           
