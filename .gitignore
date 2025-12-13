@@ -82,3 +82,8 @@ papers/*.jsonl
 .cache/
 models/
 
+# Docker (生产环境数据)
+docker-compose.override.yml
+
+# HuggingFace cache
+.huggingface/

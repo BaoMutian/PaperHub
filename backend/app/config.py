@@ -15,9 +15,11 @@ class Settings(BaseSettings):
     llm_model: str = "google/gemini-2.5-flash"
 
     # Embedding Configuration
-    # 使用 Qwen3-Embedding 获得更好的中英文语义理解
-    embedding_model: str = "Qwen/Qwen3-Embedding-0.6B"
-    embedding_dimension: int = 1024
+    # CPU 服务器推荐使用轻量模型，GPU 可用 Qwen3-Embedding
+    # 轻量选项: "sentence-transformers/all-MiniLM-L6-v2" (dim=384, ~23MB, 快)
+    # 高质量选项: "Qwen/Qwen3-Embedding-0.6B" (dim=1024, ~1.2GB, 需GPU)
+    embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
+    embedding_dimension: int = 384
 
     # Application Settings
     app_name: str = "AI Conference Papers KG"

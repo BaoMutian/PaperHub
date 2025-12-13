@@ -12,6 +12,7 @@ import logging
 
 from .config import get_settings
 from .services.neo4j_service import get_neo4j_service, _neo4j_service
+from .services.embedding_service import get_embedding_service
 from .routers import papers_router, authors_router, qa_router, graph_router
 
 # Configure logging
@@ -31,9 +32,15 @@ async def lifespan(app: FastAPI):
     logger.info("Starting up...")
     neo4j = await get_neo4j_service()
     logger.info("Neo4j connection established")
-    
+
+    # 预热嵌入模型（避免首次搜索时加载慢）
+    logger.info("Preloading embedding model...")
+    embedding_service = get_embedding_service()
+    embedding_service._load_model()
+    logger.info("Embedding model preloaded")
+
     yield
-    
+
     # Shutdown
     logger.info("Shutting down...")
     if _neo4j_service:
@@ -101,9 +108,8 @@ async def health_check():
         db_status = "connected" if result else "error"
     except Exception as e:
         db_status = f"error: {str(e)}"
-    
+
     return {
         "status": "healthy" if db_status == "connected" else "degraded",
         "database": db_status
     }
-
