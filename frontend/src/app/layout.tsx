@@ -14,7 +14,7 @@ const jetbrainsMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "PaperHub - AI Conference Papers",
+  title: "PaperHub - 你的AI学术豆瓣",
   description: "探索 ICLR、ICML、NeurIPS 2025 顶会论文，智能问答与知识图谱可视化"
 }
 

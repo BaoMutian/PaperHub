@@ -22,15 +22,12 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group">
+          <Link href="/" className="flex items-center group">
             <img
               src="/logo.png"
               alt="PaperHub"
-              className="h-9 w-auto group-hover:opacity-90 transition-opacity"
+              className="h-11 w-auto group-hover:opacity-90 transition-opacity"
             />
-            <div className="hidden lg:block pl-2 border-l border-white/10">
-              <div className="text-sm text-white/50 font-medium">你的AI学术豆瓣</div>
-            </div>
           </Link>
           
           {/* Navigation */}
