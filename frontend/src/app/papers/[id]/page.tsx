@@ -253,99 +253,125 @@ function BattleBar({
   const getStatusText = () => {
     const ratio = authorWords / Math.max(reviewerWords, 1)
     if (totalWords < 500) return { text: "平稳讨论", color: "text-white/50" }
-    if (ratio > 2) return { text: "作者强势回应", color: "text-emerald-400" }
-    if (ratio < 0.5) return { text: "审稿人穷追猛打", color: "text-rose-400" }
-    if (ratio >= 0.8 && ratio <= 1.2) return { text: "激烈交锋", color: "text-orange-400" }
-    if (ratio > 1) return { text: "作者主导讨论", color: "text-emerald-300" }
-    return { text: "审稿人主导讨论", color: "text-rose-300" }
+    if (ratio > 2) return { text: "作者强势回应", color: "text-emerald-400 drop-shadow-md" }
+    if (ratio < 0.5) return { text: "审稿人穷追猛打", color: "text-rose-400 drop-shadow-md" }
+    if (ratio >= 0.8 && ratio <= 1.2) return { text: "激烈交锋", color: "text-orange-400 drop-shadow-md" }
+    if (ratio > 1) return { text: "作者主导讨论", color: "text-emerald-300 drop-shadow-md" }
+    return { text: "审稿人主导讨论", color: "text-rose-300 drop-shadow-md" }
   }
   
   const status = getStatusText()
   
   return (
-    <Card className="mb-6 overflow-hidden border-white/10 bg-gradient-to-r from-emerald-500/[0.03] via-transparent to-rose-500/[0.03]">
+    <Card className="mb-6 overflow-hidden border-white/10 bg-gradient-to-b from-white/[0.02] to-transparent">
       <CardContent className="p-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Swords className="w-5 h-5 text-orange-400" />
-            <span className="font-bold text-white/90">Rebuttal Battle</span>
-            {battleIntensity && battleIntensity > 0.3 && (
-              <span className={cn(
-                "text-xs px-2 py-0.5 rounded-full border",
-                battleIntensity > 0.7 
-                  ? "bg-red-500/20 border-red-500/30 text-red-300"
-                  : battleIntensity > 0.5
-                    ? "bg-orange-500/20 border-orange-500/30 text-orange-300"
-                    : "bg-amber-500/20 border-amber-500/30 text-amber-300"
-              )}>
-                {battleIntensity > 0.7 ? "激烈" : battleIntensity > 0.5 ? "热烈" : "活跃"}
-              </span>
-            )}
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-orange-500/10 border border-orange-500/20">
+              <Swords className="w-5 h-5 text-orange-400" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-white/90 text-lg">Rebuttal Battle</span>
+                {battleIntensity && battleIntensity > 0.3 && (
+                  <span className={cn(
+                    "text-[10px] px-2 py-0.5 rounded-full border font-bold uppercase tracking-wider",
+                    battleIntensity > 0.7 
+                      ? "bg-red-500/20 border-red-500/30 text-red-300"
+                      : battleIntensity > 0.5
+                        ? "bg-orange-500/20 border-orange-500/30 text-orange-300"
+                        : "bg-amber-500/20 border-amber-500/30 text-amber-300"
+                  )}>
+                    {battleIntensity > 0.7 ? "High Intensity" : battleIntensity > 0.5 ? "Medium" : "Active"}
+                  </span>
+                )}
+              </div>
+              <div className="text-xs text-white/40 mt-0.5">
+                作者回复 vs 审稿人意见
+              </div>
+            </div>
           </div>
+          
           {interactionRounds && interactionRounds > 1 && (
-            <div className="flex items-center gap-1 text-xs text-white/40">
-              <MessageSquare className="w-3 h-3" />
-              {interactionRounds} 轮对话
+            <div className="flex flex-col items-end">
+              <span className="text-2xl font-bold text-white/90 tabular-nums leading-none">
+                {interactionRounds}
+              </span>
+              <span className="text-[10px] text-white/40 uppercase tracking-wider font-medium mt-1">
+                Rounds
+              </span>
             </div>
           )}
         </div>
         
         {/* Battle Bar - 格斗游戏血条风格 */}
-        <div className="relative mb-4">
+        <div className="relative mb-3 group">
+          {/* 光效装饰 */}
+          <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500/20 via-transparent to-rose-500/20 blur opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          
           {/* 背景框 */}
-          <div className="h-10 rounded-lg bg-black/40 border border-white/10 overflow-hidden flex">
+          <div className="h-12 rounded-xl bg-black/60 border border-white/10 overflow-hidden flex relative shadow-inner">
             {/* Author (绿色/左侧) */}
             <div 
-              className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 relative transition-all duration-500 flex items-center justify-start"
+              className="h-full bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-400 relative transition-all duration-700 ease-out flex items-center justify-start group-hover:brightness-110"
               style={{ width: `${authorPercent}%` }}
             >
+              {/* 内部纹理 */}
+              <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-20 mix-blend-overlay" />
               <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent" />
+              
               {authorPercent > 15 && (
-                <div className="relative z-10 flex items-center gap-1.5 pl-3 text-white font-bold text-sm">
-                  <Shield className="w-4 h-4" />
-                  <span className="drop-shadow-lg">{authorWords.toLocaleString()}</span>
+                <div className="relative z-10 flex items-center gap-2 pl-4 text-white font-bold text-sm">
+                  <Shield className="w-4 h-4 text-emerald-100 drop-shadow-md" />
+                  <span className="drop-shadow-md tabular-nums">{authorWords.toLocaleString()}</span>
                 </div>
               )}
             </div>
             
             {/* 中间分隔 - VS标志 */}
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
-              <div className="w-10 h-10 rounded-full bg-black border-2 border-white/20 flex items-center justify-center shadow-lg">
-                <span className="text-xs font-black text-white/80">VS</span>
+              <div className="w-8 h-8 rounded-full bg-black border-2 border-white/10 flex items-center justify-center shadow-xl relative overflow-hidden group-hover:scale-110 transition-transform duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
+                <span className="text-[10px] font-black text-white/50 italic">VS</span>
               </div>
             </div>
             
             {/* Reviewer (红色/右侧) */}
             <div 
-              className="h-full bg-gradient-to-l from-rose-500 to-rose-400 relative transition-all duration-500 flex items-center justify-end"
+              className="h-full bg-gradient-to-l from-rose-600 via-rose-500 to-rose-400 relative transition-all duration-700 ease-out flex items-center justify-end group-hover:brightness-110"
               style={{ width: `${reviewerPercent}%` }}
             >
+              {/* 内部纹理 */}
+              <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-20 mix-blend-overlay" />
               <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent" />
+              
               {reviewerPercent > 15 && (
-                <div className="relative z-10 flex items-center gap-1.5 pr-3 text-white font-bold text-sm">
-                  <span className="drop-shadow-lg">{reviewerWords.toLocaleString()}</span>
-                  <Target className="w-4 h-4" />
+                <div className="relative z-10 flex items-center gap-2 pr-4 text-white font-bold text-sm">
+                  <span className="drop-shadow-md tabular-nums">{reviewerWords.toLocaleString()}</span>
+                  <Target className="w-4 h-4 text-rose-100 drop-shadow-md" />
                 </div>
               )}
             </div>
           </div>
         </div>
         
-        {/* Labels */}
-        <div className="flex items-center justify-between text-xs">
+        {/* Labels & Status */}
+        <div className="flex items-center justify-between text-xs mt-4">
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-sm bg-emerald-500" />
-            <span className="text-emerald-300 font-medium">Author Defense</span>
-            <span className="text-white/30">({authorPercent.toFixed(0)}%)</span>
+            <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+            <span className="text-emerald-300 font-medium tracking-wide">Author Defense</span>
+            <span className="text-white/20 font-mono">({authorPercent.toFixed(0)}%)</span>
           </div>
-          <div className={cn("font-medium", status.color)}>
+          
+          <div className={cn("font-bold text-sm px-3 py-1 rounded-full bg-white/5 border border-white/5 backdrop-blur-sm", status.color)}>
             {status.text}
           </div>
+          
           <div className="flex items-center gap-2">
-            <span className="text-white/30">({reviewerPercent.toFixed(0)}%)</span>
-            <span className="text-rose-300 font-medium">Reviewer Pushback</span>
-            <div className="w-3 h-3 rounded-sm bg-rose-500" />
+            <span className="text-white/20 font-mono">({reviewerPercent.toFixed(0)}%)</span>
+            <span className="text-rose-300 font-medium tracking-wide">Reviewer Pushback</span>
+            <div className="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]" />
           </div>
         </div>
       </CardContent>
