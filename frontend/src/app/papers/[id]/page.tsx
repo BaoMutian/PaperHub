@@ -4,7 +4,6 @@ import { useEffect, useState, use, useMemo } from "react"
 import Link from "next/link"
 import { getPaper, getReviewSummary, type PaperDetail, type ReviewSummary, type Review } from "@/lib/api"
 import { Badge } from "@/components/ui/badge"
-import { StatusBadge } from "@/components/ui/status-badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Markdown } from "@/components/ui/markdown"
@@ -360,6 +359,56 @@ function BattleBar({
         </div>
       </CardContent>
     </Card>
+  )
+}
+
+// 豆瓣风格状态徽章
+function StatusBadge({ status }: { status: string }) {
+  const config = {
+    oral: {
+      icon: Trophy,
+      label: "Oral",
+      gradient: "from-amber-400 via-yellow-400 to-amber-500",
+      border: "border-amber-400/60",
+      bg: "bg-gradient-to-r from-amber-500/25 to-yellow-500/25",
+      textColor: "text-amber-200",
+      glow: "shadow-amber-500/30"
+    },
+    spotlight: {
+      icon: Zap,
+      label: "Spotlight",
+      gradient: "from-violet-400 via-purple-400 to-fuchsia-500",
+      border: "border-violet-400/60",
+      bg: "bg-gradient-to-r from-violet-500/25 to-fuchsia-500/25",
+      textColor: "text-violet-200",
+      glow: "shadow-violet-500/30"
+    },
+    poster: {
+      icon: Pin,
+      label: "Poster",
+      gradient: "from-sky-400 via-cyan-400 to-teal-500",
+      border: "border-sky-400/60",
+      bg: "bg-gradient-to-r from-sky-500/25 to-teal-500/25",
+      textColor: "text-sky-200",
+      glow: "shadow-sky-500/30"
+    }
+  }
+  
+  const cfg = config[status as keyof typeof config]
+  if (!cfg) return null
+  
+  const Icon = cfg.icon
+  
+  return (
+    <div className={cn(
+      "inline-flex items-center gap-2 px-3 py-1.5 rounded-full border backdrop-blur-sm shadow-lg",
+      cfg.border, cfg.bg, cfg.glow
+    )}>
+      <div className={cn("p-1 rounded-full bg-gradient-to-br", cfg.gradient)}>
+        <Icon className="w-3.5 h-3.5 text-white drop-shadow-sm" />
+      </div>
+      <span className={cn("text-sm font-bold tracking-wide", cfg.textColor)}>{cfg.label}</span>
+    </div>
   )
 }
 
@@ -729,109 +778,121 @@ export default function PaperDetailPage({ params }: { params: Promise<{ id: stri
   }
   
   return (
-    <div className="min-h-screen py-8 px-4">
-      <div className="max-w-5xl mx-auto">
-        {/* Back button */}
-        <Link href="/papers" className="inline-flex items-center gap-2 text-white/50 hover:text-white mb-6 transition-colors">
-          <ArrowLeft className="w-4 h-4" />
-          返回论文列表
-        </Link>
-        
-        {/* Two Column Layout: Info + Rating */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* Left: Paper Info */}
-          <div className="lg:col-span-2">
-            {/* Badges */}
-            <div className="flex flex-wrap items-center gap-3 mb-4">
-              <Badge className={cn("border", getConferenceColor(paper.conference))}>
-                {paper.conference} 2025
-              </Badge>
-              {/* 豆瓣风格徽章 - 仅展示 oral/spotlight/poster */}
-              {['oral', 'spotlight', 'poster'].includes(paper.status) ? (
-                <StatusBadge status={paper.status} />
-              ) : (
-                <Badge className={cn("border", getStatusColor(paper.status))}>
-                  {paper.status}
+    <div className="min-h-screen relative">
+      {/* 背景光效 */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-violet-500/5 rounded-full blur-[150px]" />
+        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-fuchsia-500/5 rounded-full blur-[150px]" />
+      </div>
+      
+      <div className="py-8 px-4">
+        <div className="max-w-5xl mx-auto">
+          {/* Back button */}
+          <Link 
+            href="/papers" 
+            className="inline-flex items-center gap-2 text-white/40 hover:text-white mb-8 transition-all group"
+          >
+            <div className="p-1.5 rounded-lg bg-white/5 group-hover:bg-white/10 transition-colors">
+              <ArrowLeft className="w-4 h-4" />
+            </div>
+            <span className="text-sm">返回论文列表</span>
+          </Link>
+          
+          {/* Two Column Layout: Info + Rating */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            {/* Left: Paper Info */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Badges */}
+              <div className="flex flex-wrap items-center gap-3">
+                <Badge className={cn("border px-3 py-1", getConferenceColor(paper.conference))}>
+                  {paper.conference} 2025
                 </Badge>
-              )}
-              {paper.primary_area && (
-                <Badge variant="outline">{paper.primary_area}</Badge>
-              )}
-            </div>
-            
-            {/* Title */}
-            <h1 className="text-4xl sm:text-5xl font-bold mb-6 leading-tight tracking-tight text-white/90">
-              {paper.title}
-            </h1>
-            
-            {/* Authors */}
-            <div className="flex flex-wrap items-center gap-2 mb-8">
-              {paper.authors.map((author, i) => (
-                <Link 
-                  key={i}
-                  href={`/authors/${encodeURIComponent(paper.authorids?.[i] || author)}`}
-                  className="inline-flex items-center px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10 text-sm text-white/70 hover:text-white transition-all group"
-                >
-                  <User className="w-3.5 h-3.5 mr-2 text-white/30 group-hover:text-violet-400 transition-colors" />
-                  {author}
-                </Link>
-              ))}
-            </div>
-            
-            {/* Meta */}
-            <div className="flex flex-wrap items-center gap-6 text-sm text-white/40 border-t border-white/5 pt-6">
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                {formatDate(paper.creation_date)}
+                {/* 豆瓣风格徽章 - 仅展示 oral/spotlight/poster */}
+                {['oral', 'spotlight', 'poster'].includes(paper.status) ? (
+                  <StatusBadge status={paper.status} />
+                ) : (
+                  <Badge className={cn("border", getStatusColor(paper.status))}>
+                    {paper.status}
+                  </Badge>
+                )}
+                {paper.primary_area && (
+                  <Badge variant="outline" className="text-white/50 border-white/20">{paper.primary_area}</Badge>
+                )}
               </div>
-              <div className="w-px h-4 bg-white/10" />
-              <div className="flex items-center gap-2">
-                <MessageSquare className="w-4 h-4" />
-                {paper.review_count} 评审
+              
+              {/* Title */}
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-[1.15] tracking-tight bg-gradient-to-b from-white to-white/70 bg-clip-text text-transparent">
+                {paper.title}
+              </h1>
+              
+              {/* Authors */}
+              <div className="flex flex-wrap items-center gap-2">
+                {paper.authors.map((author, i) => (
+                  <Link 
+                    key={i}
+                    href={`/authors/${encodeURIComponent(paper.authorids?.[i] || author)}`}
+                    className="inline-flex items-center px-3 py-1.5 rounded-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.06] hover:border-white/[0.12] text-sm text-white/60 hover:text-white transition-all duration-200 group"
+                  >
+                    <User className="w-3.5 h-3.5 mr-2 text-white/25 group-hover:text-violet-400 transition-colors" />
+                    {author}
+                  </Link>
+                ))}
               </div>
-              {paper.venue && (
-                <>
-                  <div className="w-px h-4 bg-white/10" />
-                  <div className="flex items-center gap-2">
-                    <span className="uppercase tracking-wider text-xs">Venue</span>
-                    <span className="text-white/60">{paper.venue}</span>
-                  </div>
-                </>
-              )}
+              
+              {/* Meta info card */}
+              <div className="flex flex-wrap items-center gap-4 p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+                <div className="flex items-center gap-2 text-sm">
+                  <Calendar className="w-4 h-4 text-white/30" />
+                  <span className="text-white/50">{formatDate(paper.creation_date)}</span>
+                </div>
+                <div className="w-px h-4 bg-white/10" />
+                <div className="flex items-center gap-2 text-sm">
+                  <MessageSquare className="w-4 h-4 text-white/30" />
+                  <span className="text-white/50">{paper.review_count} 条评审</span>
+                </div>
+                {paper.venue && (
+                  <>
+                    <div className="w-px h-4 bg-white/10" />
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="text-white/30">Venue:</span>
+                      <span className="text-white/50">{paper.venue}</span>
+                    </div>
+                  </>
+                )}
+              </div>
+              
+              {/* Links */}
+              <div className="flex flex-wrap gap-3">
+                {paper.forum_link && (
+                  <a href={paper.forum_link} target="_blank" rel="noopener noreferrer">
+                    <Button variant="secondary" size="sm" className="bg-white/[0.05] hover:bg-white/[0.1] border-white/10">
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      OpenReview
+                    </Button>
+                  </a>
+                )}
+                {paper.pdf_link && (
+                  <a href={paper.pdf_link} target="_blank" rel="noopener noreferrer">
+                    <Button variant="secondary" size="sm" className="bg-white/[0.05] hover:bg-white/[0.1] border-white/10">
+                      <FileText className="w-4 h-4 mr-2" />
+                      PDF
+                    </Button>
+                  </a>
+                )}
+              </div>
             </div>
             
-            {/* Links */}
-            <div className="flex flex-wrap gap-3 mt-6">
-              {paper.forum_link && (
-                <a href={paper.forum_link} target="_blank" rel="noopener noreferrer">
-                  <Button variant="secondary" size="sm">
-                    <ExternalLink className="w-4 h-4 mr-2" />
-                    OpenReview
-                  </Button>
-                </a>
-              )}
-              {paper.pdf_link && (
-                <a href={paper.pdf_link} target="_blank" rel="noopener noreferrer">
-                  <Button variant="secondary" size="sm">
-                    <FileText className="w-4 h-4 mr-2" />
-                    PDF
-                  </Button>
-                </a>
-              )}
+            {/* Right: Rating Card */}
+            <div className="lg:col-span-1">
+              <RatingCard 
+                avgRating={paper.avg_rating}
+                reviewerRatings={reviewerRatings}
+                conference={paper.conference}
+              />
             </div>
           </div>
           
-          {/* Right: Rating Card */}
-          <div className="lg:col-span-1">
-            <RatingCard 
-              avgRating={paper.avg_rating}
-              reviewerRatings={reviewerRatings}
-              conference={paper.conference}
-            />
-          </div>
-        </div>
-        
-        {/* Battle Bar - Rebuttal 对抗统计 */}
+          {/* Battle Bar - Rebuttal 对抗统计 */}
         <BattleBar
           authorWordCount={paper.author_word_count}
           reviewerWordCount={paper.reviewer_word_count}
@@ -841,35 +902,44 @@ export default function PaperDetailPage({ params }: { params: Promise<{ id: stri
         
         {/* TLDR */}
         {paper.tldr && (
-          <Card className="mb-6">
-            <CardContent className="p-4">
-              <div className="text-sm font-medium text-violet-400 mb-1">TL;DR</div>
-              <p className="text-white/80">{paper.tldr}</p>
+          <Card className="mb-6 border-violet-500/20 bg-gradient-to-r from-violet-500/[0.03] to-transparent">
+            <CardContent className="p-5">
+              <div className="flex items-center gap-2 text-sm font-semibold text-violet-400 mb-2">
+                <Sparkles className="w-4 h-4" />
+                TL;DR
+              </div>
+              <p className="text-white/80 leading-relaxed">{paper.tldr}</p>
             </CardContent>
           </Card>
         )}
         
         {/* Abstract */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>摘要</CardTitle>
+        <Card className="mb-6 border-white/[0.06] bg-white/[0.01]">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <FileText className="w-5 h-5 text-white/40" />
+              摘要
+            </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="text-white/70 leading-relaxed">
             <Markdown content={paper.abstract || ""} />
           </CardContent>
         </Card>
         
         {/* Keywords */}
         {paper.keywords && paper.keywords.length > 0 && (
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle>关键词</CardTitle>
+          <Card className="mb-6 border-white/[0.06] bg-white/[0.01]">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg">关键词</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
                 {paper.keywords.map((keyword) => (
                   <Link key={keyword} href={`/papers?keyword=${encodeURIComponent(keyword)}`}>
-                    <Badge variant="secondary" className="hover:bg-white/20 cursor-pointer transition-colors">
+                    <Badge 
+                      variant="secondary" 
+                      className="px-3 py-1 bg-white/[0.04] hover:bg-violet-500/20 border border-white/[0.08] hover:border-violet-500/30 cursor-pointer transition-all duration-200 text-white/60 hover:text-violet-300"
+                    >
                       {keyword}
                     </Badge>
                   </Link>
@@ -880,11 +950,13 @@ export default function PaperDetailPage({ params }: { params: Promise<{ id: stri
         )}
         
         {/* AI Summary */}
-        <Card className="mb-6">
-          <CardHeader>
+        <Card className="mb-6 border-white/[0.06] bg-gradient-to-br from-violet-500/[0.02] to-fuchsia-500/[0.02] overflow-hidden">
+          <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-violet-400" />
+              <CardTitle className="text-lg flex items-center gap-2">
+                <div className="p-1.5 rounded-lg bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20">
+                  <Sparkles className="w-4 h-4 text-violet-400" />
+                </div>
                 AI 评审总结
               </CardTitle>
               {!summary && (
@@ -893,6 +965,7 @@ export default function PaperDetailPage({ params }: { params: Promise<{ id: stri
                   size="sm" 
                   onClick={loadSummary}
                   disabled={summaryLoading}
+                  className="bg-violet-500/10 hover:bg-violet-500/20 border-violet-500/20 text-violet-300"
                 >
                   {summaryLoading ? (
                     <>
@@ -900,7 +973,10 @@ export default function PaperDetailPage({ params }: { params: Promise<{ id: stri
                       生成中...
                     </>
                   ) : (
-                    "生成总结"
+                    <>
+                      <Sparkles className="w-3 h-3 mr-2" />
+                      生成总结
+                    </>
                   )}
                 </Button>
               )}
@@ -908,88 +984,115 @@ export default function PaperDetailPage({ params }: { params: Promise<{ id: stri
           </CardHeader>
           <CardContent>
             {summary ? (
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-white/50">整体评价：</span>
+              <div className="space-y-5">
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-white/[0.03]">
+                  <span className="text-sm text-white/50">整体评价</span>
                   <Badge className={cn(
-                    summary.overall_sentiment === "positive" ? "bg-emerald-500/20 text-emerald-300" :
-                    summary.overall_sentiment === "negative" ? "bg-rose-500/20 text-rose-300" :
-                    "bg-amber-500/20 text-amber-300"
+                    "px-3 py-1",
+                    summary.overall_sentiment === "positive" ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" :
+                    summary.overall_sentiment === "negative" ? "bg-rose-500/20 text-rose-300 border-rose-500/30" :
+                    "bg-amber-500/20 text-amber-300 border-amber-500/30"
                   )}>
-                    {summary.overall_sentiment === "positive" ? "正面" :
-                     summary.overall_sentiment === "negative" ? "负面" : "中立"}
+                    {summary.overall_sentiment === "positive" ? "👍 正面" :
+                     summary.overall_sentiment === "negative" ? "👎 负面" : "🤔 中立"}
                   </Badge>
                 </div>
                 
-                {summary.main_strengths.length > 0 && (
-                  <div>
-                    <div className="flex items-center gap-2 text-sm text-emerald-400 mb-2">
-                      <ThumbsUp className="w-4 h-4" />
-                      主要优点
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {summary.main_strengths.length > 0 && (
+                    <div className="p-4 rounded-xl bg-emerald-500/[0.05] border border-emerald-500/10">
+                      <div className="flex items-center gap-2 text-sm font-medium text-emerald-400 mb-3">
+                        <ThumbsUp className="w-4 h-4" />
+                        主要优点
+                      </div>
+                      <ul className="space-y-2">
+                        {summary.main_strengths.map((s, i) => (
+                          <li key={i} className="flex items-start gap-2 text-sm text-white/70">
+                            <span className="text-emerald-500 mt-1">•</span>
+                            <span>{s}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                    <ul className="list-disc list-inside text-sm text-white/70 space-y-1">
-                      {summary.main_strengths.map((s, i) => <li key={i}>{s}</li>)}
-                    </ul>
-                  </div>
-                )}
-                
-                {summary.main_weaknesses.length > 0 && (
-                  <div>
-                    <div className="flex items-center gap-2 text-sm text-rose-400 mb-2">
-                      <ThumbsDown className="w-4 h-4" />
-                      主要缺点
+                  )}
+                  
+                  {summary.main_weaknesses.length > 0 && (
+                    <div className="p-4 rounded-xl bg-rose-500/[0.05] border border-rose-500/10">
+                      <div className="flex items-center gap-2 text-sm font-medium text-rose-400 mb-3">
+                        <ThumbsDown className="w-4 h-4" />
+                        主要缺点
+                      </div>
+                      <ul className="space-y-2">
+                        {summary.main_weaknesses.map((s, i) => (
+                          <li key={i} className="flex items-start gap-2 text-sm text-white/70">
+                            <span className="text-rose-500 mt-1">•</span>
+                            <span>{s}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                    <ul className="list-disc list-inside text-sm text-white/70 space-y-1">
-                      {summary.main_weaknesses.map((s, i) => <li key={i}>{s}</li>)}
-                    </ul>
-                  </div>
-                )}
+                  )}
+                </div>
                 
                 {summary.key_questions.length > 0 && (
-                  <div>
-                    <div className="flex items-center gap-2 text-sm text-amber-400 mb-2">
+                  <div className="p-4 rounded-xl bg-amber-500/[0.05] border border-amber-500/10">
+                    <div className="flex items-center gap-2 text-sm font-medium text-amber-400 mb-3">
                       <HelpCircle className="w-4 h-4" />
                       关键问题
                     </div>
-                    <ul className="list-disc list-inside text-sm text-white/70 space-y-1">
-                      {summary.key_questions.map((s, i) => <li key={i}>{s}</li>)}
+                    <ul className="space-y-2">
+                      {summary.key_questions.map((s, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm text-white/70">
+                          <span className="text-amber-500 mt-1">?</span>
+                          <span>{s}</span>
+                        </li>
+                      ))}
                     </ul>
                   </div>
                 )}
                 
                 {summary.summary_text && (
-                  <div className="pt-4 border-t border-white/10">
+                  <div className="pt-4 border-t border-white/[0.06]">
                     <Markdown content={summary.summary_text} />
                   </div>
                 )}
               </div>
             ) : (
-              <p className="text-sm text-white/40">
-                点击"生成总结"按钮，AI 将分析所有评审意见并生成简明总结
-              </p>
+              <div className="text-center py-8">
+                <p className="text-sm text-white/40 mb-2">
+                  点击"生成总结"按钮
+                </p>
+                <p className="text-xs text-white/25">
+                  AI 将分析所有评审意见并生成简明总结
+                </p>
+              </div>
             )}
           </CardContent>
         </Card>
         
         {/* Official Reviews - Thread Style */}
         {officialReviews.length > 0 && (
-          <Card className="mb-6">
-            <CardHeader>
+          <Card className="mb-6 border-white/[0.06] bg-white/[0.01]">
+            <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <Star className="w-5 h-5 text-violet-400" />
-                  官方评审 ({officialReviews.length})
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <div className="p-1.5 rounded-lg bg-violet-500/10">
+                    <Star className="w-4 h-4 text-violet-400" />
+                  </div>
+                  官方评审
+                  <span className="text-sm font-normal text-white/40 ml-1">({officialReviews.length})</span>
                 </CardTitle>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setExpandAllReviews(!expandAllReviews)}
+                  className="text-white/40 hover:text-white hover:bg-white/5"
                 >
                   {expandAllReviews ? "全部收起" : "全部展开"}
                 </Button>
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3">
               {officialReviews.map((review) => (
                 <ReviewItemWrapper key={review.id} review={review} expandAll={expandAllReviews} />
               ))}
@@ -999,23 +1102,27 @@ export default function PaperDetailPage({ params }: { params: Promise<{ id: stri
         
         {/* Discussion Thread */}
         {discussions.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MessageCircle className="w-5 h-5 text-emerald-400" />
-                讨论区 ({discussions.length})
+          <Card className="border-white/[0.06] bg-white/[0.01]">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <div className="p-1.5 rounded-lg bg-emerald-500/10">
+                  <MessageCircle className="w-4 h-4 text-emerald-400" />
+                </div>
+                讨论区
+                <span className="text-sm font-normal text-white/40 ml-1">({discussions.length})</span>
               </CardTitle>
-              <p className="text-sm text-white/50 mt-1">
-                作者回复 (Rebuttal)、Meta Review、决定 (Decision) 等互动内容
+              <p className="text-xs text-white/40 mt-2 ml-9">
+                Rebuttal、Meta Review、Decision 等互动内容
               </p>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3">
               {discussions.map((review) => (
                 <ReviewItemWrapper key={review.id} review={review} expandAll={expandAllReviews} />
               ))}
             </CardContent>
           </Card>
         )}
+        </div>
       </div>
     </div>
   )
