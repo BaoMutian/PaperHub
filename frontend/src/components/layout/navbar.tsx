@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Search, Home, Users, Network, MessageSquare, BarChart3 } from "lucide-react"
@@ -24,16 +23,13 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <Image
+            <img
               src="/logo.png"
               alt="PaperHub"
-              width={180}
-              height={40}
-              className="h-10 w-auto group-hover:opacity-90 transition-opacity"
-              priority
+              className="h-9 w-auto group-hover:opacity-90 transition-opacity"
             />
             <div className="hidden lg:block pl-2 border-l border-white/10">
-              <div className="text-xs text-white/50 font-medium">你的AI学术豆瓣</div>
+              <div className="text-sm text-white/50 font-medium">你的AI学术豆瓣</div>
             </div>
           </Link>
           
