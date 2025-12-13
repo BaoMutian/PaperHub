@@ -459,26 +459,22 @@ function ReviewItem({
           </div>
         </div>
         
-        {/* Content - 使用动态content渲染所有字段 */}
-        {isExpanded && (
+        {/* Content - 使用动态content渲染所有字段，只有有内容时才显示 */}
+        {isExpanded && hasContent && (
           <div className="mt-4">
-            {hasContent ? (
-              <DynamicReviewContent content={review.content} />
-            ) : (
-              <div className="text-sm text-white/40 italic">
-                无内容
-              </div>
-            )}
+            <DynamicReviewContent content={review.content} />
           </div>
         )}
       </div>
       
-      {/* Replies */}
-      {review.replies.length > 0 && (
+      {/* Replies - 只显示有有效内容的回复 */}
+      {review.replies.filter(r => hasValidContentTree(r)).length > 0 && (
         <div className="mt-2 space-y-2">
-          {review.replies.map((reply) => (
-            <ReviewItemWrapper key={reply.id} review={reply} />
-          ))}
+          {review.replies
+            .filter(r => hasValidContentTree(r))
+            .map((reply) => (
+              <ReviewItemWrapper key={reply.id} review={reply} />
+            ))}
         </div>
       )}
     </div>
@@ -488,6 +484,11 @@ function ReviewItem({
 // Wrapper to manage individual expand state
 function ReviewItemWrapper({ review }: { review: ReviewThread }) {
   const [isExpanded, setIsExpanded] = useState(false)
+  
+  // 如果评论本身没有内容，也没有有效回复，不渲染
+  if (!hasValidContentTree(review)) {
+    return null
+  }
   
   return (
     <ReviewItem 
