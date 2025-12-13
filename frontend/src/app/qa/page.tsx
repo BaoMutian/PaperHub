@@ -123,7 +123,7 @@ function QAContent() {
   }, [input])
   
   return (
-    <div className="h-[calc(100vh-4rem)] flex flex-col relative bg-background selection:bg-violet-500/30">
+    <div className="h-[calc(100vh-4rem)] flex flex-col relative bg-background selection:bg-violet-500/30 overflow-hidden">
       {/* 背景装饰 */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
         <div className="absolute top-[20%] left-[20%] w-[40%] h-[40%] bg-violet-500/5 rounded-full blur-[100px]" />
@@ -131,9 +131,9 @@ function QAContent() {
       </div>
 
       {/* Chat Container */}
-      <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full overflow-hidden">
+      <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full min-h-0">
         {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto px-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+        <div className="flex-1 overflow-y-auto px-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent overscroll-contain">
           {messages.length === 0 ? (
             /* Welcome Screen */
             <div className="h-full flex flex-col items-center justify-center py-20 animate-fade-in">
@@ -321,8 +321,8 @@ function QAContent() {
           )}
             </div>
             
-        {/* Input Area */}
-        <div className="flex-shrink-0 p-4 bg-gradient-to-t from-background via-background to-transparent z-10">
+        {/* Input Area - 固定在底部 */}
+        <div className="flex-shrink-0 p-4 pt-2 bg-background border-t border-white/5">
           <div className="max-w-3xl mx-auto relative">
             {messages.length > 0 && (
               <Button

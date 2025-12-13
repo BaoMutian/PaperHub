@@ -116,6 +116,30 @@ body {
   }
 }
 
+/* Battle bar sweep光效 */
+@keyframes sweep {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(200%);
+    opacity: 0;
+  }
+}
+
+.battle-bar-glow {
+  animation: sweep 2s ease-in-out infinite;
+}
+
+.battle-bar-glow-reverse {
+  animation: sweep 2s ease-in-out infinite reverse;
+  animation-delay: 1s;
+}
+
 /* Prose styles for markdown */
 .prose {
   color: rgba(255, 255, 255, 0.8);

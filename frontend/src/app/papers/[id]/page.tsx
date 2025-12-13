@@ -302,7 +302,7 @@ function BattleBar({
             
             {/* Reviewer (红色/右侧) - 底层 */}
             <div 
-              className="absolute right-0 top-0 bottom-0 bg-gradient-to-l from-rose-600 via-rose-500 to-rose-400 flex items-center justify-end overflow-hidden"
+              className="absolute right-0 top-0 bottom-0 bg-gradient-to-l from-rose-600 via-rose-500 to-rose-400 flex items-center justify-end overflow-hidden transition-all duration-700"
               style={{ width: `${reviewerPercent}%` }}
             >
               {/* 斜纹背景 */}
@@ -315,6 +315,13 @@ function BattleBar({
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
               
+              {/* 动态光效 */}
+              <div className="absolute inset-0 overflow-hidden">
+                <div 
+                  className="absolute top-0 bottom-0 w-16 bg-gradient-to-r from-transparent via-white/30 to-transparent battle-bar-glow-reverse"
+                />
+              </div>
+              
               {reviewerPercent > 15 && (
                 <div className="relative z-10 flex items-center gap-1.5 pr-3 text-white font-bold text-xs">
                   <span className="drop-shadow-lg tabular-nums">{reviewerWords.toLocaleString()} 字</span>
@@ -325,7 +332,7 @@ function BattleBar({
 
             {/* Author (绿色/左侧) - 上层 */}
             <div 
-              className="absolute left-0 top-0 bottom-0 bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-400 flex items-center justify-start z-10 overflow-hidden"
+              className="absolute left-0 top-0 bottom-0 bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-400 flex items-center justify-start z-10 overflow-hidden transition-all duration-700"
               style={{ width: `${authorPercent}%` }}
             >
               {/* 斜纹背景 */}
@@ -337,6 +344,13 @@ function BattleBar({
                 }} 
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+              
+              {/* 动态光效 */}
+              <div className="absolute inset-0 overflow-hidden">
+                <div 
+                  className="absolute top-0 bottom-0 w-16 bg-gradient-to-r from-transparent via-white/30 to-transparent battle-bar-glow"
+                />
+              </div>
 
               {authorPercent > 15 && (
                 <div className="relative z-10 flex items-center gap-1.5 pl-3 text-white font-bold text-xs">
