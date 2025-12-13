@@ -77,12 +77,30 @@ class LLMService:
 
     def _get_content_value(self, content: Dict, field: str) -> Optional[str]:
         """Extract value from content field (handles {field: {value: ...}} structure)"""
-        if not content or field not in content:
+        if not content or not isinstance(content, dict) or field not in content:
             return None
         field_data = content.get(field)
         if isinstance(field_data, dict):
             return field_data.get("value")
         return field_data
+
+    def _parse_review_content(self, review: Dict[str, Any]) -> Dict[str, Any]:
+        """Parse review content, handling both parsed dict and raw JSON string"""
+        content = review.get("content")
+        
+        # If content is already a dict, use it
+        if isinstance(content, dict):
+            return content
+        
+        # If content_json exists and is a string, parse it
+        content_json = review.get("content_json")
+        if content_json and isinstance(content_json, str):
+            try:
+                return json.loads(content_json)
+            except json.JSONDecodeError:
+                return {}
+        
+        return {}
 
     async def summarize_reviews(self, paper_title: str, reviews: List[Dict[str, Any]]) -> Dict[str, Any]:
         """Summarize reviews for a paper"""
@@ -90,7 +108,7 @@ class LLMService:
         reviews_text = ""
         for i, review in enumerate(reviews, 1):
             reviews_text += f"\n--- Review {i} ---\n"
-            content = review.get("content", {})
+            content = self._parse_review_content(review)
 
             if review.get("rating"):
                 reviews_text += f"Rating: {review['rating']}\n"
