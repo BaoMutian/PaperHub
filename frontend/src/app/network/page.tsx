@@ -56,7 +56,6 @@ export default function NetworkPage() {
   const [minCollaborations, setMinCollaborations] = useState(3)
   const [is3D, setIs3D] = useState(false)
   const [isFullscreen, setIsFullscreen] = useState(false)
-  const [isMounted, setIsMounted] = useState(false)  // Track client-side mount
   const containerRef = useRef<HTMLDivElement>(null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const fgRef = useRef<any>(null)
@@ -65,11 +64,6 @@ export default function NetworkPage() {
   const [hoveredNode, setHoveredNode] = useState<ForceGraphNode | null>(null)
   const mousePosRef = useRef({ x: 0, y: 0 })
   const tooltipRef = useRef<HTMLDivElement>(null)
-  
-  // Ensure component is mounted on client before rendering 3D
-  useEffect(() => {
-    setIsMounted(true)
-  }, [])
   
   useEffect(() => {
     setLoading(true)
@@ -398,28 +392,22 @@ export default function NetworkPage() {
           ) : network && network.nodes.length > 0 ? (
             <>
               {is3D ? (
-                isMounted ? (
-                  <ForceGraph3D
-                    graphData={graphData}
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    nodeLabel={(node: any) => `${node.name}\n合作者: ${node.degree} | 论文: ${node.totalPapers}`}
-                    nodeColor="color"
-                    nodeVal="val"
-                    nodeRelSize={1}
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    linkWidth={linkWidth as any}
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    linkColor={linkColor as any}
-                    linkOpacity={0.6}
-                    backgroundColor="#000000"
-                    showNavInfo={false}
-                    nodeResolution={16}
-                  />
-                ) : (
-                  <div className="h-full flex items-center justify-center">
-                    <Loader2 className="w-8 h-8 animate-spin text-violet-400" />
-                  </div>
-                )
+                <ForceGraph3D
+                  graphData={graphData}
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  nodeLabel={(node: any) => `${node.name}\n合作者: ${node.degree} | 论文: ${node.totalPapers}`}
+                  nodeColor="color"
+                  nodeVal="val"
+                  nodeRelSize={1}
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  linkWidth={linkWidth as any}
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  linkColor={linkColor as any}
+                  linkOpacity={0.6}
+                  backgroundColor="#000000"
+                  showNavInfo={false}
+                  nodeResolution={16}
+                />
               ) : (
                 <ForceGraph2D
                   ref={fgRef}
