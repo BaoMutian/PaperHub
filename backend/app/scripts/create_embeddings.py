@@ -108,13 +108,14 @@ class EmbeddingCreator:
             return await result.data()
 
     async def get_reviews_without_embedding(self, limit: int = 1000) -> tuple:
-        """Get reviews that don't have embeddings yet.
-        Returns: (processed_reviews, skipped_ids) - skipped_ids are reviews without extractable text
+        """Get official reviews (with summary) that don't have embeddings yet.
+        Returns: (processed_reviews, skipped_ids) - skipped_ids are reviews without summary
         """
         query = """
         MATCH (r:Review)
         WHERE r.content_embedding IS NULL 
           AND r.content_json IS NOT NULL AND r.content_json <> ''
+          AND r.review_type = 'official_review'
         RETURN r.id as id, r.content_json as content_json
         LIMIT $limit
         """
@@ -125,7 +126,7 @@ class EmbeddingCreator:
             if not data:
                 return [], []
 
-            # Extract text from content_json
+            # Extract text from content_json - focus on summary and key review fields
             import json
             processed = []
             skipped_ids = []
@@ -138,25 +139,28 @@ class EmbeddingCreator:
                 if content_json:
                     try:
                         content = json.loads(content_json)
-                        # Extract text from various fields (expanded list)
-                        texts = []
-                        for key in ['summary', 'strengths', 'weaknesses', 'questions',
-                                    'comment', 'review', 'strengths & weaknesses', 'metareview',
-                                    'main_review']:
-                            val = content.get(key)
-                            if val is None:
-                                continue
-                            if isinstance(val, dict):
-                                val = val.get('value', '')
-                            if val and str(val).strip():
-                                texts.append(str(val))
-                        extracted_text = ' '.join(texts)
+                        # Only extract summary (required) + optional strengths/weaknesses
+                        summary = content.get('summary')
+                        if isinstance(summary, dict):
+                            summary = summary.get('value', '')
+                        
+                        if summary and str(summary).strip():
+                            texts = [str(summary)]
+                            # Optionally add strengths/weaknesses for richer embedding
+                            for key in ['strengths', 'weaknesses', 'strengths_and_weaknesses']:
+                                val = content.get(key)
+                                if val is None:
+                                    continue
+                                if isinstance(val, dict):
+                                    val = val.get('value', '')
+                                if val and str(val).strip():
+                                    texts.append(str(val))
+                            extracted_text = ' '.join(texts)
                     except json.JSONDecodeError:
                         pass
 
-                if extracted_text and extracted_text.strip() and len(extracted_text.strip()) > 10:
-                    processed.append(
-                        {'id': review_id, 'content': extracted_text})
+                if extracted_text and len(extracted_text.strip()) > 20:
+                    processed.append({'id': review_id, 'content': extracted_text})
                 else:
                     skipped_ids.append(review_id)
 
