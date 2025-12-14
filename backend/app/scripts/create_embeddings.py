@@ -112,14 +112,38 @@ class EmbeddingCreator:
         query = """
         MATCH (r:Review)
         WHERE r.content_embedding IS NULL 
-          AND (r.summary IS NOT NULL OR r.strengths IS NOT NULL OR r.weaknesses IS NOT NULL)
-        RETURN r.id as id, 
-               coalesce(r.summary, '') + ' ' + coalesce(r.strengths, '') + ' ' + coalesce(r.weaknesses, '') as content
+          AND r.content_json IS NOT NULL AND r.content_json <> ''
+        RETURN r.id as id, r.content_json as content_json
         LIMIT $limit
         """
         async with self.driver.session() as session:
             result = await session.run(query, {"limit": limit})
-            return await result.data()
+            data = await result.data()
+
+            # Extract text from content_json
+            import json
+            processed = []
+            for item in data:
+                content_json = item.get('content_json', '')
+                if content_json:
+                    try:
+                        content = json.loads(content_json)
+                        # Extract text from various fields
+                        texts = []
+                        for key in ['summary', 'strengths', 'weaknesses', 'questions',
+                                    'comment', 'review', 'strengths & weaknesses', 'metareview']:
+                            val = content.get(key, {})
+                            if isinstance(val, dict):
+                                val = val.get('value', '')
+                            if val:
+                                texts.append(str(val))
+                        text = ' '.join(texts)
+                        if text.strip():
+                            processed.append(
+                                {'id': item['id'], 'content': text})
+                    except json.JSONDecodeError:
+                        pass
+            return processed
 
     async def update_paper_embeddings(self, papers: List[Dict]):
         """Generate and store embeddings for papers"""
