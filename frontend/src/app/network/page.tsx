@@ -13,10 +13,26 @@ const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), {
   ssr: false,
   loading: () => <div className="flex items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin text-purple-500" /></div>
 })
-const ForceGraph3D = dynamic(() => import("react-force-graph-3d"), { 
-  ssr: false,
-  loading: () => <div className="flex items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin text-purple-500" /></div>
-})
+
+// 3D component with error handling - only load when actually needed
+const ForceGraph3D = dynamic(
+  () => import("react-force-graph-3d").catch(() => {
+    // Return a fallback component if 3D fails to load
+    return {
+      default: () => (
+        <div className="h-full flex flex-col items-center justify-center text-slate-400">
+          <Box className="w-12 h-12 mb-4 opacity-50" />
+          <p className="text-lg font-medium">3D 视图暂不可用</p>
+          <p className="text-sm mt-2">您的浏览器可能不支持 WebGL</p>
+        </div>
+      )
+    }
+  }),
+  { 
+    ssr: false,
+    loading: () => <div className="flex items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin text-purple-500" /></div>
+  }
+)
 
 // Extended node type for force graph
 interface ForceGraphNode {
