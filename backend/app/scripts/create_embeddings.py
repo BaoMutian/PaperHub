@@ -107,8 +107,10 @@ class EmbeddingCreator:
             result = await session.run(query, {"limit": limit})
             return await result.data()
 
-    async def get_reviews_without_embedding(self, limit: int = 1000) -> List[Dict]:
-        """Get reviews that don't have embeddings yet"""
+    async def get_reviews_without_embedding(self, limit: int = 1000) -> tuple:
+        """Get reviews that don't have embeddings yet.
+        Returns: (processed_reviews, skipped_ids) - skipped_ids are reviews without extractable text
+        """
         query = """
         MATCH (r:Review)
         WHERE r.content_embedding IS NULL 
@@ -120,30 +122,45 @@ class EmbeddingCreator:
             result = await session.run(query, {"limit": limit})
             data = await result.data()
 
+            if not data:
+                return [], []
+
             # Extract text from content_json
             import json
             processed = []
+            skipped_ids = []
+            
             for item in data:
                 content_json = item.get('content_json', '')
+                review_id = item['id']
+                extracted_text = None
+                
                 if content_json:
                     try:
                         content = json.loads(content_json)
-                        # Extract text from various fields
+                        # Extract text from various fields (expanded list)
                         texts = []
                         for key in ['summary', 'strengths', 'weaknesses', 'questions',
-                                    'comment', 'review', 'strengths & weaknesses', 'metareview']:
-                            val = content.get(key, {})
+                                    'comment', 'review', 'strengths & weaknesses', 'metareview',
+                                    'main_review', 'contribution', 'presentation', 'rating',
+                                    'soundness', 'confidence', 'decision']:
+                            val = content.get(key)
+                            if val is None:
+                                continue
                             if isinstance(val, dict):
                                 val = val.get('value', '')
-                            if val:
+                            if val and str(val).strip():
                                 texts.append(str(val))
-                        text = ' '.join(texts)
-                        if text.strip():
-                            processed.append(
-                                {'id': item['id'], 'content': text})
+                        extracted_text = ' '.join(texts)
                     except json.JSONDecodeError:
                         pass
-            return processed
+                
+                if extracted_text and extracted_text.strip() and len(extracted_text.strip()) > 10:
+                    processed.append({'id': review_id, 'content': extracted_text})
+                else:
+                    skipped_ids.append(review_id)
+            
+            return processed, skipped_ids
 
     async def update_paper_embeddings(self, papers: List[Dict]):
         """Generate and store embeddings for papers"""
@@ -235,10 +252,28 @@ class EmbeddingCreator:
 
         # Process reviews
         total_reviews = 0
+        total_skipped = 0
+        batch_fetch_size_reviews = 5000  # 增大批量获取数量
+        
         while True:
-            reviews = await self.get_reviews_without_embedding(limit=batch_fetch_size)
+            reviews, skipped_ids = await self.get_reviews_without_embedding(limit=batch_fetch_size_reviews)
+            
+            # Mark skipped reviews with empty embedding to avoid re-fetching
+            if skipped_ids:
+                skip_query = """
+                UNWIND $ids as id
+                MATCH (r:Review {id: id})
+                SET r.content_embedding = []
+                """
+                async with self.driver.session() as session:
+                    await session.run(skip_query, {"ids": skipped_ids})
+                total_skipped += len(skipped_ids)
+                logger.info(f"Skipped {len(skipped_ids)} reviews without extractable text (total skipped: {total_skipped})")
+            
             if not reviews:
-                break
+                if not skipped_ids:  # No more reviews to process
+                    break
+                continue  # Continue to process more skipped reviews
 
             count = await self.update_review_embeddings(reviews)
             total_reviews += count
@@ -254,6 +289,7 @@ class EmbeddingCreator:
         logger.info(f"{'='*50}")
         logger.info(f"Paper embeddings created: {total_papers}")
         logger.info(f"Review embeddings created: {total_reviews}")
+        logger.info(f"Reviews skipped (no text): {total_skipped}")
 
 
 async def main():
