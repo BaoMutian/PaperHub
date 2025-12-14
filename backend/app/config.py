@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     # CPU 服务器推荐使用轻量模型，GPU 可用 Qwen3-Embedding
     # 轻量选项: "sentence-transformers/all-MiniLM-L6-v2" (dim=384, ~23MB, 快)
     # 高质量选项: "Qwen/Qwen3-Embedding-0.6B" (dim=1024, ~1.2GB, 需GPU)
-    embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
+    embedding_model: str = "Qwen/Qwen3-Embedding-0.6B"
     embedding_dimension: int = 384
 
     # Application Settings

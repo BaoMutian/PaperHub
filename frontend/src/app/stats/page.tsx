@@ -269,16 +269,16 @@ export default function StatsPage() {
       
       <div className="py-12 px-4">
         <div className="max-w-7xl mx-auto">
-          {/* Header */}
+        {/* Header */}
           <div className="mb-12 text-center">
             <h1 className="text-4xl sm:text-5xl font-bold mb-4 bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent">
               数据统计中心
-            </h1>
+          </h1>
             <p className="text-lg text-white/50 max-w-2xl mx-auto">
               ICLR · ICML · NeurIPS 2025 三大 AI 顶会论文全景数据
-            </p>
-          </div>
-          
+          </p>
+        </div>
+        
           {/* Overall Stats - 4 Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
             <StatCard 
@@ -309,7 +309,7 @@ export default function StatsPage() {
               color="text-amber-400"
               gradient="from-amber-500/30"
             />
-          </div>
+              </div>
           
           {/* Charts Row 1 - 论文分布 & 接收率 */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
@@ -348,10 +348,10 @@ export default function StatsPage() {
                       />
                     </PieChart>
                   </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
-            
+              </div>
+            </CardContent>
+          </Card>
+          
             {/* 接收率对比柱状图 */}
             <Card className="border-white/10 bg-white/[0.02] backdrop-blur-sm">
               <CardHeader>
@@ -386,12 +386,12 @@ export default function StatsPage() {
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded bg-rose-500" />
                     <span className="text-white/60">拒绝</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-          
+              </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        
           {/* Charts Row 2 - 状态分布 & 总体接收率 */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             {/* 接收状态分布 */}
@@ -428,11 +428,11 @@ export default function StatsPage() {
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded bg-blue-500" />
                     <span className="text-white/60">Poster</span>
-                  </div>
                 </div>
-              </CardContent>
-            </Card>
-            
+              </div>
+            </CardContent>
+          </Card>
+          
             {/* 总体接收率环形图 */}
             <Card className="border-white/10 bg-white/[0.02] backdrop-blur-sm">
               <CardHeader>
@@ -475,11 +475,11 @@ export default function StatsPage() {
                         {data.acceptance_rate}%
                       </div>
                       <div className="text-xs text-white/40">{conf}</div>
-                    </div>
-                  ))}
                 </div>
-              </CardContent>
-            </Card>
+                  ))}
+              </div>
+            </CardContent>
+          </Card>
           </div>
           
           {/* 热门关键词 */}
@@ -580,23 +580,23 @@ export default function StatsPage() {
               </div>
             </CardContent>
           </Card>
-          
+        
           {/* 各会议详情卡片 */}
           <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
             <Flame className="w-6 h-6 text-orange-400" />
             各会议详情
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {Object.entries(stats.by_conference).map(([conf, data]) => {
+          {Object.entries(stats.by_conference).map(([conf, data]) => {
               const colors = CONFERENCE_COLORS[conf] || CONFERENCE_COLORS.ICLR
               const statusDist = stats.status_distribution?.[conf] || { oral: 0, spotlight: 0, poster: 0 }
               const maxRating = conf === "ICLR" ? 10 : conf === "ICML" ? 5 : 6
-              
-              return (
+            
+            return (
                 <Card key={conf} className="overflow-hidden border-white/10 bg-white/[0.02] backdrop-blur-sm group hover:border-white/20 transition-all">
                   <div className="h-1.5 w-full" style={{ background: `linear-gradient(to right, ${colors.primary}, ${colors.secondary})` }} />
                   <CardHeader className="pb-2">
-                    <CardTitle className="flex items-center justify-between">
+                  <CardTitle className="flex items-center justify-between">
                       <span className="text-xl">{conf} <span className="text-white/30 text-base font-normal">2025</span></span>
                       <Badge 
                         className="border"
@@ -606,41 +606,41 @@ export default function StatsPage() {
                           color: colors.secondary
                         }}
                       >
-                        接收率 {data.acceptance_rate}%
-                      </Badge>
-                    </CardTitle>
-                  </CardHeader>
+                      接收率 {data.acceptance_rate}%
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
                   <CardContent className="space-y-5">
                     {/* 主要统计 */}
-                    <div className="grid grid-cols-3 gap-2 text-center">
+                  <div className="grid grid-cols-3 gap-2 text-center">
                       <div className="p-3 rounded-lg bg-white/[0.03]">
                         <div className="text-2xl font-bold text-white tabular-nums">{data.total.toLocaleString()}</div>
                         <div className="text-[10px] text-white/40 uppercase tracking-wider mt-1">投稿</div>
-                      </div>
+                    </div>
                       <div className="p-3 rounded-lg bg-emerald-500/10">
                         <div className="text-2xl font-bold text-emerald-400 tabular-nums">{data.accepted.toLocaleString()}</div>
                         <div className="text-[10px] text-white/40 uppercase tracking-wider mt-1">接收</div>
-                      </div>
+                    </div>
                       <div className="p-3 rounded-lg bg-rose-500/10">
                         <div className="text-2xl font-bold text-rose-400 tabular-nums">{data.rejected.toLocaleString()}</div>
                         <div className="text-[10px] text-white/40 uppercase tracking-wider mt-1">拒绝</div>
-                      </div>
                     </div>
-                    
+                  </div>
+                  
                     {/* 进度条 */}
-                    <div className="space-y-2">
+                  <div className="space-y-2">
                       <div className="h-2.5 rounded-full bg-white/5 overflow-hidden flex">
-                        <div 
+                      <div 
                           className="h-full bg-emerald-500 transition-all duration-700"
                           style={{ width: `${data.total > 0 ? (data.accepted / data.total) * 100 : 0}%` }}
-                        />
-                        <div 
+                      />
+                      <div 
                           className="h-full bg-rose-500 transition-all duration-700"
                           style={{ width: `${data.total > 0 ? (data.rejected / data.total) * 100 : 0}%` }}
-                        />
-                      </div>
+                      />
                     </div>
-                    
+                  </div>
+                  
                     {/* 接收状态细分 */}
                     <div className="grid grid-cols-3 gap-2 text-center">
                       <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
@@ -650,19 +650,19 @@ export default function StatsPage() {
                       <div className="p-2 rounded-lg bg-violet-500/10 border border-violet-500/20">
                         <div className="text-lg font-bold text-violet-400 tabular-nums">{statusDist.spotlight}</div>
                         <div className="text-[10px] text-violet-300/60">Spotlight</div>
-                      </div>
+                    </div>
                       <div className="p-2 rounded-lg bg-blue-500/10 border border-blue-500/20">
                         <div className="text-lg font-bold text-blue-400 tabular-nums">{statusDist.poster}</div>
                         <div className="text-[10px] text-blue-300/60">Poster</div>
-                      </div>
                     </div>
+                  </div>
                     
-                  </CardContent>
-                </Card>
-              )
-            })}
-          </div>
+                </CardContent>
+              </Card>
+            )
+          })}
         </div>
+                      </div>
       </div>
     </div>
   )
