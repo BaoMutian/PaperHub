@@ -7,7 +7,6 @@ const nextConfig: NextConfig = {
   },
   // Fix Three.js compatibility with standalone mode
   transpilePackages: ['three', 'react-force-graph-3d'],
-  serverExternalPackages: ['three'],
 };
 
 export default nextConfig;
