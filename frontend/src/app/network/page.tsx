@@ -9,8 +9,14 @@ import { Network, Users, GitBranch, Loader2, Maximize2, Minimize2, Box, Grid2x2,
 import dynamic from "next/dynamic"
 
 // Dynamic imports for Force Graph (client-side only)
-const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), { ssr: false })
-const ForceGraph3D = dynamic(() => import("react-force-graph-3d"), { ssr: false })
+const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), { 
+  ssr: false,
+  loading: () => <div className="flex items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin text-purple-500" /></div>
+})
+const ForceGraph3D = dynamic(() => import("react-force-graph-3d"), { 
+  ssr: false,
+  loading: () => <div className="flex items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin text-purple-500" /></div>
+})
 
 // Extended node type for force graph
 interface ForceGraphNode {

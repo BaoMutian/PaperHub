@@ -143,7 +143,7 @@ class EmbeddingCreator:
                         summary = content.get('summary')
                         if isinstance(summary, dict):
                             summary = summary.get('value', '')
-                        
+
                         if summary and str(summary).strip():
                             texts = [str(summary)]
                             # Optionally add strengths/weaknesses for richer embedding
@@ -160,7 +160,8 @@ class EmbeddingCreator:
                         pass
 
                 if extracted_text and len(extracted_text.strip()) > 20:
-                    processed.append({'id': review_id, 'content': extracted_text})
+                    processed.append(
+                        {'id': review_id, 'content': extracted_text})
                 else:
                     skipped_ids.append(review_id)
 
